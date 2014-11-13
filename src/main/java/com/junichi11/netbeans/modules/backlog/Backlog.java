@@ -74,7 +74,6 @@ public final class Backlog {
     private BacklogIssueStatusProvider issueStatusProvider;
     private BacklogIssuePriorityProvider issuePriorityProvider;
     private BacklogIssueScheduleProvider issueScheduleProvider;
-    private BacklogIssueFinder issueFinder;
     private BacklogQueryProvider queryProvider;
     private BacklogRepositoryProvider repositoryProvider;
     private IssueNode.ChangesProvider<BacklogIssue> changesProvider;
@@ -128,11 +127,8 @@ public final class Backlog {
         return issueScheduleProvider;
     }
 
-    public BacklogIssueFinder getIssueFinder() {
-        if (issueFinder == null) {
-            issueFinder = new BacklogIssueFinder();
-        }
-        return issueFinder;
+    public BacklogIssueFinder getIssueFinder(String projectKey) {
+        return new BacklogIssueFinder(projectKey);
     }
 
     public BacklogQueryProvider getQueryProvider() {

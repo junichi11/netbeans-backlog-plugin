@@ -39,54 +39,75 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.backlog;
+package com.junichi11.netbeans.modules.backlog.issue;
 
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepositoryManager;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import org.netbeans.modules.bugtracking.api.Repository;
-import org.netbeans.modules.bugtracking.spi.BugtrackingConnector;
-import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
-import org.openide.util.NbBundle;
+import org.junit.After;
+import org.junit.AfterClass;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  *
  * @author junichi11
  */
-@BugtrackingConnector.Registration(
-        id = BacklogConnector.ID,
-        displayName = "#LBL_DisplayName",
-        tooltip = "#LBL_Tooltip",
-        iconPath = "com/junichi11/netbeans/modules/backlog/resources/icon_16.png"
-)
-@NbBundle.Messages({
-    "LBL_DisplayName=Backlog",
-    "LBL_Tooltip=Backlog"
-})
-public class BacklogConnector implements BugtrackingConnector {
+public class BacklogIssueFinderTest {
 
-    public static final String ID = "com.junichi11.netbeans.modules.backlog"; // NOI18N
+    private BacklogIssueFinder finder;
 
-    @Override
-    public Repository createRepository() {
-        BacklogRepository repository = new BacklogRepository();
-        return createRepository(repository);
+    public BacklogIssueFinderTest() {
     }
 
-    @Override
-    public Repository createRepository(RepositoryInfo info) {
-        BacklogRepository repository = new BacklogRepository(info);
-        return createRepository(repository);
+    @BeforeClass
+    public static void setUpClass() {
     }
 
-    private Repository createRepository(BacklogRepository repository) {
-        BacklogRepositoryManager.getInstance().add(repository);
-        Backlog backlog = Backlog.getInstance();
-        return backlog.getBugtrackingSupport().createRepository(
-                repository,
-                backlog.getIssueStatusProvider(),
-                backlog.getIssueScheduleProvider(),
-                backlog.getIssuePriorityProvider(),
-                backlog.getIssueFinder(repository.getProjectKey()));
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
+        finder = new BacklogIssueFinder("TEST");
+    }
+
+    @After
+    public void tearDown() {
+    }
+
+    /**
+     * Test of getIssueSpans method, of class BacklogIssueFinder.
+     */
+    @Test
+    public void testGetIssueSpans() {
+        int[] result = finder.getIssueSpans("TEST-7");
+        assertArrayEquals(new int[]{0, 6}, result);
+        result = finder.getIssueSpans("[[TEST-7]]");
+        assertArrayEquals(new int[]{2, 8}, result);
+        result = finder.getIssueSpans("It's [[TEST-7]] and TEST-15");
+        assertArrayEquals(new int[]{7, 13, 20, 27}, result);
+        result = finder.getIssueSpans("TEST-1TEST-2");
+        assertArrayEquals(new int[]{0, 6, 6, 12}, result);
+
+        result = finder.getIssueSpans("[[test-7]]");
+        assertArrayEquals(new int[0], result);
+        result = finder.getIssueSpans("TEST100");
+        assertArrayEquals(new int[0], result);
+
+        finder = new BacklogIssueFinder(null);
+        result = finder.getIssueSpans("TEST-1");
+        assertArrayEquals(new int[0], result);
+    }
+
+    /**
+     * Test of getIssueId method, of class BacklogIssueFinder.
+     */
+    @Test
+    public void testGetIssueId() {
+        assertEquals("1", finder.getIssueId("TEST-1"));
+        assertEquals("", finder.getIssueId("TEST1"));
     }
 
 }

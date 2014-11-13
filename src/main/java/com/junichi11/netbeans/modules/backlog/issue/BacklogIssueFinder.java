@@ -41,6 +41,9 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue;
 
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.netbeans.modules.bugtracking.spi.IssueFinder;
 
 /**
@@ -49,18 +52,78 @@ import org.netbeans.modules.bugtracking.spi.IssueFinder;
  */
 public class BacklogIssueFinder implements IssueFinder {
 
+    private final Pattern issuePattern;
     private static final int[] EMPTY_INT_ARRAY = new int[0];
 
+    public BacklogIssueFinder(String projectKey) {
+        if (projectKey != null) {
+            issuePattern = Pattern.compile(projectKey + "-\\d+"); // NOI18N
+        } else {
+            issuePattern = null;
+        }
+    }
+
     @Override
-    public int[] getIssueSpans(CharSequence cs) {
-        // TODO implement
+    public int[] getIssueSpans(CharSequence text) {
+        if (issuePattern == null) {
+            return EMPTY_INT_ARRAY;
+        }
+        Matcher matcher = issuePattern.matcher(text);
+        int startPosition = 0;
+        int textLength = text.length();
+        ArrayList<IssueSpan> issueSpans = new ArrayList<>();
+        // find
+        while (startPosition < textLength) {
+            if (!matcher.find(startPosition)) {
+                break;
+            }
+            startPosition = matcher.end();
+            issueSpans.add(new IssueSpan(matcher.start(), matcher.end()));
+        }
+
+        // to int array
+        if (!issueSpans.isEmpty()) {
+            int[] spans = new int[issueSpans.size() * 2];
+            for (int i = 0; i < issueSpans.size(); i++) {
+                IssueSpan issueSpan = issueSpans.get(i);
+                int j = 2 * i;
+                spans[j] = issueSpan.getStart();
+                spans[j + 1] = issueSpan.getEnd();
+            }
+            return spans;
+        }
         return EMPTY_INT_ARRAY;
     }
 
     @Override
-    public String getIssueId(String string) {
-        // TODO implement
-        return "";
+    public String getIssueId(String issueHyperlinkText) {
+        int indexOfHyphen = issueHyperlinkText.indexOf("-"); // NOI18N
+        if (indexOfHyphen != -1) {
+            int startPosition = indexOfHyphen + 1;
+            int endPosition = issueHyperlinkText.length();
+            if (startPosition <= endPosition) {
+                return issueHyperlinkText.substring(startPosition, endPosition);
+            }
+        }
+        return ""; // NOI18N
     }
 
+    private static final class IssueSpan {
+
+        private final int start;
+        private final int end;
+
+        public IssueSpan(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public int getStart() {
+            return start;
+        }
+
+        public int getEnd() {
+            return end;
+        }
+    }
 }
