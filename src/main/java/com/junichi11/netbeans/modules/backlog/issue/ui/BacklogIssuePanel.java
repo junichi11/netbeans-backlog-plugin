@@ -1360,16 +1360,28 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
 
             @Override
             public void run() {
-                refreshLinkButton.setEnabled(false);
-                // show progress bar
-                ProgressHandle handle = ProgressHandleFactory.createHandle("Refreshing..."); // NOI18N
-                try {
-                    handle.start();
-                    issue.refresh();
-                    update(true);
-                } finally {
-                    refreshLinkButton.setEnabled(true);
-                    handle.finish();
+                // #3
+                Runnable refresh = new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshLinkButton.setEnabled(false);
+                        // show progress bar
+                        ProgressHandle handle = ProgressHandleFactory.createHandle("Refreshing..."); // NOI18N
+                        try {
+                            handle.start();
+                            issue.refresh();
+                            update(true);
+                        } finally {
+                            refreshLinkButton.setEnabled(true);
+                            handle.finish();
+                        }
+                    }
+                };
+
+                if (SwingUtilities.isEventDispatchThread()) {
+                    refresh.run();
+                } else {
+                    SwingUtilities.invokeLater(refresh);
                 }
             }
         });

@@ -73,7 +73,9 @@ public final class CreatedByMeQuery extends BacklogQuery implements DefaultQuery
         BacklogData data = BacklogData.create(getRepository());
         User myself = data.getMyself();
         if (myself != null) {
-            issuesParams = issuesParams.createdUserIds(Collections.singletonList(myself.getId()));
+            // #2 exclude the closed status
+            issuesParams = issuesParams.createdUserIds(Collections.singletonList(myself.getId()))
+                    .statuses(QueryUtils.NOT_CLOSED_STATUS);
         }
         return issuesParams;
     }

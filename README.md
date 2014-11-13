@@ -16,13 +16,13 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 ## Add Backlog repository
 
 1. Open the task window : Windows > Task
-2. Add task
+2. Click add repository icon
 3. Select the Backlog Connector
 4. Input your space id and API key
-5. Press Connect button
+5. Click Connect button
 6. Select your project
 7. Input display name
-8. Press OK button
+8. Click OK button
 
 ## Default queries
 
