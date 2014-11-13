@@ -66,6 +66,7 @@ import javax.swing.DefaultListModel;
 import com.junichi11.netbeans.modules.backlog.Backlog.FileType;
 import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
+import com.junichi11.netbeans.modules.backlog.query.QueryUtils;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.ui.AttributesListCellRenderer;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
@@ -92,10 +93,7 @@ public class GeneralPanel extends javax.swing.JPanel {
     private static final List<Long> NOT_CLOSED_STATUS = new ArrayList<>(StatusType.values().length);
 
     static {
-        for (StatusType value : StatusType.values()) {
-            if (value == StatusType.Closed) {
-                continue;
-            }
+        for (StatusType value : QueryUtils.NOT_CLOSED_STATUS) {
             long id = value.getIntValue();
             NOT_CLOSED_STATUS.add(id);
         }

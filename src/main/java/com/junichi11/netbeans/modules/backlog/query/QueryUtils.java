@@ -41,60 +41,22 @@
  */
 package com.junichi11.netbeans.modules.backlog.query;
 
-import com.junichi11.netbeans.modules.backlog.BacklogData;
-import com.nulabinc.backlog4j.api.option.GetIssuesParams;
-import java.util.Collections;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
-import com.nulabinc.backlog4j.User;
-import org.openide.util.NbBundle;
+import com.nulabinc.backlog4j.Issue.StatusType;
+import java.util.Arrays;
+import java.util.List;
 
-public final class AssignedToMeQuery extends BacklogQuery implements DefaultQuery {
+/**
+ *
+ * @author junichi11
+ */
+public final class QueryUtils {
 
-    public AssignedToMeQuery(BacklogRepository repository) {
-        super(repository);
-    }
+    public static final List<StatusType> NOT_CLOSED_STATUS = Arrays.asList(
+            StatusType.Resolved,
+            StatusType.InProgress,
+            StatusType.Open);
 
-    @NbBundle.Messages({
-        "AssignedToMeQuery.displayName=Assigned to me"
-    })
-    @Override
-    public String getDisplayName() {
-        return Bundle.AssignedToMeQuery_displayName();
-    }
-
-    @Override
-    public String getTooltip() {
-        return getDisplayName();
-    }
-
-    @Override
-    protected GetIssuesParams getGetIssuesParams(GetIssuesParams issuesParams) {
-        BacklogData data = BacklogData.create(getRepository());
-        User myself = data.getMyself();
-        if (myself != null) {
-            // #2 exclude the closed status
-            issuesParams = issuesParams.assignerIds(Collections.singletonList(myself.getId()))
-                    .statuses(QueryUtils.NOT_CLOSED_STATUS);
-        }
-        return issuesParams;
-    }
-
-    @Override
-    public boolean canRename() {
-        return false;
-    }
-
-    @Override
-    public boolean canRemove() {
-        // XXX delete action is not set to disable
-        return false;
-    }
-
-    @Override
-    public void remove() {
-        // XXX delete action is not set to disable
-        UiUtils.showOptions();
+    private QueryUtils() {
     }
 
 }
