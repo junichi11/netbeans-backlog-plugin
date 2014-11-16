@@ -596,9 +596,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     }
 
     private void setResolutions(BacklogData data) {
-        if (issue.isNew()) {
-            resolutionComboBox.setVisible(false);
-        }
+        resolutionComboBox.setVisible(!issue.isNew());
         List<Resolution> resolutions = data.getResolutions();
         resolutionComboBoxModel.removeAllElements();
         resolutionComboBoxModel.addElement(new ResolutionJSONImpl());
