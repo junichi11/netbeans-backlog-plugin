@@ -399,6 +399,7 @@ public final class BacklogIssue {
         }
         if (createdIssue != null) {
             setIssue(createdIssue);
+            repository.addIssue(this);
             fireChange();
             fireDataChange();
 //            fireStatusChange();
