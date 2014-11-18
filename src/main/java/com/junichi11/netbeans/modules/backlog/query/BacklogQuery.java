@@ -58,6 +58,8 @@ import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.spi.QueryProvider;
 
@@ -94,6 +96,7 @@ public class BacklogQuery {
     private String dueDateUntil;
     private boolean attachment;
     private boolean sharedFile;
+    private static final Logger LOGGER = Logger.getLogger(BacklogQuery.class.getName());
 
     public BacklogQuery(BacklogRepository repository) {
         this(repository, null, null);
@@ -162,7 +165,7 @@ public class BacklogQuery {
     public Collection<BacklogIssue> getIssues() {
         GetIssuesParams issuesParams = createGetIssuesParams();
         if (issuesParams == null) {
-            Collections.emptyList();
+            return Collections.emptyList();
         }
         return getIssues(getGetIssuesParams(issuesParams));
     }
@@ -195,6 +198,7 @@ public class BacklogQuery {
     private GetIssuesParams createGetIssuesParams() {
         Project project = repository.getProject();
         if (project == null) {
+            LOGGER.log(Level.WARNING, "Can't get the project({0})", repository.getProjectKey()); // NOI18N
             return null;
         }
         return new GetIssuesParams(Collections.singletonList(project.getId()));
