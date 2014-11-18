@@ -64,6 +64,7 @@ final class BacklogIssueController implements IssueController, ChangeListener {
     public BacklogIssueController(BacklogIssue issue) {
         getPanel().setIssue(issue);
         getPanel().update(true);
+        getPanel().scrollToTop();
     }
 
     @Override

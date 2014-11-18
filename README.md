@@ -29,6 +29,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 - Assigned to me
 - Created by me
 
+Statuses other than Closed are shown.
 If you don't want to use thses, you can disable these in Options (Tools > Options > Team > Backlog).
 
 ## Resources

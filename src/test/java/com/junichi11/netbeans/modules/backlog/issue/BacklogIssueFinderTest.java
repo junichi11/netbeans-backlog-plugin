@@ -39,64 +39,75 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.backlog.utils;
+package com.junichi11.netbeans.modules.backlog.issue;
 
-import java.util.List;
+import org.junit.After;
+import org.junit.AfterClass;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  *
  * @author junichi11
  */
-public final class StringUtils {
+public class BacklogIssueFinderTest {
 
-    private StringUtils() {
+    private BacklogIssueFinder finder;
+
+    public BacklogIssueFinderTest() {
+    }
+
+    @BeforeClass
+    public static void setUpClass() {
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
+        finder = new BacklogIssueFinder("TEST");
+    }
+
+    @After
+    public void tearDown() {
     }
 
     /**
-     * Check whether stirng is empty (empty or null).
-     *
-     * @param text target text
-     * @return {@code true} string is empty or {@code null}, otherwise
-     * {@code false}
+     * Test of getIssueSpans method, of class BacklogIssueFinder.
      */
-    public static boolean isEmpty(String text) {
-        return text == null || text.isEmpty();
+    @Test
+    public void testGetIssueSpans() {
+        int[] result = finder.getIssueSpans("TEST-7");
+        assertArrayEquals(new int[]{0, 6}, result);
+        result = finder.getIssueSpans("[[TEST-7]]");
+        assertArrayEquals(new int[]{2, 8}, result);
+        result = finder.getIssueSpans("It's [[TEST-7]] and TEST-15");
+        assertArrayEquals(new int[]{7, 13, 20, 27}, result);
+        result = finder.getIssueSpans("TEST-1TEST-2");
+        assertArrayEquals(new int[]{0, 6, 6, 12}, result);
+
+        result = finder.getIssueSpans("[[test-7]]");
+        assertArrayEquals(new int[0], result);
+        result = finder.getIssueSpans("TEST100");
+        assertArrayEquals(new int[0], result);
+
+        finder = new BacklogIssueFinder(null);
+        result = finder.getIssueSpans("TEST-1");
+        assertArrayEquals(new int[0], result);
     }
 
     /**
-     * Check whether all texts of list is empty.
-     *
-     * @param texts target texts
-     * @return {@code true} all of strings is empty or null, otherwise
-     * {@code false}
+     * Test of getIssueId method, of class BacklogIssueFinder.
      */
-    public static boolean isEmpty(List<String> texts) {
-        for (String text : texts) {
-            if (!isEmpty(text)) {
-                return false;
-            }
-        }
-        return true;
+    @Test
+    public void testGetIssueId() {
+        assertEquals("1", finder.getIssueId("TEST-1"));
+        assertEquals("", finder.getIssueId("TEST1"));
     }
 
-    /**
-     * Convert to quote comment. Add "> " to the start positions of lines.
-     *
-     * @param text
-     * @return quote comment
-     */
-    public static String toQuoteComment(String text) {
-        if (text == null) {
-            return null;
-        }
-        String quoteComment = "> " + text; // NOI18N
-        quoteComment = quoteComment.replaceAll("\n", "\n> "); // NOI18N
-        if (quoteComment.endsWith("\n> ")) { // NOI18N
-            quoteComment = quoteComment.substring(0, quoteComment.length() - 2);
-        }
-        if (!quoteComment.endsWith("\n")) { // NOI18N
-            quoteComment = quoteComment + "\n"; // NOI18N
-        }
-        return quoteComment;
-    }
 }

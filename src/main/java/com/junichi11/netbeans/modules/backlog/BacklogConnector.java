@@ -86,7 +86,7 @@ public class BacklogConnector implements BugtrackingConnector {
                 backlog.getIssueStatusProvider(),
                 backlog.getIssueScheduleProvider(),
                 backlog.getIssuePriorityProvider(),
-                backlog.getIssueFinder());
+                backlog.getIssueFinder(repository.getProjectKey()));
     }
 
 }

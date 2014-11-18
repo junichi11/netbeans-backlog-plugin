@@ -183,6 +183,26 @@ public final class BacklogRepository {
     }
 
     /**
+     * Add BacklogIssue to repository cache.
+     *
+     * @param issue BacklogIssue
+     */
+    public void addIssue(BacklogIssue issue) {
+        if (issue == null) {
+            return;
+        }
+        String keyId = issue.getKeyId();
+        if (StringUtils.isEmpty(keyId)) {
+            return;
+        }
+        BacklogIssue cachedIssue = issueCache.get(keyId);
+        if (cachedIssue != null) {
+            return;
+        }
+        issueCache.put(keyId, issue);
+    }
+
+    /**
      * Get BacklogIssues for specified key ids.
      *
      * @param keyIds issue key ids

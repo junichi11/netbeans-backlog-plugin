@@ -101,4 +101,15 @@ public class StringUtilsTest {
         assertFalse(StringUtils.isEmpty(Arrays.asList("test1", "test2")));
     }
 
+    /**
+     * Test of toQuoteComment method, of class StringUtils.
+     */
+    @Test
+    public void testToQuoteComment() {
+        assertEquals(null, StringUtils.toQuoteComment(null));
+        assertEquals("> test\n", StringUtils.toQuoteComment("test"));
+        assertEquals("> line1\n> line2\n", StringUtils.toQuoteComment("line1\nline2"));
+        assertEquals("> line1\n> line2\n", StringUtils.toQuoteComment("line1\nline2\n"));
+    }
+
 }

@@ -102,6 +102,8 @@ import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT_WITH_TIME;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
@@ -110,6 +112,7 @@ import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Cancellable;
 import org.openide.util.ChangeSupport;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -118,7 +121,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author junichi11
  */
-public class BacklogIssuePanel extends javax.swing.JPanel {
+public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyChangeListener {
 
     private static final long serialVersionUID = 4070385780716024165L;
     private static final String BACKLOG_ISSUE_URL_FORMAT = "https://%s.backlog.jp/view/%s-%s"; // NOI18N
@@ -130,6 +133,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     private final List<Long> attachmentIds = new ArrayList<>();
     private AttachmentsPanel attachmentsPanel;
     private AttachmentsPanel unsubmittedAttachmentsPanel;
+    private CommentsPanel commentsPanel;
     private final ChangeListener attachmentDeletedListener;
 
     // models
@@ -207,10 +211,17 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
         attachmentsPanel = new AttachmentsPanel();
         attachmentsPanel.setAlignmentX(alignmentX);
         mainAttachmentsPanel.add(attachmentsPanel);
+
+        // comments
+        commentsPanel = new CommentsPanel();
+        commentsPanel.addPropertyChangeListener(this);
+        mainCommentsPanel.add(commentsPanel);
     }
 
     public void update(boolean updateComment) {
         assert issue != null;
+        JScrollBar verticalScrollBar = mainScrollPane.getVerticalScrollBar();
+        int value = verticalScrollBar.getValue();
         setSubmitButton();
         if (issue == null) {
             return;
@@ -235,10 +246,16 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
         // comments
         setCommentComponentsEnabled(!issue.isNew());
 
-        scrollToTop();
+        // wait for updating comments
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        verticalScrollBar.setValue(value);
     }
 
-    private void scrollToTop() {
+    public void scrollToTop() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -369,11 +386,11 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     }
 
     private void addComment(IssueComment comment) {
-        commentsPanel.add(new CommentPanel(comment));
+        commentsPanel.addComment(comment);
     }
 
     private void removeAllComments() {
-        commentsPanel.removeAll();
+        commentsPanel.removeAllComments();
     }
 
     private void setChartComponentsEnabled() {
@@ -596,9 +613,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     }
 
     private void setResolutions(BacklogData data) {
-        if (issue.isNew()) {
-            resolutionComboBox.setVisible(false);
-        }
+        resolutionComboBox.setVisible(!issue.isNew());
         List<Resolution> resolutions = data.getResolutions();
         resolutionComboBoxModel.removeAllElements();
         resolutionComboBoxModel.addElement(new ResolutionJSONImpl());
@@ -747,7 +762,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        commentsPanel = new javax.swing.JPanel();
+        mainCommentsPanel = new javax.swing.JPanel();
         mainAttachmentsPanel = new javax.swing.JPanel();
         selectFilesButton = new javax.swing.JButton();
         headerPanel = new javax.swing.JPanel();
@@ -814,7 +829,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
         hoursActualLabel = new javax.swing.JLabel();
         attachmentsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
 
-        commentsPanel.setLayout(new javax.swing.BoxLayout(commentsPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        mainCommentsPanel.setLayout(new javax.swing.BoxLayout(mainCommentsPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
         mainAttachmentsPanel.setLayout(new javax.swing.BoxLayout(mainAttachmentsPanel, javax.swing.BoxLayout.Y_AXIS));
 
@@ -989,7 +1004,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
         commentTextArea.setRows(5);
         commentScrollPane.setViewportView(commentTextArea);
 
-        commentsCollapsibleSectionPanel.setContent(commentsPanel);
+        commentsCollapsibleSectionPanel.setContent(mainCommentsPanel);
         commentsCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.commentsCollapsibleSectionPanel.label")); // NOI18N
 
         addCategoryButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/junichi11/netbeans/modules/backlog/resources/add_icon_16.png"))); // NOI18N
@@ -1615,7 +1630,6 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane commentScrollPane;
     private javax.swing.JTextArea commentTextArea;
     private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commentsCollapsibleSectionPanel;
-    private javax.swing.JPanel commentsPanel;
     private javax.swing.JEditorPane descriptionEditorPane;
     private javax.swing.JLabel descriptionLabel;
     private javax.swing.JScrollPane descriptionScrollPane;
@@ -1641,6 +1655,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JPanel mainAttachmentsPanel;
+    private javax.swing.JPanel mainCommentsPanel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JScrollPane mainScrollPane;
     private javax.swing.JLabel milestoneLabel;
@@ -1665,6 +1680,73 @@ public class BacklogIssuePanel extends javax.swing.JPanel {
     private javax.swing.JList<Version> versionList;
     private javax.swing.JScrollPane versionScrollPane;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        switch (event.getPropertyName()) {
+            case BacklogIssue.PROP_COMMENT_QUOTE:
+                addQuoteComment(commentsPanel.getQuoteComment());
+                break;
+            case BacklogIssue.PROP_COMMENT_DELETED:
+                deleteComment(commentsPanel.getDeletedComment());
+                break;
+            case BacklogIssue.PROP_COMMENT_EDITED:
+                editComment(commentsPanel.getEditedComment());
+                break;
+            default:
+                break;
+        }
+        commentsPanel.resetChangedPanels();
+    }
+
+    private void addQuoteComment(final String quoteComment) {
+        if (quoteComment != null) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    String existingText = commentTextArea.getText();
+                    StringBuilder sb = new StringBuilder();
+                    if (!StringUtils.isEmpty(existingText)) {
+                        sb.append(existingText).append("\n"); // NOI18N
+                    }
+                    sb.append(StringUtils.toQuoteComment(quoteComment));
+                    commentTextArea.setText(sb.toString());
+
+                    scrollToCommentArea();
+                }
+            });
+        }
+    }
+
+    private void deleteComment(IssueComment comment) {
+        // XXX delet comment is still not supported by api v2
+    }
+
+    private void editComment(final IssueComment comment) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                // show dialog
+                String content = EditIssuePanel.showDialog(comment);
+                if (content == null) {
+                    return;
+                }
+                IssueComment updateIssueComment = issue.updateIssueComment(comment, content);
+                if (updateIssueComment != null) {
+                    update(true);
+                }
+            }
+        });
+    }
+
+    private void scrollToCommentArea() {
+        int commentHeight = commentScrollPane.getHeight();
+        int commentsHeight = commentsCollapsibleSectionPanel.getHeight();
+        JScrollBar verticalScrollBar = mainScrollPane.getVerticalScrollBar();
+        int maximum = verticalScrollBar.getMaximum();
+        verticalScrollBar.setValue(maximum - (commentsHeight + commentHeight + 50)); // 50: empty space
+    }
 
     //~ Inner class
     private class DefaultDocumentListner implements DocumentListener {
