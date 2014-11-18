@@ -63,9 +63,13 @@ public final class UiUtils {
         showDialog(message, NotifyDescriptor.PLAIN_MESSAGE);
     }
 
-    private static void showDialog(String message, int type) {
+    public static boolean showQuestionDialog(String message) {
+        return showDialog(message, NotifyDescriptor.QUESTION_MESSAGE) == NotifyDescriptor.OK_OPTION;
+    }
+
+    private static Object showDialog(String message, int type) {
         NotifyDescriptor.Message m = new NotifyDescriptor.Message(message, type);
-        DialogDisplayer.getDefault().notify(m);
+        return DialogDisplayer.getDefault().notify(m);
     }
 
     public static void showOptions() {

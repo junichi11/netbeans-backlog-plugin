@@ -79,4 +79,24 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * Convert to quote comment. Add "> " to the start positions of lines.
+     *
+     * @param text
+     * @return quote comment
+     */
+    public static String toQuoteComment(String text) {
+        if (text == null) {
+            return null;
+        }
+        String quoteComment = "> " + text; // NOI18N
+        quoteComment = quoteComment.replaceAll("\n", "\n> "); // NOI18N
+        if (quoteComment.endsWith("\n> ")) { // NOI18N
+            quoteComment = quoteComment.substring(0, quoteComment.length() - 2);
+        }
+        if (!quoteComment.endsWith("\n")) { // NOI18N
+            quoteComment = quoteComment + "\n"; // NOI18N
+        }
+        return quoteComment;
+    }
 }

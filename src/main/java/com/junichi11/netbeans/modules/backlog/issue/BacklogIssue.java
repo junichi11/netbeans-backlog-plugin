@@ -69,6 +69,8 @@ import java.util.logging.Logger;
 import javax.swing.JTable;
 import org.netbeans.api.annotations.common.CheckForNull;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.nulabinc.backlog4j.IssueComment;
+import com.nulabinc.backlog4j.api.option.UpdateIssueCommentParams;
 import org.netbeans.modules.bugtracking.commons.UIUtils;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
@@ -103,6 +105,9 @@ public final class BacklogIssue {
     public static final String LABEL_NAME_ATTACHMENT = "backlog.issue.attachment"; // NOI18N
     public static final String LABEL_NAME_SHARED_FILE = "backlog.issue.shared.file"; // NOI18N
 
+    public static final String PROP_COMMENT_DELETED = "backlog.comment.deleted"; // NOI18N
+    public static final String PROP_COMMENT_QUOTE = "backlog.comment.quote"; // NOI18N
+    public static final String PROP_COMMENT_EDITED = "backlog.comment.edited"; // NOI18N
     private static final Logger LOGGER = Logger.getLogger(BacklogIssue.class.getName());
 
     public BacklogIssue(BacklogRepository repository) {
@@ -470,6 +475,27 @@ public final class BacklogIssue {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
         return attachmentData;
+    }
+
+    /**
+     * Update IssueComment.
+     *
+     * @param comment IssueComment
+     * @param content new content
+     * @return Updated IssueComment if update is successful, otherwise
+     * {@code null}
+     */
+    @CheckForNull
+    public IssueComment updateIssueComment(IssueComment comment, String content) {
+        BacklogClient backlogClient = repository.createBacklogClient();
+        IssueComment updatedIssueComment = null;
+        try {
+            UpdateIssueCommentParams updateIssueCommentParams = new UpdateIssueCommentParams(issue.getId(), comment.getId(), content);
+            updatedIssueComment = backlogClient.updateIssueComment(updateIssueCommentParams);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return updatedIssueComment;
     }
 
     /**
