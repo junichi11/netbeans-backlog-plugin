@@ -112,6 +112,7 @@ import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Cancellable;
 import org.openide.util.ChangeSupport;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -219,6 +220,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
     public void update(boolean updateComment) {
         assert issue != null;
+        JScrollBar verticalScrollBar = mainScrollPane.getVerticalScrollBar();
+        int value = verticalScrollBar.getValue();
         setSubmitButton();
         if (issue == null) {
             return;
@@ -243,10 +246,16 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         // comments
         setCommentComponentsEnabled(!issue.isNew());
 
-        scrollToTop();
+        // wait for updating comments
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        verticalScrollBar.setValue(value);
     }
 
-    private void scrollToTop() {
+    public void scrollToTop() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
