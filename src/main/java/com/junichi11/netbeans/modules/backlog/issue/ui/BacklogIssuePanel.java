@@ -1593,10 +1593,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 .startDate(BacklogUtils.toApiDateFormat(startDate));
 
         // assignee
-        // XXX can't change an assignee to empty
+        // set 0 to id if you want to change an assignee to empty
         User assignee = getAssignee();
-        if (assignee != null && !StringUtils.isEmpty(assignee.getName())) {
-            issueParams = issueParams.assigneeId(assignee.getId());
+        if (assignee != null) {
+            if (!StringUtils.isEmpty(assignee.getName())) {
+                issueParams = issueParams.assigneeId(assignee.getId());
+            } else {
+                issueParams = issueParams.assigneeId(0);
+            }
         }
 
         // XXX check attachments count?
