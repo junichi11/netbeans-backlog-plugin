@@ -1593,7 +1593,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 .startDate(BacklogUtils.toApiDateFormat(startDate));
 
         // assignee
-        // set 0 to id if you want to change an assignee to empty
+        // set 0 to id if change an assignee to empty
         User assignee = getAssignee();
         if (assignee != null) {
             if (!StringUtils.isEmpty(assignee.getName())) {
