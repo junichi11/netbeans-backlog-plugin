@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-backlog-plugin</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>com.nulab-inc</groupId>
             <artifactId>backlog4j</artifactId>
-            <version>2.0.5</version>
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>

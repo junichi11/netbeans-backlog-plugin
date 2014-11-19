@@ -209,6 +209,10 @@ public final class BacklogRepository {
      * @return issue list for issue keys
      */
     public List<BacklogIssue> getIssues(String... keyIds) {
+        Project p = getProject();
+        if (p == null) {
+            return Collections.emptyList();
+        }
         List<BacklogIssue> backlogIssues = new ArrayList<>(keyIds.length);
         for (String keyId : keyIds) {
             BacklogIssue backlogIssue = issueCache.get(keyId);
@@ -218,7 +222,7 @@ public final class BacklogRepository {
             }
             // get issue
             BacklogClient client = createBacklogClient();
-            String issueKey = String.format("%s-%s", project.getProjectKey(), keyId);
+            String issueKey = String.format("%s-%s", p.getProjectKey(), keyId);
             try {
                 Issue issue = client.getIssue(issueKey);
                 if (issue != null) {
@@ -414,7 +418,8 @@ public final class BacklogRepository {
      * @return collection of issues
      */
     public Collection<BacklogIssue> simpleSearch(String criteria) {
-        if (project == null) {
+        Project p = getProject();
+        if (p == null) {
             return Collections.emptyList();
         }
         List<BacklogIssue> issues = new ArrayList<>();
@@ -429,7 +434,7 @@ public final class BacklogRepository {
         }
         // search as a keyword
         GetIssuesParams issuesParams;
-        issuesParams = new GetIssuesParams(Collections.singletonList(project.getId()))
+        issuesParams = new GetIssuesParams(Collections.singletonList(p.getId()))
                 .keyword(criteria);
         issues.addAll(getIssues(issuesParams));
         return issues;
