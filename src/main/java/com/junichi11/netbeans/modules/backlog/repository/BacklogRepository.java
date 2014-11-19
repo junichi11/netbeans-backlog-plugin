@@ -299,7 +299,7 @@ public final class BacklogRepository {
                 addQuery(getCreatedByMeQuery());
             }
 
-            // add user quereis
+            // add user queries
             String[] queryNames = BacklogConfig.getInstance().getQueryNames(this);
             for (String queryName : queryNames) {
                 String queryParams = BacklogConfig.getInstance().getQueryParams(this, queryName);
