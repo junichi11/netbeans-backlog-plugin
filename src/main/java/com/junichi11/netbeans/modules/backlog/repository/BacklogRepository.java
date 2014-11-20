@@ -282,6 +282,44 @@ public final class BacklogRepository {
     }
 
     /**
+     * Get subissue ids.
+     *
+     * @param parentIssue parent BacklogIssue
+     * @return subissue ids
+     */
+    public List<String> getSubissueIds(BacklogIssue parentIssue) {
+        List<Issue> children = getSubissues(parentIssue);
+        ArrayList<String> ids = new ArrayList<>(children.size());
+        for (Issue child : children) {
+            ids.add(String.valueOf(child.getKeyId()));
+        }
+        return ids;
+    }
+
+    /**
+     * Get subissues.
+     *
+     * @param parentIssue parent BacklogIssue
+     * @return subissues
+     */
+    public List<Issue> getSubissues(BacklogIssue parentIssue) {
+        Project p = getProject();
+        if (p == null || !p.isSubtaskingEnabled()) {
+            return Collections.emptyList();
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        GetIssuesParams issuesParams = new GetIssuesParams(Collections.singletonList(p.getId()))
+                .parentChildType(GetIssuesParams.ParentChildType.Child)
+                .parentIssueIds(Collections.singletonList(parentIssue.getIssue().getId()));
+        try {
+            return backlogClient.getIssues(issuesParams);
+        } catch (BacklogAPIException e) {
+            LOGGER.log(Level.WARNING, e.getMessage());
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * Get all saved queries.
      *
      * @return queries

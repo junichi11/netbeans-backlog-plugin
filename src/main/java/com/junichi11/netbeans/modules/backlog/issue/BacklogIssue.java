@@ -499,6 +499,15 @@ public final class BacklogIssue {
     }
 
     /**
+     * Get subissue ids.
+     *
+     * @return subissue ids
+     */
+    public List<String> getSubissueIds() {
+        return repository.getSubissueIds(this);
+    }
+
+    /**
      * Set an existing issue.
      *
      * @param issue an existing issue
