@@ -96,6 +96,8 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogAttachment;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssueNode;
+import com.junichi11.netbeans.modules.backlog.query.BacklogSubtaskingQueryController;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
@@ -104,6 +106,7 @@ import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import org.netbeans.modules.bugtracking.issuetable.IssueTable;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
@@ -134,6 +137,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private AttachmentsPanel attachmentsPanel;
     private AttachmentsPanel unsubmittedAttachmentsPanel;
     private CommentsPanel commentsPanel;
+    private IssueTable subtaskingTable;
+    private boolean isSubtaskingEnabled;
     private final ChangeListener attachmentDeletedListener;
 
     // models
@@ -170,6 +175,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
     public void setIssue(BacklogIssue issue) {
         this.issue = issue;
+        if (issue != null) {
+            isSubtaskingEnabled = BacklogUtils.isSubtaskingEnabled(issue.getRepository());
+        }
     }
 
     public BacklogIssue getIssue() {
@@ -245,6 +253,27 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         // comments
         setCommentComponentsEnabled(!issue.isNew());
+
+        // subtasking
+        if (isSubtaskingEnabled()) {
+            setSubtaskTable(issue.getRepository());
+            BacklogIssue parentIssue = issue.getParentIssue();
+            if (parentIssue != null) {
+                List<BacklogIssue> subissues = issue.getRepository().getBacklogSubissues(parentIssue);
+                subtaskingTable.initColumns();
+                if (issue != parentIssue) {
+                    subtaskingTable.addNode(new BacklogIssueNode(parentIssue));
+                }
+                for (BacklogIssue subissue : subissues) {
+                    subtaskingTable.addNode(new BacklogIssueNode(subissue));
+                }
+            }
+        }
+        if (issue.isNew()) {
+            subtaskingCollapsibleSectionPanel.setVisible(false);
+        } else {
+            subtaskingCollapsibleSectionPanel.setVisible(isSubtaskingEnabled());
+        }
 
         // wait for updating comments
         try {
@@ -404,6 +433,18 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         Font font = errorHeaderLabel.getFont();
         headerIssueKeyLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
         headerIssueKeyLabel.setText(String.format("<html><b>%s</b>", text)); // NOI18N
+    }
+
+    private void setSubtaskTable(BacklogRepository repository) {
+        if (subtaskingTable == null) {
+            BacklogSubtaskingQueryController queryController = new BacklogSubtaskingQueryController();
+            subtaskingTable = new IssueTable(repository.getID(), "Subtasking", queryController, BacklogIssue.DEFAULT_SUBTASKING_COLUMN_DESCRIPTORS, false);
+            mainSubtaskTablePanel.add(subtaskingTable.getComponent());
+        }
+    }
+
+    private boolean isSubtaskingEnabled() {
+        return isSubtaskingEnabled;
     }
 
     private void setSelectedPriority(Priority priority) {
@@ -765,6 +806,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         mainCommentsPanel = new javax.swing.JPanel();
         mainAttachmentsPanel = new javax.swing.JPanel();
         selectFilesButton = new javax.swing.JButton();
+        mainSubtaskTablePanel = new javax.swing.JPanel();
         headerPanel = new javax.swing.JPanel();
         showOnBrowserLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         headerIssueKeyLabel = new javax.swing.JLabel();
@@ -828,6 +870,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         hoursEstimatedLabel = new javax.swing.JLabel();
         hoursActualLabel = new javax.swing.JLabel();
         attachmentsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
+        subtaskingCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
 
         mainCommentsPanel.setLayout(new javax.swing.BoxLayout(mainCommentsPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
@@ -840,6 +883,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             }
         });
         mainAttachmentsPanel.add(selectFilesButton);
+
+        mainSubtaskTablePanel.setLayout(new javax.swing.BoxLayout(mainSubtaskTablePanel, javax.swing.BoxLayout.LINE_AXIS));
 
         org.openide.awt.Mnemonics.setLocalizedText(showOnBrowserLinkButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.showOnBrowserLinkButton.text")); // NOI18N
         showOnBrowserLinkButton.addActionListener(new java.awt.event.ActionListener() {
@@ -1045,6 +1090,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         attachmentsCollapsibleSectionPanel.setContent(mainAttachmentsPanel);
         attachmentsCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.attachmentsCollapsibleSectionPanel.label")); // NOI18N
 
+        subtaskingCollapsibleSectionPanel.setContent(mainSubtaskTablePanel);
+        subtaskingCollapsibleSectionPanel.setExpanded(false);
+        subtaskingCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.subtaskingCollapsibleSectionPanel.label")); // NOI18N
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -1052,6 +1101,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(subtaskingCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(attachmentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())
@@ -1084,7 +1136,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                             .addComponent(typeLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dueDatePicker, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
+                            .addComponent(dueDatePicker, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(startDatePicker, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(milestoneScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addComponent(versionScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -1119,7 +1171,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                                     .addComponent(assigneeComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addGroup(mainPanelLayout.createSequentialGroup()
                                         .addComponent(assignToMyselfLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 122, Short.MAX_VALUE))
+                                        .addGap(0, 0, Short.MAX_VALUE))
                                     .addGroup(mainPanelLayout.createSequentialGroup()
                                         .addComponent(actualHoursTextField)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1141,6 +1193,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(subtaskingCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(summaryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(summaryLabel))
@@ -1662,6 +1716,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JPanel mainCommentsPanel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JScrollPane mainScrollPane;
+    private javax.swing.JPanel mainSubtaskTablePanel;
     private javax.swing.JLabel milestoneLabel;
     private javax.swing.JList<Version> milestoneList;
     private javax.swing.JScrollPane milestoneScrollPane;
@@ -1677,6 +1732,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JComboBox<Status> statusComboBox;
     private javax.swing.JLabel statusLabel;
     private javax.swing.JButton submitHeaderButton;
+    private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel subtaskingCollapsibleSectionPanel;
     private javax.swing.JLabel summaryLabel;
     private javax.swing.JTextField summaryTextField;
     private javax.swing.JLabel typeLabel;

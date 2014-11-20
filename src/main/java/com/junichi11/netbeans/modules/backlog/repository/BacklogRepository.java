@@ -282,6 +282,26 @@ public final class BacklogRepository {
     }
 
     /**
+     * Get BacklogIssue.
+     *
+     * @param issueId issue id (not issue key id)
+     * @return BacklogIssue if issue exists, otherwise {@code null}
+     */
+    @CheckForNull
+    public BacklogIssue getIssue(long issueId) {
+        BacklogClient backlogClient = createBacklogClient();
+        try {
+            Issue issue = backlogClient.getIssue(issueId);
+            if (issue != null) {
+                return createIssue(issue);
+            }
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * Get subissue ids.
      *
      * @param parentIssue parent BacklogIssue
@@ -317,6 +337,48 @@ public final class BacklogRepository {
             LOGGER.log(Level.WARNING, e.getMessage());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Get subissues from a parent issue.
+     *
+     * @param parentIssue parent BacklogIssue
+     * @return BacklogIssues
+     */
+    public List<BacklogIssue> getBacklogSubissues(BacklogIssue parentIssue) {
+        List<Issue> subissues = getSubissues(parentIssue);
+        ArrayList<BacklogIssue> backlogSubissues = new ArrayList<>(subissues.size());
+        for (Issue subissue : subissues) {
+            backlogSubissues.add(createIssue(subissue));
+        }
+        return backlogSubissues;
+    }
+
+    /**
+     * Get parent issue.
+     *
+     * @param childIssue child BacklogIssue
+     * @return parent issue if it exists, otherwise {@code null}
+     */
+    public BacklogIssue getParentIssue(BacklogIssue childIssue) {
+        if (childIssue == null || childIssue.getIssue() == null) {
+            return null;
+        }
+        long parentIssueId = childIssue.getIssue().getParentIssueId();
+        if (parentIssueId <= 0) {
+            return childIssue;
+        }
+
+        // check cache
+        for (BacklogIssue issue : issueCache.values()) {
+            Issue i = issue.getIssue();
+            if (i.getId() == parentIssueId) {
+                return issue;
+            }
+        }
+
+        // get issue from online
+        return getIssue(parentIssueId);
     }
 
     /**

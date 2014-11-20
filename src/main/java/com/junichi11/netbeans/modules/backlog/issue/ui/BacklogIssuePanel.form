@@ -26,6 +26,10 @@
         </Component>
       </SubComponents>
     </Container>
+    <Container class="javax.swing.JPanel" name="mainSubtaskTablePanel">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+    </Container>
   </NonVisualComponents>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
@@ -260,6 +264,10 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
+                              <Component id="subtaskingCollapsibleSectionPanel" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
                               <Component id="attachmentsCollapsibleSectionPanel" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
@@ -300,7 +308,7 @@
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="dueDatePicker" pref="231" max="32767" attributes="0"/>
+                                  <Component id="dueDatePicker" max="32767" attributes="0"/>
                                   <Component id="startDatePicker" alignment="0" max="32767" attributes="0"/>
                                   <Component id="milestoneScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
                                   <Component id="versionScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
@@ -341,7 +349,7 @@
                                           <Component id="assigneeComboBox" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" attributes="0">
                                               <Component id="assignToMyselfLinkButton" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="0" pref="122" max="32767" attributes="0"/>
+                                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                           </Group>
                                           <Group type="102" alignment="0" attributes="0">
                                               <Component id="actualHoursTextField" max="32767" attributes="0"/>
@@ -374,6 +382,8 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="subtaskingCollapsibleSectionPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="summaryTextField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -836,6 +846,17 @@
                 </Property>
                 <Property name="label" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                   <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.attachmentsCollapsibleSectionPanel.label" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel" name="subtaskingCollapsibleSectionPanel">
+              <Properties>
+                <Property name="content" type="javax.swing.JComponent" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                  <ComponentRef name="mainSubtaskTablePanel"/>
+                </Property>
+                <Property name="expanded" type="boolean" value="false"/>
+                <Property name="label" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.subtaskingCollapsibleSectionPanel.label" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>
               </Properties>
             </Component>

@@ -79,6 +79,7 @@ public class BacklogIssueNode extends IssueNode<BacklogIssue> {
     protected Property<?>[] getProperties() {
         return new Property<?>[]{
             new IssueTypeProperty(),
+            new ParentChildProperty(),
             new IDProperty(),
             new SummaryProperty(),
             new PriorityProperty(),
@@ -105,6 +106,31 @@ public class BacklogIssueNode extends IssueNode<BacklogIssue> {
         @Override
         public String getValue() throws IllegalAccessException, InvocationTargetException {
             return getIssueData().getKeyId();
+        }
+    }
+
+    @NbBundle.Messages({
+        "BacklogIssueNode.parent.child.displayName=P/C",
+        "BacklogIssueNode.parent.child.shortDescription=Parent / Child",
+        "BacklogIssueNode.parent.child.label.parent=Parent",
+        "BacklogIssueNode.parent.child.label.child=Child"
+    })
+    private class ParentChildProperty extends IssueNode<BacklogIssue>.IssueProperty<String> {
+
+        public ParentChildProperty() {
+            super(BacklogIssue.LABEL_NAME_PARENT_CHILD, String.class, Bundle.BacklogIssueNode_parent_child_displayName(), Bundle.BacklogIssueNode_parent_child_shortDescription());
+        }
+
+        @Override
+        public String getValue() throws IllegalAccessException, InvocationTargetException {
+            BacklogIssue backlogIssue = getIssueData();
+            if (backlogIssue.isParent()) {
+                return Bundle.BacklogIssueNode_parent_child_label_parent();
+            }
+            if (backlogIssue.isChild()) {
+                return Bundle.BacklogIssueNode_parent_child_label_child();
+            }
+            return ""; // NOI18N
         }
     }
 
