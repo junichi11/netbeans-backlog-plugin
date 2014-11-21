@@ -228,6 +228,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         mainCommentsPanel.add(commentsPanel);
     }
 
+    @NbBundle.Messages({
+        "# {0} - count",
+        "BacklogIssuePanel.label.subtasking=Subtasking({0})"
+    })
     public void update(boolean updateComment) {
         assert issue != null;
         JScrollBar verticalScrollBar = mainScrollPane.getVerticalScrollBar();
@@ -262,6 +266,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             BacklogIssue parentIssue = issue.getParentIssue();
             if (parentIssue != null) {
                 List<BacklogIssue> subissues = issue.getRepository().getBacklogSubissues(parentIssue);
+                subtaskingCollapsibleSectionPanel.setLabel(Bundle.BacklogIssuePanel_label_subtasking(subissues.size()));
                 subtaskingTable.initColumns();
                 if (issue != parentIssue) {
                     subtaskingTable.addNode(new BacklogIssueNode(parentIssue));
