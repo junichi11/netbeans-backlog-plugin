@@ -99,6 +99,7 @@ import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssueNode;
 import com.junichi11.netbeans.modules.backlog.query.BacklogSubtaskingQueryController;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
@@ -107,6 +108,7 @@ import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.bugtracking.issuetable.IssueTable;
+import org.netbeans.modules.bugtracking.issuetable.QueryTableCellRenderer;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
@@ -439,6 +441,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         if (subtaskingTable == null) {
             BacklogSubtaskingQueryController queryController = new BacklogSubtaskingQueryController();
             subtaskingTable = new IssueTable(repository.getID(), "Subtasking", queryController, BacklogIssue.DEFAULT_SUBTASKING_COLUMN_DESCRIPTORS, false);
+            IssueTableCellRenderer renderer = new IssueTableCellRenderer((QueryTableCellRenderer) subtaskingTable.getRenderer());
+            subtaskingTable.setRenderer(renderer);
             mainSubtaskTablePanel.add(subtaskingTable.getComponent());
         }
     }
