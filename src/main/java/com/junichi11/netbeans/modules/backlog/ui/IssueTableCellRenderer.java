@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.backlog.query.ui;
+package com.junichi11.netbeans.modules.backlog.ui;
 
 import com.nulabinc.backlog4j.IssueType;
 import java.awt.Color;
@@ -56,11 +56,11 @@ import org.netbeans.modules.bugtracking.issuetable.QueryTableCellRenderer;
  *
  * @author junichi11
  */
-public class BacklogQueryCellRenderer implements TableCellRenderer {
+public class IssueTableCellRenderer implements TableCellRenderer {
 
     private final QueryTableCellRenderer defaultRenderer;
 
-    public BacklogQueryCellRenderer(QueryTableCellRenderer defaultRenderer) {
+    public IssueTableCellRenderer(QueryTableCellRenderer defaultRenderer) {
         this.defaultRenderer = defaultRenderer;
     }
 
