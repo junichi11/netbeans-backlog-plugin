@@ -104,4 +104,9 @@ public final class BacklogUtils {
         return isChartEnabled;
     }
 
+    public static boolean isSubtaskingEnabled(BacklogRepository repository) {
+        Project project = repository.getProject();
+        boolean isSubtaskingEnabled = project == null ? false : project.isSubtaskingEnabled();
+        return isSubtaskingEnabled;
+    }
 }

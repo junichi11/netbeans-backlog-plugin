@@ -53,7 +53,7 @@ import javax.swing.JComponent;
 import org.netbeans.api.annotations.common.CheckForNull;
 import com.junichi11.netbeans.modules.backlog.Backlog;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.query.ui.BacklogQueryCellRenderer;
+import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
 import com.junichi11.netbeans.modules.backlog.query.ui.BacklogQueryPanel;
 import com.junichi11.netbeans.modules.backlog.query.ui.DatePanel;
 import com.junichi11.netbeans.modules.backlog.query.ui.GeneralPanel;
@@ -160,7 +160,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
     private BacklogQueryPanel getPanel() {
         if (panel == null) {
             issueTable = new IssueTable(repository.getID(), query.getDisplayName(), this, query.getColumnDescriptors(), query.isSaved());
-            issueTable.setRenderer(new BacklogQueryCellRenderer((QueryTableCellRenderer) issueTable.getRenderer()));
+            issueTable.setRenderer(new IssueTableCellRenderer((QueryTableCellRenderer) issueTable.getRenderer()));
             issueTable.initColumns();
             panel = new BacklogQueryPanel(repository, query, issueTable.getComponent());
             panel.addSearchButtonActionListener(this);

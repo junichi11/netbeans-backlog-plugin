@@ -101,7 +101,8 @@ public class BacklogRepositoryProvider implements RepositoryProvider<BacklogRepo
 
     @Override
     public BacklogIssue createIssue(BacklogRepository repository, String summary, String description) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // XXX this method doesn't work : bug of netbeans
+        return repository.createIssue(summary, description);
     }
 
     @Override

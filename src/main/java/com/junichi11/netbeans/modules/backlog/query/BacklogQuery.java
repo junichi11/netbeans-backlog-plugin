@@ -686,7 +686,7 @@ public class BacklogQuery {
      */
     public ColumnDescriptor[] getColumnDescriptors() {
         if (columnDescriptors == null) {
-            columnDescriptors = BacklogIssue.getColumnDescriptors(repository);
+            columnDescriptors = BacklogIssue.getColumnDescriptors();
         }
         return columnDescriptors;
     }

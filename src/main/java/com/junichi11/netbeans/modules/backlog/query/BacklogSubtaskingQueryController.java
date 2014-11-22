@@ -39,45 +39,63 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.backlog.utils;
+package com.junichi11.netbeans.modules.backlog.query;
 
-import com.junichi11.netbeans.modules.backlog.options.BacklogOptions;
-import org.netbeans.api.options.OptionsDisplayer;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+import java.beans.PropertyChangeListener;
+import javax.swing.JComponent;
+import org.netbeans.modules.bugtracking.spi.QueryController;
+import org.openide.util.HelpCtx;
 
 /**
  *
  * @author junichi11
  */
-public final class UiUtils {
+public class BacklogSubtaskingQueryController implements QueryController {
 
-    private UiUtils() {
+    @Override
+    public boolean providesMode(QueryMode qm) {
+        return false;
     }
 
-    public static void showErrorDialog(String message) {
-        showDialog(message, NotifyDescriptor.ERROR_MESSAGE);
+    @Override
+    public JComponent getComponent(QueryMode qm) {
+        return null;
     }
 
-    public static void showPlainDialog(String message) {
-        showDialog(message, NotifyDescriptor.PLAIN_MESSAGE);
+    @Override
+    public HelpCtx getHelpCtx() {
+        return null;
     }
 
-    public static boolean showQuestionDialog(String message) {
-        return showDialog(message, NotifyDescriptor.QUESTION_MESSAGE) == NotifyDescriptor.OK_OPTION;
+    @Override
+    public void opened() {
     }
 
-    private static Object showDialog(String message, int type) {
-        NotifyDescriptor descriptor;
-        if (type == NotifyDescriptor.QUESTION_MESSAGE) {
-            descriptor = new NotifyDescriptor.Confirmation(message, NotifyDescriptor.OK_CANCEL_OPTION, type);
-        } else {
-            descriptor = new NotifyDescriptor.Message(message, type);
-        }
-        return DialogDisplayer.getDefault().notify(descriptor);
+    @Override
+    public void closed() {
     }
 
-    public static void showOptions() {
-        OptionsDisplayer.getDefault().open(BacklogOptions.SUB_PATH); // NOI18N
+    @Override
+    public boolean saveChanges(String string) {
+        return false;
     }
+
+    @Override
+    public boolean discardUnsavedChanges() {
+        return false;
+    }
+
+    @Override
+    public boolean isChanged() {
+        return false;
+    }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener pl) {
+    }
+
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener pl) {
+    }
+
 }

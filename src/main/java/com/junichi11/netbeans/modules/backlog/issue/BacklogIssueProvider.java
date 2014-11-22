@@ -44,7 +44,6 @@ package com.junichi11.netbeans.modules.backlog.issue;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 import org.netbeans.modules.bugtracking.spi.IssueController;
 import org.netbeans.modules.bugtracking.spi.IssueProvider;
 
@@ -69,9 +68,17 @@ public class BacklogIssueProvider implements IssueProvider<BacklogIssue> {
         return issue.getKeyId();
     }
 
+    /**
+     * Returns the ID-s of all issues where this one could be considered being
+     * superordinate to them.
+     *
+     * @param issue
+     * @return ids
+     */
     @Override
     public Collection<String> getSubtasks(BacklogIssue issue) {
-        return Collections.emptyList();
+        // XXX probably this is still not implemented
+        return issue.getSubissueIds();
     }
 
     @Override
