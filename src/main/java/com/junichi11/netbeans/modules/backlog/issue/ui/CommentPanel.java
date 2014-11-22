@@ -240,7 +240,7 @@ public class CommentPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_quoteLinkButtonActionPerformed
 
     @NbBundle.Messages({
-        "CommentPanel.message.delete.issue=Do you realy want to delete this comment?"
+        "CommentPanel.message.delete.issue=Do you really want to delete this comment?"
     })
     private void deleteLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteLinkButtonActionPerformed
         if (!UiUtils.showQuestionDialog(Bundle.CommentPanel_message_delete_issue())) {
