@@ -2,6 +2,10 @@
 
 This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 
+## Download
+
+- https://github.com/junichi11/netbeans-backlog-plugin/releases
+
 ## Requirements
 
 - NetBeans 8.0+
@@ -29,7 +33,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 - Assigned to me
 - Created by me
 
-Statuses other than Closed are shown.
+Issues of statuses other than Closed are shown.
 If you don't want to use thses, you can disable these in Options (Tools > Options > Team > Backlog).
 
 ## Resources
