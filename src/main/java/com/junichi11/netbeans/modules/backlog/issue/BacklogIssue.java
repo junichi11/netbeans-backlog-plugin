@@ -521,6 +521,17 @@ public final class BacklogIssue {
         return attachmentData;
     }
 
+    public Attachment deleteIssueAttachment(long attachmentId) {
+        BacklogClient backlogClient = repository.createBacklogClient();
+        Attachment attachment = null;
+        try {
+            attachment = backlogClient.deleteIssueAttachment(issue.getId(), attachmentId);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return attachment;
+    }
+
     /**
      * Update IssueComment.
      *

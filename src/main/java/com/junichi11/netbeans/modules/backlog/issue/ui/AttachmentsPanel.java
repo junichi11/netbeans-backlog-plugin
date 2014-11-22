@@ -128,6 +128,21 @@ public class AttachmentsPanel extends javax.swing.JPanel implements PropertyChan
         remove(attachment);
     }
 
+    void removeAttachment(Attachment attachment) {
+        AttachmentPanel removedPanel = null;
+        synchronized (attachmentPanels) {
+            for (AttachmentPanel attachmentPanel : attachmentPanels) {
+                Attachment a = attachmentPanel.getAttachment();
+                if (a.getId() == attachment.getId()) {
+                    removedPanel = attachmentPanel;
+                    break;
+                }
+            }
+            attachmentPanels.remove(removedPanel);
+            removeAttachment(removedPanel);
+        }
+    }
+
     void addChangeListener(ChangeListener listener) {
         changeSupport.addChangeListener(listener);
     }
@@ -157,10 +172,15 @@ public class AttachmentsPanel extends javax.swing.JPanel implements PropertyChan
                 for (Iterator<AttachmentPanel> iterator = attachmentPanels.iterator(); iterator.hasNext();) {
                     AttachmentPanel attachment = iterator.next();
                     if (attachment.isDeleted()) {
-                        iterator.remove();
-                        removeAttachment(attachment);
+                        Attachment a = attachment.getAttachment();
+                        if (!attachment.isUnsubmitted()) {
+                            firePropertyChange(AttachmentPanel.PROP_ATTACHMENT_DELETED, a, null);
+                        } else {
+                            iterator.remove();
+                            removeAttachment(attachment);
+                        }
+                        break;
                     }
-
                 }
             }
             fireChange();

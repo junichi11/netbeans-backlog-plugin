@@ -218,6 +218,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         // add existing attachments
         attachmentsPanel = new AttachmentsPanel();
+        attachmentsPanel.addPropertyChangeListener(this);
         attachmentsPanel.setAlignmentX(alignmentX);
         mainAttachmentsPanel.add(attachmentsPanel);
 
@@ -1820,6 +1821,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             case BacklogIssue.PROP_COMMENT_EDITED:
                 editComment(commentsPanel.getEditedComment());
                 break;
+            case AttachmentPanel.PROP_ATTACHMENT_DELETED:
+                Attachment attachment = (Attachment) event.getOldValue();
+                deleteAttachment(attachment);
+                break;
             default:
                 break;
         }
@@ -1865,6 +1870,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 }
             }
         });
+    }
+
+    private void deleteAttachment(Attachment attachment) {
+        Attachment a = issue.deleteIssueAttachment(attachment.getId());
+        if (a != null) {
+            attachmentsPanel.removeAttachment(attachment);
+            update(false);
+        }
     }
 
     private void scrollToCommentArea() {

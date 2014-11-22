@@ -47,6 +47,8 @@ import javax.swing.Action;
 import org.apache.commons.io.FileUtils;
 import org.netbeans.api.annotations.common.CheckForNull;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogAttachment;
+import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -74,8 +76,6 @@ public class AttachmentPanel extends javax.swing.JPanel {
         sizeLabel.setText(String.valueOf(FileUtils.byteCountToDisplaySize(attachment.getSize())));
         User createdUser = attachment.getCreatedUser();
         if (createdUser != null) {
-            // XXX can't delete attachments with API at the moment
-            deleteLinkButton.setEnabled(false);
             setToolTipText(String.format("Created by %s", createdUser.getName()));
         } else {
             openLinkButton.setVisible(false);
@@ -188,7 +188,16 @@ public class AttachmentPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    @NbBundle.Messages({
+        "# {0} - name",
+        "AttachmentPanel.message.delete.attachment=Do you really want to delete {0}?"
+    })
     private void deleteLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteLinkButtonActionPerformed
+        if (!isUnsubmitted()) {
+            if (!UiUtils.showQuestionDialog(Bundle.AttachmentPanel_message_delete_attachment(attachment.getName()))) {
+                return;
+            }
+        }
         setVisible(false);
         firePropertyChange(PROP_ATTACHMENT_DELETED, null, null);
     }//GEN-LAST:event_deleteLinkButtonActionPerformed

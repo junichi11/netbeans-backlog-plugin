@@ -68,8 +68,13 @@ public final class UiUtils {
     }
 
     private static Object showDialog(String message, int type) {
-        NotifyDescriptor.Message m = new NotifyDescriptor.Message(message, type);
-        return DialogDisplayer.getDefault().notify(m);
+        NotifyDescriptor descriptor;
+        if (type == NotifyDescriptor.QUESTION_MESSAGE) {
+            descriptor = new NotifyDescriptor.Confirmation(message, NotifyDescriptor.OK_CANCEL_OPTION, type);
+        } else {
+            descriptor = new NotifyDescriptor.Message(message, type);
+        }
+        return DialogDisplayer.getDefault().notify(descriptor);
     }
 
     public static void showOptions() {
