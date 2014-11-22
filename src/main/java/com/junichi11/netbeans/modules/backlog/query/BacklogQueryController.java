@@ -137,11 +137,19 @@ public class BacklogQueryController implements QueryController, ActionListener {
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
+        if (listener instanceof IssueTable) {
+            // don't use recent changes column
+            return;
+        }
         propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
+        if (listener instanceof IssueTable) {
+            // don't use recent changes column
+            return;
+        }
         propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
@@ -159,7 +167,8 @@ public class BacklogQueryController implements QueryController, ActionListener {
 
     private BacklogQueryPanel getPanel() {
         if (panel == null) {
-            issueTable = new IssueTable(repository.getID(), query.getDisplayName(), this, query.getColumnDescriptors(), query.isSaved());
+            // don't use recent changes column
+            issueTable = new IssueTable(repository.getID(), query.getDisplayName(), this, query.getColumnDescriptors(), false);
             issueTable.setRenderer(new IssueTableCellRenderer((QueryTableCellRenderer) issueTable.getRenderer()));
             issueTable.initColumns();
             panel = new BacklogQueryPanel(repository, query, issueTable.getComponent());
