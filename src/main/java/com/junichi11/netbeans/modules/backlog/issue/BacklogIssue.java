@@ -91,6 +91,7 @@ public final class BacklogIssue {
     private String summary;
     private BacklogIssueController controller;
     private IssueNode node;
+    private String subtaskParentIssueKey;
     private final BacklogRepository repository;
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -120,6 +121,15 @@ public final class BacklogIssue {
     public BacklogIssue(BacklogRepository repository, Issue issue) {
         this.repository = repository;
         setIssue(issue);
+    }
+
+    public BacklogIssue(BacklogRepository repository, String parentIssueKey) {
+        this(repository);
+        String projectKey = repository.getProjectKey();
+        String regex = String.format("\\A%s-\\d+\\z", projectKey);
+        if (parentIssueKey.matches(regex)) {
+            this.subtaskParentIssueKey = parentIssueKey;
+        }
     }
 
     public BacklogRepository getRepository() {
@@ -390,6 +400,12 @@ public final class BacklogIssue {
     }
 
     public BacklogIssue getParentIssue() {
+        if (subtaskParentIssueKey != null) {
+            BacklogIssue parent = repository.getIssue(subtaskParentIssueKey);
+            if (parent != null) {
+                return parent;
+            }
+        }
         return repository.getParentIssue(this);
     }
 
@@ -407,6 +423,10 @@ public final class BacklogIssue {
         }
         long parentIssueId = issue.getParentIssueId();
         return parentIssueId > 0;
+    }
+
+    public String getSubtaskParentIssueKey() {
+        return subtaskParentIssueKey;
     }
 
     /**
@@ -433,6 +453,7 @@ public final class BacklogIssue {
 //            fireStatusChange();
             ((BacklogIssueController) getController()).setChanged(false);
         }
+        subtaskParentIssueKey = null;
         return createdIssue;
     }
 

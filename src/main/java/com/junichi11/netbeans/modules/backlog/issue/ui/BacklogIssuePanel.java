@@ -96,7 +96,6 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogAttachment;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogIssueNode;
 import com.junichi11.netbeans.modules.backlog.query.BacklogSubtaskingQueryController;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
@@ -265,14 +264,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             setSubtaskTable(issue.getRepository());
             BacklogIssue parentIssue = issue.getParentIssue();
             if (parentIssue != null) {
+                subtaskingTable.started();
                 List<BacklogIssue> subissues = issue.getRepository().getBacklogSubissues(parentIssue);
                 subtaskingCollapsibleSectionPanel.setLabel(Bundle.BacklogIssuePanel_label_subtasking(subissues.size()));
-                subtaskingTable.initColumns();
                 if (issue != parentIssue) {
-                    subtaskingTable.addNode(new BacklogIssueNode(parentIssue));
+                    subtaskingTable.addNode(parentIssue.getIssueNode());
                 }
                 for (BacklogIssue subissue : subissues) {
-                    subtaskingTable.addNode(new BacklogIssueNode(subissue));
+                    subtaskingTable.addNode(subissue.getIssueNode());
                 }
             }
         }
@@ -281,6 +280,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         } else {
             subtaskingCollapsibleSectionPanel.setVisible(isSubtaskingEnabled());
         }
+        addSubtaskLinkButton.setEnabled(!issue.isNew());
 
         // wait for updating comments
         try {
@@ -302,11 +302,19 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     }
 
     @NbBundle.Messages({
-        "BacklogIssuePanel.header.new.issue=New Issue"
+        "BacklogIssuePanel.header.new.issue=New Issue",
+        "# {0} - parant issue key",
+        "BacklogIssuePanel.header.new.subtask=New Subtask of {0}"
     })
     private void setHeader() {
         if (issue.isNew()) {
-            setHeaderIssueKey(Bundle.BacklogIssuePanel_header_new_issue());
+            String parentIssueKey = issue.getSubtaskParentIssueKey();
+            if (!StringUtils.isEmpty(parentIssueKey)) {
+                // subtasking
+                setHeaderIssueKey(Bundle.BacklogIssuePanel_header_new_subtask(parentIssueKey));;
+            } else {
+                setHeaderIssueKey(Bundle.BacklogIssuePanel_header_new_issue());
+            }
             return;
         }
 
@@ -323,6 +331,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             if (!StringUtils.isEmpty(mailAddress)) {
             }
         }
+        addSubtaskLinkButton.setVisible(isSubtaskingEnabled());
     }
 
     private void setDateLabel(JLabel label, Date date, boolean isCreated) {
@@ -446,6 +455,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         if (subtaskingTable == null) {
             BacklogSubtaskingQueryController queryController = new BacklogSubtaskingQueryController();
             subtaskingTable = new IssueTable(repository.getID(), "Subtasking", queryController, BacklogIssue.DEFAULT_SUBTASKING_COLUMN_DESCRIPTORS, false);
+            subtaskingTable.initColumns();
             IssueTableCellRenderer renderer = new IssueTableCellRenderer((QueryTableCellRenderer) subtaskingTable.getRenderer());
             subtaskingTable.setRenderer(renderer);
             mainSubtaskTablePanel.add(subtaskingTable.getComponent());
@@ -817,6 +827,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         selectFilesButton = new javax.swing.JButton();
         mainSubtaskTablePanel = new javax.swing.JPanel();
         headerPanel = new javax.swing.JPanel();
+        addSubtaskLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
+        refreshLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         showOnBrowserLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         headerIssueKeyLabel = new javax.swing.JLabel();
         headerCreatedLabel = new javax.swing.JLabel();
@@ -827,10 +839,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         headerDueDateViewLabel = new javax.swing.JLabel();
         headerCreatedByLabel = new javax.swing.JLabel();
         headerCreatedUserLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
-        refreshLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         jSeparator5 = new javax.swing.JSeparator();
         errorHeaderLabel = new javax.swing.JLabel();
         submitHeaderButton = new javax.swing.JButton();
+        jSeparator3 = new javax.swing.JSeparator();
         mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
         priorityComboBox = new javax.swing.JComboBox<Priority>();
@@ -895,6 +907,20 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         mainSubtaskTablePanel.setLayout(new javax.swing.BoxLayout(mainSubtaskTablePanel, javax.swing.BoxLayout.LINE_AXIS));
 
+        org.openide.awt.Mnemonics.setLocalizedText(addSubtaskLinkButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.addSubtaskLinkButton.text")); // NOI18N
+        addSubtaskLinkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addSubtaskLinkButtonActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(refreshLinkButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.refreshLinkButton.text")); // NOI18N
+        refreshLinkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshLinkButtonActionPerformed(evt);
+            }
+        });
+
         org.openide.awt.Mnemonics.setLocalizedText(showOnBrowserLinkButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.showOnBrowserLinkButton.text")); // NOI18N
         showOnBrowserLinkButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -920,13 +946,6 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         org.openide.awt.Mnemonics.setLocalizedText(headerCreatedUserLinkButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.headerCreatedUserLinkButton.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(refreshLinkButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.refreshLinkButton.text")); // NOI18N
-        refreshLinkButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshLinkButtonActionPerformed(evt);
-            }
-        });
-
         jSeparator5.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
         org.openide.awt.Mnemonics.setLocalizedText(errorHeaderLabel, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.errorHeaderLabel.text")); // NOI18N
@@ -938,6 +957,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             }
         });
 
+        jSeparator3.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
         javax.swing.GroupLayout headerPanelLayout = new javax.swing.GroupLayout(headerPanel);
         headerPanel.setLayout(headerPanelLayout);
         headerPanelLayout.setHorizontalGroup(
@@ -948,6 +969,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerPanelLayout.createSequentialGroup()
                         .addComponent(headerIssueKeyLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(refreshLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -981,10 +1006,12 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(headerPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(headerIssueKeyLabel)
-                    .addComponent(refreshLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSeparator5))
+                    .addComponent(refreshLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator5)
+                    .addComponent(jSeparator3)
+                    .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerCreatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1373,6 +1400,27 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         selectFiles();
     }//GEN-LAST:event_selectFilesButtonActionPerformed
 
+    private void addSubtaskLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubtaskLinkButtonActionPerformed
+        if (issue == null) {
+            return;
+        }
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                BacklogRepository backlogRepository = issue.getRepository();
+                BacklogIssue parent = issue;
+                if (issue.isChild()) {
+                    parent = issue.getParentIssue();
+                }
+                if (parent == null) {
+                    return;
+                }
+                backlogRepository.createNewSubissue(parent);
+            }
+        });
+    }//GEN-LAST:event_addSubtaskLinkButtonActionPerformed
+
     @NbBundle.Messages({
         "BacklogIssuePanel.label.select.file=Select File",
         "BacklogIssuePanel.message.uploading.attachments=Uploading files"
@@ -1602,6 +1650,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         if (!attachmentIds.isEmpty()) {
             issueParams = issueParams.attachmentIds(attachmentIds);
         }
+
+        // subtask?
+        if (isSubtaskingEnabled()) {
+            if (issue.isNew() && !StringUtils.isEmpty(issue.getSubtaskParentIssueKey())) {
+                BacklogIssue parentIssue = issue.getParentIssue();
+                issueParams = issueParams.parentIssueId(parentIssue.getIssue().getId());
+            }
+        }
         return issueParams;
     }
 
@@ -1684,6 +1740,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JLabel acturalHoursLabel;
     private javax.swing.JButton addCategoryButton;
     private javax.swing.JButton addMilestoneButton;
+    private org.netbeans.modules.bugtracking.commons.LinkButton addSubtaskLinkButton;
     private javax.swing.JButton addVersionButton;
     private org.netbeans.modules.bugtracking.commons.LinkButton assignToMyselfLinkButton;
     private javax.swing.JComboBox<User> assigneeComboBox;
@@ -1720,6 +1777,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JComboBox<IssueType> issueTypeComboBox;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JPanel mainAttachmentsPanel;
     private javax.swing.JPanel mainCommentsPanel;

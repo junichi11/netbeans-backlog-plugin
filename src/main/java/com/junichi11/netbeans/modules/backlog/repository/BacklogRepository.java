@@ -75,6 +75,9 @@ import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.ResponseList;
+import org.netbeans.modules.bugtracking.api.Repository;
+import org.netbeans.modules.bugtracking.api.RepositoryManager;
+import org.netbeans.modules.bugtracking.api.Util;
 import org.netbeans.modules.bugtracking.spi.RepositoryController;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.netbeans.modules.bugtracking.spi.RepositoryProvider;
@@ -103,6 +106,8 @@ public final class BacklogRepository {
     private BacklogQuery createdByMeQuery;
 
     private final Map<String, BacklogIssue> issueCache = new HashMap<>();
+    // XXX for subtask
+    private BacklogIssue subtaskParentIssue;
     private static final Logger LOGGER = Logger.getLogger(BacklogRepository.class.getName());
 
     public BacklogRepository() {
@@ -161,7 +166,23 @@ public final class BacklogRepository {
     }
 
     public BacklogIssue createIssue() {
+        // XXX for subtask
+        if (subtaskParentIssue != null) {
+            String issueKey = subtaskParentIssue.getIssueKey();
+            subtaskParentIssue = null;
+            return new BacklogIssue(this, issueKey);
+        }
         return new BacklogIssue(this);
+    }
+
+    public BacklogIssue createIssue(String summary, String description) {
+        String projectKey = getProjectKey();
+        String regex = String.format("\\A%s-\\d+\\z", projectKey); // NOI18N
+        if (summary.matches(regex)) {
+            // subtask
+            return new BacklogIssue(this, summary);
+        }
+        return createIssue();
     }
 
     /**
@@ -269,6 +290,15 @@ public final class BacklogRepository {
      */
     @CheckForNull
     public BacklogIssue getIssue(String issueKey) {
+        if (issueKey == null) {
+            return null;
+        }
+        // try to get from cache
+        for (BacklogIssue backlogIssue : issueCache.values()) {
+            if (issueKey.equals(backlogIssue.getIssueKey())) {
+                return backlogIssue;
+            }
+        }
         BacklogClient backlogClient = createBacklogClient();
         try {
             Issue issue = backlogClient.getIssue(issueKey);
@@ -379,6 +409,16 @@ public final class BacklogRepository {
 
         // get issue from online
         return getIssue(parentIssueId);
+    }
+
+    public void createNewSubissue(BacklogIssue subtaskParentIssue) {
+        setSubtaskParentIssue(subtaskParentIssue);
+        Repository repository = RepositoryManager.getInstance().getRepository(BacklogConnector.ID, getID());
+        Util.createNewIssue(repository);
+    }
+
+    private void setSubtaskParentIssue(BacklogIssue subtaskParentIssue) {
+        this.subtaskParentIssue = subtaskParentIssue;
     }
 
     /**

@@ -72,6 +72,10 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="headerIssueKeyLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
+                          <Component id="addSubtaskLinkButton" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jSeparator3" min="-2" pref="6" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="refreshLinkButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jSeparator5" min="-2" pref="6" max="-2" attributes="0"/>
@@ -111,10 +115,12 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="showOnBrowserLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="showOnBrowserLinkButton" alignment="3" max="32767" attributes="0"/>
                       <Component id="headerIssueKeyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="refreshLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="refreshLinkButton" alignment="3" max="32767" attributes="0"/>
                       <Component id="jSeparator5" max="32767" attributes="0"/>
+                      <Component id="jSeparator3" max="32767" attributes="0"/>
+                      <Component id="addSubtaskLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -138,6 +144,26 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
+        <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="addSubtaskLinkButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.addSubtaskLinkButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addSubtaskLinkButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="refreshLinkButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.refreshLinkButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="refreshLinkButtonActionPerformed"/>
+          </Events>
+        </Component>
         <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="showOnBrowserLinkButton">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
@@ -214,16 +240,6 @@
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value=""/>
           </AuxValues>
         </Component>
-        <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="refreshLinkButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.refreshLinkButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="refreshLinkButtonActionPerformed"/>
-          </Events>
-        </Component>
         <Component class="javax.swing.JSeparator" name="jSeparator5">
           <Properties>
             <Property name="orientation" type="int" value="1"/>
@@ -245,6 +261,11 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="submitHeaderButtonActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JSeparator" name="jSeparator3">
+          <Properties>
+            <Property name="orientation" type="int" value="1"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>
