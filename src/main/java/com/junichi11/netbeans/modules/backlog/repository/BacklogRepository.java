@@ -75,6 +75,9 @@ import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.ResponseList;
+import org.netbeans.modules.bugtracking.api.Repository;
+import org.netbeans.modules.bugtracking.api.RepositoryManager;
+import org.netbeans.modules.bugtracking.api.Util;
 import org.netbeans.modules.bugtracking.spi.RepositoryController;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.netbeans.modules.bugtracking.spi.RepositoryProvider;
@@ -103,6 +106,8 @@ public final class BacklogRepository {
     private BacklogQuery createdByMeQuery;
 
     private final Map<String, BacklogIssue> issueCache = new HashMap<>();
+    // XXX for subtask
+    private BacklogIssue subtaskParentIssue;
     private static final Logger LOGGER = Logger.getLogger(BacklogRepository.class.getName());
 
     public BacklogRepository() {
@@ -161,7 +166,23 @@ public final class BacklogRepository {
     }
 
     public BacklogIssue createIssue() {
+        // XXX for subtask
+        if (subtaskParentIssue != null) {
+            String issueKey = subtaskParentIssue.getIssueKey();
+            subtaskParentIssue = null;
+            return new BacklogIssue(this, issueKey);
+        }
         return new BacklogIssue(this);
+    }
+
+    public BacklogIssue createIssue(String summary, String description) {
+        String projectKey = getProjectKey();
+        String regex = String.format("\\A%s-\\d+\\z", projectKey); // NOI18N
+        if (summary.matches(regex)) {
+            // subtask
+            return new BacklogIssue(this, summary);
+        }
+        return createIssue();
     }
 
     /**
@@ -269,6 +290,15 @@ public final class BacklogRepository {
      */
     @CheckForNull
     public BacklogIssue getIssue(String issueKey) {
+        if (issueKey == null) {
+            return null;
+        }
+        // try to get from cache
+        for (BacklogIssue backlogIssue : issueCache.values()) {
+            if (issueKey.equals(backlogIssue.getIssueKey())) {
+                return backlogIssue;
+            }
+        }
         BacklogClient backlogClient = createBacklogClient();
         try {
             Issue issue = backlogClient.getIssue(issueKey);
@@ -279,6 +309,116 @@ public final class BacklogRepository {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Get BacklogIssue.
+     *
+     * @param issueId issue id (not issue key id)
+     * @return BacklogIssue if issue exists, otherwise {@code null}
+     */
+    @CheckForNull
+    public BacklogIssue getIssue(long issueId) {
+        BacklogClient backlogClient = createBacklogClient();
+        try {
+            Issue issue = backlogClient.getIssue(issueId);
+            if (issue != null) {
+                return createIssue(issue);
+            }
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Get subissue ids.
+     *
+     * @param parentIssue parent BacklogIssue
+     * @return subissue ids
+     */
+    public List<String> getSubissueIds(BacklogIssue parentIssue) {
+        List<Issue> children = getSubissues(parentIssue);
+        ArrayList<String> ids = new ArrayList<>(children.size());
+        for (Issue child : children) {
+            ids.add(String.valueOf(child.getKeyId()));
+        }
+        return ids;
+    }
+
+    /**
+     * Get subissues.
+     *
+     * @param parentIssue parent BacklogIssue
+     * @return subissues
+     */
+    public List<Issue> getSubissues(BacklogIssue parentIssue) {
+        Project p = getProject();
+        if (p == null || !p.isSubtaskingEnabled()) {
+            return Collections.emptyList();
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        GetIssuesParams issuesParams = new GetIssuesParams(Collections.singletonList(p.getId()))
+                .parentChildType(GetIssuesParams.ParentChildType.Child)
+                .parentIssueIds(Collections.singletonList(parentIssue.getIssue().getId()));
+        try {
+            return backlogClient.getIssues(issuesParams);
+        } catch (BacklogAPIException e) {
+            LOGGER.log(Level.WARNING, e.getMessage());
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get subissues from a parent issue.
+     *
+     * @param parentIssue parent BacklogIssue
+     * @return BacklogIssues
+     */
+    public List<BacklogIssue> getBacklogSubissues(BacklogIssue parentIssue) {
+        List<Issue> subissues = getSubissues(parentIssue);
+        ArrayList<BacklogIssue> backlogSubissues = new ArrayList<>(subissues.size());
+        for (Issue subissue : subissues) {
+            backlogSubissues.add(createIssue(subissue));
+        }
+        return backlogSubissues;
+    }
+
+    /**
+     * Get parent issue.
+     *
+     * @param childIssue child BacklogIssue
+     * @return parent issue if it exists, otherwise {@code null}
+     */
+    public BacklogIssue getParentIssue(BacklogIssue childIssue) {
+        if (childIssue == null || childIssue.getIssue() == null) {
+            return null;
+        }
+        long parentIssueId = childIssue.getIssue().getParentIssueId();
+        if (parentIssueId <= 0) {
+            return childIssue;
+        }
+
+        // check cache
+        for (BacklogIssue issue : issueCache.values()) {
+            Issue i = issue.getIssue();
+            if (i.getId() == parentIssueId) {
+                return issue;
+            }
+        }
+
+        // get issue from online
+        return getIssue(parentIssueId);
+    }
+
+    public void createNewSubissue(BacklogIssue subtaskParentIssue) {
+        setSubtaskParentIssue(subtaskParentIssue);
+        Repository repository = RepositoryManager.getInstance().getRepository(BacklogConnector.ID, getID());
+        Util.createNewIssue(repository);
+    }
+
+    private void setSubtaskParentIssue(BacklogIssue subtaskParentIssue) {
+        this.subtaskParentIssue = subtaskParentIssue;
     }
 
     /**

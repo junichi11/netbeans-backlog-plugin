@@ -71,6 +71,7 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.nulabinc.backlog4j.IssueComment;
 import com.nulabinc.backlog4j.api.option.UpdateIssueCommentParams;
+import java.util.Arrays;
 import org.netbeans.modules.bugtracking.commons.UIUtils;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
@@ -90,6 +91,7 @@ public final class BacklogIssue {
     private String summary;
     private BacklogIssueController controller;
     private IssueNode node;
+    private String subtaskParentIssueKey;
     private final BacklogRepository repository;
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -104,6 +106,8 @@ public final class BacklogIssue {
     public static final String LABEL_NAME_ASSIGNEE = "backlog.issue.assignee"; // NOI18N
     public static final String LABEL_NAME_ATTACHMENT = "backlog.issue.attachment"; // NOI18N
     public static final String LABEL_NAME_SHARED_FILE = "backlog.issue.shared.file"; // NOI18N
+    public static final String LABEL_NAME_PARENT_CHILD = "backlog.issue.parent.child"; // NOI18N
+    public static final ColumnDescriptor<String>[] DEFAULT_SUBTASKING_COLUMN_DESCRIPTORS = getSubtaskingColumnDescriptors();
 
     public static final String PROP_COMMENT_DELETED = "backlog.comment.deleted"; // NOI18N
     public static final String PROP_COMMENT_QUOTE = "backlog.comment.quote"; // NOI18N
@@ -117,6 +121,15 @@ public final class BacklogIssue {
     public BacklogIssue(BacklogRepository repository, Issue issue) {
         this.repository = repository;
         setIssue(issue);
+    }
+
+    public BacklogIssue(BacklogRepository repository, String parentIssueKey) {
+        this(repository);
+        String projectKey = repository.getProjectKey();
+        String regex = String.format("\\A%s-\\d+\\z", projectKey);
+        if (parentIssueKey.matches(regex)) {
+            this.subtaskParentIssueKey = parentIssueKey;
+        }
     }
 
     public BacklogRepository getRepository() {
@@ -386,6 +399,36 @@ public final class BacklogIssue {
         changeSupport.firePropertyChange(IssueStatusProvider.EVENT_STATUS_CHANGED, null, null);
     }
 
+    public BacklogIssue getParentIssue() {
+        if (subtaskParentIssueKey != null) {
+            BacklogIssue parent = repository.getIssue(subtaskParentIssueKey);
+            if (parent != null) {
+                return parent;
+            }
+        }
+        return repository.getParentIssue(this);
+    }
+
+    public boolean isParent() {
+        if (issue == null) {
+            return false;
+        }
+        long parentIssueId = issue.getParentIssueId();
+        return parentIssueId <= 0;
+    }
+
+    public boolean isChild() {
+        if (issue == null) {
+            return false;
+        }
+        long parentIssueId = issue.getParentIssueId();
+        return parentIssueId > 0;
+    }
+
+    public String getSubtaskParentIssueKey() {
+        return subtaskParentIssueKey;
+    }
+
     /**
      * Add an issue.
      *
@@ -410,6 +453,7 @@ public final class BacklogIssue {
 //            fireStatusChange();
             ((BacklogIssueController) getController()).setChanged(false);
         }
+        subtaskParentIssueKey = null;
         return createdIssue;
     }
 
@@ -496,6 +540,15 @@ public final class BacklogIssue {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
         return updatedIssueComment;
+    }
+
+    /**
+     * Get subissue ids.
+     *
+     * @return subissue ids
+     */
+    public List<String> getSubissueIds() {
+        return repository.getSubissueIds(this);
     }
 
     /**
@@ -594,7 +647,7 @@ public final class BacklogIssue {
         return new BacklogIssueNode(this);
     }
 
-    public static ColumnDescriptor[] getColumnDescriptors(BacklogRepository repository) {
+    public static ColumnDescriptor<String>[] getColumnDescriptors() {
         List<ColumnDescriptor<String>> descriptors = new LinkedList<>();
         JTable table = new JTable();
         descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ISSUE_TYPE, String.class, "Issue Type", "Issue Type"));
@@ -609,6 +662,12 @@ public final class BacklogIssue {
         descriptors.add(new ColumnDescriptor<>(LABEL_NAME_STATUS, String.class, "Status", "Status"));
         descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ATTACHMENT, String.class, "Attachment", "Attachment"));
         descriptors.add(new ColumnDescriptor<>(LABEL_NAME_SHARED_FILE, String.class, "Shared File", "Shared File"));
+        return descriptors.toArray(new ColumnDescriptor[descriptors.size()]);
+    }
+
+    public static ColumnDescriptor<String>[] getSubtaskingColumnDescriptors() {
+        List<ColumnDescriptor<String>> descriptors = new LinkedList<>(Arrays.asList(getColumnDescriptors()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_PARENT_CHILD, String.class, "P/C", "Parent / Child"));
         return descriptors.toArray(new ColumnDescriptor[descriptors.size()]);
     }
 

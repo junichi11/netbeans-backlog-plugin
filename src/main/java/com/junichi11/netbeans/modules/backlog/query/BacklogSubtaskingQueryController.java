@@ -39,91 +39,63 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.backlog.issue;
+package com.junichi11.netbeans.modules.backlog.query;
 
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.util.Collection;
-import org.netbeans.modules.bugtracking.spi.IssueController;
-import org.netbeans.modules.bugtracking.spi.IssueProvider;
+import javax.swing.JComponent;
+import org.netbeans.modules.bugtracking.spi.QueryController;
+import org.openide.util.HelpCtx;
 
 /**
  *
  * @author junichi11
  */
-public class BacklogIssueProvider implements IssueProvider<BacklogIssue> {
+public class BacklogSubtaskingQueryController implements QueryController {
 
     @Override
-    public String getDisplayName(BacklogIssue issue) {
-        return issue.getDisplayName();
-    }
-
-    @Override
-    public String getTooltip(BacklogIssue issue) {
-        return issue.getTooltip();
-    }
-
-    @Override
-    public String getID(BacklogIssue issue) {
-        return issue.getKeyId();
-    }
-
-    /**
-     * Returns the ID-s of all issues where this one could be considered being
-     * superordinate to them.
-     *
-     * @param issue
-     * @return ids
-     */
-    @Override
-    public Collection<String> getSubtasks(BacklogIssue issue) {
-        // XXX probably this is still not implemented
-        return issue.getSubissueIds();
-    }
-
-    @Override
-    public String getSummary(BacklogIssue issue) {
-        return issue.getSummary();
-    }
-
-    @Override
-    public boolean isNew(BacklogIssue issue) {
-        return issue.isNew();
-    }
-
-    @Override
-    public boolean isFinished(BacklogIssue issue) {
-        // TODO
+    public boolean providesMode(QueryMode qm) {
         return false;
     }
 
     @Override
-    public boolean refresh(BacklogIssue issue) {
-        return true;
+    public JComponent getComponent(QueryMode qm) {
+        return null;
     }
 
     @Override
-    public void addComment(BacklogIssue issue, String comment, boolean resolveAsFixed) {
-        issue.addComment(comment, resolveAsFixed);
+    public HelpCtx getHelpCtx() {
+        return null;
     }
 
     @Override
-    public void attachFile(BacklogIssue issue, File file, String string, boolean isPatch) {
+    public void opened() {
     }
 
     @Override
-    public IssueController getController(BacklogIssue issue) {
-        return issue.getController();
+    public void closed() {
     }
 
     @Override
-    public void removePropertyChangeListener(BacklogIssue issue, PropertyChangeListener listener) {
-        issue.addPropertyChangeListener(listener);
+    public boolean saveChanges(String string) {
+        return false;
     }
 
     @Override
-    public void addPropertyChangeListener(BacklogIssue issue, PropertyChangeListener listener) {
-        issue.removePropertyChangeListener(listener);
+    public boolean discardUnsavedChanges() {
+        return false;
+    }
+
+    @Override
+    public boolean isChanged() {
+        return false;
+    }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener pl) {
+    }
+
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener pl) {
     }
 
 }
