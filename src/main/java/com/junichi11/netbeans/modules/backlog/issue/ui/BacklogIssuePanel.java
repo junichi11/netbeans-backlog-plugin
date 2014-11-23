@@ -684,9 +684,6 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         resolutionComboBox.setModel(resolutionComboBoxModel);
     }
 
-    @NbBundle.Messages({
-        "BacklogIssuePanel.status.new=New"
-    })
     private void setStatus(BacklogData data) {
         statusComboBox.setVisible(!issue.isNew());
         List<Status> status = data.getStatus();
