@@ -251,6 +251,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (getPanel().isSearchButton(e.getSource())) {
             search();
+            getPanel().scrollToBottom();
         } else if (getPanel().isSaveButton(e.getSource())) {
             RequestProcessor rp = Backlog.getInstance().getRequestProcessor();
             rp.post(new Runnable() {

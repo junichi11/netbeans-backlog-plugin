@@ -51,6 +51,9 @@ import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import java.awt.Container;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import org.openide.util.NbBundle;
 
 /**
@@ -194,6 +197,25 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
         saveButton.setEnabled(isEnabled);
     }
 
+    public void scrollToBottom() {
+        if (!generalCollapsibleSectionPanel.isExpanded() || !dateCollapsibleSectionPanel.isExpanded()) {
+            return;
+        }
+
+        Container parent = getParent();
+        if (parent == null) {
+            return;
+        }
+        parent = parent.getParent();
+        parent = parent.getParent(); // viewport
+        parent = parent.getParent(); // scroll pane
+        if (parent instanceof JScrollPane) {
+            JScrollPane scrollPane = (JScrollPane) parent;
+            JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+            verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -230,6 +252,7 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
         keywordTextField.setText(org.openide.util.NbBundle.getMessage(BacklogQueryPanel.class, "BacklogQueryPanel.keywordTextField.text")); // NOI18N
 
         dateCollapsibleSectionPanel.setContent(mainDatePanel);
+        dateCollapsibleSectionPanel.setExpanded(false);
         dateCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(BacklogQueryPanel.class, "BacklogQueryPanel.dateCollapsibleSectionPanel.label")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(searchButton, org.openide.util.NbBundle.getMessage(BacklogQueryPanel.class, "BacklogQueryPanel.searchButton.text")); // NOI18N

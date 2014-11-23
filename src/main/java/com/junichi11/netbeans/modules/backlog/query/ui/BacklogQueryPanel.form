@@ -122,6 +122,7 @@
         <Property name="content" type="javax.swing.JComponent" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="mainDatePanel"/>
         </Property>
+        <Property name="expanded" type="boolean" value="false"/>
         <Property name="label" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/junichi11/netbeans/modules/backlog/query/ui/Bundle.properties" key="BacklogQueryPanel.dateCollapsibleSectionPanel.label" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
