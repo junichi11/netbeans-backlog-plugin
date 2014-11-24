@@ -126,7 +126,7 @@ public final class BacklogIssue {
     public BacklogIssue(BacklogRepository repository, String parentIssueKey) {
         this(repository);
         String projectKey = repository.getProjectKey();
-        String regex = String.format("\\A%s-\\d+\\z", projectKey);
+        String regex = String.format("\\A%s-\\d+\\z", projectKey); // NOI18N
         if (parentIssueKey.matches(regex)) {
             this.subtaskParentIssueKey = parentIssueKey;
         }
@@ -658,27 +658,44 @@ public final class BacklogIssue {
         return new BacklogIssueNode(this);
     }
 
+    @NbBundle.Messages({
+        "BacklogIssue.column.descriptor.issueType.displayName=Issue Type",
+        "BacklogIssue.column.descriptor.summary.displayName=Summary",
+        "BacklogIssue.column.descriptor.priority.displayName=Priority",
+        "BacklogIssue.column.descriptor.created.displayName=Created",
+        "BacklogIssue.column.descriptor.dueDate.displayName=Due Date",
+        "BacklogIssue.column.descriptor.updated.displayName=Updated",
+        "BacklogIssue.column.descriptor.registeredBy.displayName=Registered by",
+        "BacklogIssue.column.descriptor.assignee.displayName=Assignee",
+        "BacklogIssue.column.descriptor.status.displayName=Status",
+        "BacklogIssue.column.descriptor.attachment.displayName=Attachment",
+        "BacklogIssue.column.descriptor.sharedFile.displayName=Shared File"
+    })
     public static ColumnDescriptor<String>[] getColumnDescriptors() {
         List<ColumnDescriptor<String>> descriptors = new LinkedList<>();
         JTable table = new JTable();
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ISSUE_TYPE, String.class, "Issue Type", "Issue Type"));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ISSUE_TYPE, String.class, Bundle.BacklogIssue_column_descriptor_issueType_displayName(), Bundle.BacklogIssue_column_descriptor_issueType_displayName()));
         descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ID, String.class, "ID", "ID", UIUtils.getColumnWidthInPixels(6, table)));
-        descriptors.add(new ColumnDescriptor<>(IssueNode.LABEL_NAME_SUMMARY, String.class, "Summary", "Summary"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_PRIORITY, String.class, "Priority", "Priority"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_CREATED, String.class, "Created", "Created"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_DUE_DATE, String.class, "Due Date", "Due Date"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_UPDATED, String.class, "Updated", "Updated"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_REGISTERED_BY, String.class, "Registered by", "Registered by"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ASSIGNEE, String.class, "Assignee", "Assignee"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_STATUS, String.class, "Status", "Status"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ATTACHMENT, String.class, "Attachment", "Attachment"));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_SHARED_FILE, String.class, "Shared File", "Shared File"));
+        descriptors.add(new ColumnDescriptor<>(IssueNode.LABEL_NAME_SUMMARY, String.class, Bundle.BacklogIssue_column_descriptor_summary_displayName(), Bundle.BacklogIssue_column_descriptor_summary_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_PRIORITY, String.class, Bundle.BacklogIssue_column_descriptor_priority_displayName(), Bundle.BacklogIssue_column_descriptor_priority_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_CREATED, String.class, Bundle.BacklogIssue_column_descriptor_created_displayName(), Bundle.BacklogIssue_column_descriptor_created_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_DUE_DATE, String.class, Bundle.BacklogIssue_column_descriptor_dueDate_displayName(), Bundle.BacklogIssue_column_descriptor_dueDate_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_UPDATED, String.class, Bundle.BacklogIssue_column_descriptor_updated_displayName(), Bundle.BacklogIssue_column_descriptor_updated_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_REGISTERED_BY, String.class, Bundle.BacklogIssue_column_descriptor_registeredBy_displayName(), Bundle.BacklogIssue_column_descriptor_registeredBy_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ASSIGNEE, String.class, Bundle.BacklogIssue_column_descriptor_assignee_displayName(), Bundle.BacklogIssue_column_descriptor_assignee_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_STATUS, String.class, Bundle.BacklogIssue_column_descriptor_status_displayName(), Bundle.BacklogIssue_column_descriptor_status_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_ATTACHMENT, String.class, Bundle.BacklogIssue_column_descriptor_attachment_displayName(), Bundle.BacklogIssue_column_descriptor_attachment_displayName()));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_SHARED_FILE, String.class, Bundle.BacklogIssue_column_descriptor_sharedFile_displayName(), Bundle.BacklogIssue_column_descriptor_sharedFile_displayName()));
         return descriptors.toArray(new ColumnDescriptor[descriptors.size()]);
     }
 
+    @NbBundle.Messages({
+        "BacklogIssue.column.descriptor.parentChild.displayName=P/C",
+        "BacklogIssue.column.descriptor.parentChild.shortDiscription=Parent/Child"
+    })
     public static ColumnDescriptor<String>[] getSubtaskingColumnDescriptors() {
         List<ColumnDescriptor<String>> descriptors = new LinkedList<>(Arrays.asList(getColumnDescriptors()));
-        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_PARENT_CHILD, String.class, "P/C", "Parent / Child"));
+        descriptors.add(new ColumnDescriptor<>(LABEL_NAME_PARENT_CHILD, String.class, Bundle.BacklogIssue_column_descriptor_parentChild_displayName(), Bundle.BacklogIssue_column_descriptor_parentChild_shortDiscription()));
         return descriptors.toArray(new ColumnDescriptor[descriptors.size()]);
     }
 
