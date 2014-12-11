@@ -55,6 +55,7 @@ import org.openide.util.ImageUtilities;
 public enum BacklogImage {
 
     ICON_16("icon_16.png"), // NOI18N
+    ICON_32("icon_32.png"), // NOI18N
     PRIORITY_HIGH("priority_high.png"), // NOI18N
     PRIORITY_NORMAL("priority_normal.png"), // NOI18N
     PRIORITY_LOW("priority_low.png"), // NOI18N

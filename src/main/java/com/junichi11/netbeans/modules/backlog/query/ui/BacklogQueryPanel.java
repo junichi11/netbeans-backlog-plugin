@@ -41,17 +41,19 @@
  */
 package com.junichi11.netbeans.modules.backlog.query.ui;
 
+import com.junichi11.netbeans.modules.backlog.Backlog.FileType;
+import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.Icon;
 import javax.swing.JComponent;
-import com.junichi11.netbeans.modules.backlog.Backlog.FileType;
-import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
-import java.awt.Container;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import org.openide.util.NbBundle;
@@ -67,6 +69,7 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
     private final DatePanel datePanel;
     private final BacklogRepository repository;
     private final BacklogQuery query;
+    private static final Icon ICON = BacklogImage.ICON_32.getIcon();
 
     /**
      * Creates new form BacklogQueryPanel
@@ -83,6 +86,7 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
         mainDatePanel.add(datePanel);
         Font font = keywordLabel.getFont();
         queryNameLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
+        queryNameLabel.setIcon(ICON);
         // issue table
         mainIssueTablePanel.add(tableComponent);
         update();
