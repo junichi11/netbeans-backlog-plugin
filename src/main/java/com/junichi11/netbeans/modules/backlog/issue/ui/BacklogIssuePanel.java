@@ -41,7 +41,18 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue.ui;
 
+import com.junichi11.netbeans.modules.backlog.BacklogData;
+import com.junichi11.netbeans.modules.backlog.issue.BacklogAttachment;
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.query.BacklogSubtaskingQueryController;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.ui.AttributesListCellRenderer;
+import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
+import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT_WITH_TIME;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.Attachment;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
@@ -68,6 +79,8 @@ import com.nulabinc.backlog4j.internal.json.UserJSONImpl;
 import com.nulabinc.backlog4j.internal.json.VersionJSONImpl;
 import java.awt.Component;
 import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
@@ -93,19 +106,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import com.junichi11.netbeans.modules.backlog.BacklogData;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogAttachment;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.query.BacklogSubtaskingQueryController;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
-import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
-import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT_WITH_TIME;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import org.netbeans.modules.bugtracking.issuetable.IssueTable;
 import org.netbeans.modules.bugtracking.issuetable.QueryTableCellRenderer;
 import org.openide.DialogDisplayer;
@@ -117,7 +117,6 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Cancellable;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
@@ -153,7 +152,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private final DefaultListModel<Version> milestoneListModel = new DefaultListModel<>();
     private final ChangeSupport changeSupport = new ChangeSupport(this);
 
-    private final Icon errorIcon = ImageUtilities.loadImageIcon(BacklogImage.ERROR_16.getImagePath(), true);
+    // icon
+    private static final Icon ERROR_ICON = BacklogImage.ERROR_16.getIcon();
+    private static final Icon ICON = BacklogImage.ICON_32.getIcon();
 
     /**
      * Creates new form IssuePanel
@@ -226,6 +227,11 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         commentsPanel = new CommentsPanel();
         commentsPanel.addPropertyChangeListener(this);
         mainCommentsPanel.add(commentsPanel);
+
+        // header
+        Font font = errorHeaderLabel.getFont();
+        headerIssueKeyLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
+        headerIssueKeyLabel.setIcon(ICON);
     }
 
     @NbBundle.Messages({
@@ -447,8 +453,6 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     }
 
     private void setHeaderIssueKey(String text) {
-        Font font = errorHeaderLabel.getFont();
-        headerIssueKeyLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
         headerIssueKeyLabel.setText(String.format("<html><b>%s</b>", text)); // NOI18N
     }
 
@@ -802,7 +806,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         if (StringUtils.isEmpty(errorMessasge) || errorMessasge.trim().isEmpty()) {
             errorHeaderLabel.setIcon(null);
         } else {
-            errorHeaderLabel.setIcon(errorIcon);
+            errorHeaderLabel.setIcon(ERROR_ICON);
         }
         errorHeaderLabel.setText(errorMessasge);
     }
@@ -964,18 +968,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(headerPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerPanelLayout.createSequentialGroup()
-                        .addComponent(headerIssueKeyLabel)
+                    .addGroup(headerPanelLayout.createSequentialGroup()
+                        .addComponent(errorHeaderLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(refreshLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(submitHeaderButton))
                     .addGroup(headerPanelLayout.createSequentialGroup()
                         .addComponent(headerCreatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -994,9 +990,17 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                         .addComponent(headerCreatedUserLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(headerPanelLayout.createSequentialGroup()
-                        .addComponent(errorHeaderLabel)
+                        .addComponent(headerIssueKeyLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(submitHeaderButton)))
+                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(refreshLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         headerPanelLayout.setVerticalGroup(
@@ -1004,13 +1008,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(headerPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(headerIssueKeyLabel)
-                    .addComponent(refreshLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSeparator5)
-                    .addComponent(jSeparator3)
-                    .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(refreshLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jSeparator5)
+                        .addComponent(jSeparator3)
+                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerCreatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(headerCreatedDateLabel)
@@ -1318,7 +1323,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(headerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mainScrollPane))
+                .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 987, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
