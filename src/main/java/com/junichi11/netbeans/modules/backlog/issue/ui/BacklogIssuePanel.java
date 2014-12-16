@@ -334,9 +334,15 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         User createdUser = existingIssue.getCreatedUser();
         if (createdUser != null) {
             headerCreatedUserLinkButton.setText(createdUser.getName());
-            String mailAddress = createdUser.getMailAddress();
-            if (!StringUtils.isEmpty(mailAddress)) {
+            BacklogData cache = BacklogData.create(issue.getRepository());
+            Icon userIcon = cache.getUserIcon(createdUser);
+            if (userIcon != null) {
+                headerCreatedUserLinkButton.setIcon(userIcon);
             }
+            // TODO add an action to send email
+//            String mailAddress = createdUser.getMailAddress();
+//            if (!StringUtils.isEmpty(mailAddress)) {
+//            }
         }
         addSubtaskLinkButton.setVisible(isSubtaskingEnabled());
     }
@@ -1007,14 +1013,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(headerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(headerIssueKeyLabel)
                     .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(refreshLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jSeparator5)
                         .addComponent(jSeparator3)
-                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(headerIssueKeyLabel))
+                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerCreatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)

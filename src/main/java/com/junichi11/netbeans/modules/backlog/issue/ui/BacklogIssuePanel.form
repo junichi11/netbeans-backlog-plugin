@@ -114,15 +114,15 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="headerIssueKeyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" alignment="3" groupAlignment="3" attributes="0">
                           <Component id="showOnBrowserLinkButton" alignment="3" max="32767" attributes="0"/>
                           <Component id="refreshLinkButton" alignment="3" max="32767" attributes="0"/>
                           <Component id="jSeparator5" max="32767" attributes="0"/>
                           <Component id="jSeparator3" max="32767" attributes="0"/>
                           <Component id="addSubtaskLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="headerIssueKeyLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
