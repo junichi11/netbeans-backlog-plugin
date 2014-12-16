@@ -318,7 +318,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             String parentIssueKey = issue.getSubtaskParentIssueKey();
             if (!StringUtils.isEmpty(parentIssueKey)) {
                 // subtasking
-                setHeaderIssueKey(Bundle.BacklogIssuePanel_header_new_subtask(parentIssueKey));;
+                setHeaderIssueKey(Bundle.BacklogIssuePanel_header_new_subtask(parentIssueKey));
             } else {
                 setHeaderIssueKey(Bundle.BacklogIssuePanel_header_new_issue());
             }
@@ -1007,14 +1007,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(headerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(headerIssueKeyLabel)
+                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(refreshLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jSeparator5)
                         .addComponent(jSeparator3)
-                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(headerIssueKeyLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerCreatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
