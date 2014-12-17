@@ -140,6 +140,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private IssueTable subtaskingTable;
     private boolean isSubtaskingEnabled;
     private final ChangeListener attachmentDeletedListener;
+    private final String repositoryId;
 
     // models
     private final DefaultComboBoxModel<Priority> priorityComboBoxModel = new DefaultComboBoxModel<>();
@@ -159,7 +160,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     /**
      * Creates new form IssuePanel
      */
-    public BacklogIssuePanel() {
+    public BacklogIssuePanel(String repositoryId) {
+        this.repositoryId = repositoryId;
         this.attachmentDeletedListener = new ChangeListener() {
 
             @Override
@@ -202,7 +204,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         issueTypeComboBox.setRenderer(new AttributesListCellRenderer(issueTypeComboBox.getRenderer()));
         statusComboBox.setRenderer(new AttributesListCellRenderer(statusComboBox.getRenderer()));
         priorityComboBox.setRenderer(new AttributesListCellRenderer(priorityComboBox.getRenderer()));
-        assigneeComboBox.setRenderer(new AttributesListCellRenderer(assigneeComboBox.getRenderer()));
+        assigneeComboBox.setRenderer(new AttributesListCellRenderer(assigneeComboBox.getRenderer(), repositoryId));
         versionList.setCellRenderer(new AttributesListCellRenderer(versionList.getCellRenderer()));
         categoryList.setCellRenderer(new AttributesListCellRenderer(categoryList.getCellRenderer()));
         milestoneList.setCellRenderer(new AttributesListCellRenderer(milestoneList.getCellRenderer()));
@@ -444,7 +446,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     }
 
     private void addComment(IssueComment comment) {
-        commentsPanel.addComment(comment);
+        commentsPanel.addComment(issue.getRepository(), comment);
     }
 
     private void removeAllComments() {

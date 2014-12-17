@@ -42,13 +42,14 @@
 package com.junichi11.netbeans.modules.backlog.issue.ui;
 
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import com.nulabinc.backlog4j.IssueComment;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import com.nulabinc.backlog4j.IssueComment;
 
 /**
  *
@@ -80,11 +81,11 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         return comments;
     }
 
-    public void addComment(IssueComment comment) {
+    public void addComment(BacklogRepository repository, IssueComment comment) {
         if (comment == null) {
             return;
         }
-        CommentPanel newPanel = new CommentPanel(comment);
+        CommentPanel newPanel = new CommentPanel(repository, comment);
         newPanel.addPropertyChangeListener(this);
         commentPanels.add(newPanel);
         add(newPanel);

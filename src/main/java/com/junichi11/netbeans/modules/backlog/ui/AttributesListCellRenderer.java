@@ -41,6 +41,12 @@
  */
 package com.junichi11.netbeans.modules.backlog.ui;
 
+import com.junichi11.netbeans.modules.backlog.Backlog.FileType;
+import com.junichi11.netbeans.modules.backlog.BacklogData;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepositoryManager;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.Category;
 import com.nulabinc.backlog4j.IssueType;
 import com.nulabinc.backlog4j.Priority;
@@ -50,11 +56,10 @@ import com.nulabinc.backlog4j.User;
 import com.nulabinc.backlog4j.Version;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import com.junichi11.netbeans.modules.backlog.Backlog.FileType;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import org.openide.util.NbBundle;
 
 /**
@@ -66,8 +71,14 @@ public class AttributesListCellRenderer extends DefaultListCellRenderer {
     private static final long serialVersionUID = 8440399918914460498L;
 
     private final ListCellRenderer renderer;
+    private final String repositoryId;
 
     public AttributesListCellRenderer(ListCellRenderer renderer) {
+        this(renderer, null);
+    }
+
+    public AttributesListCellRenderer(ListCellRenderer renderer, String repositoryId) {
+        this.repositoryId = repositoryId;
         this.renderer = renderer;
     }
 
@@ -99,6 +110,22 @@ public class AttributesListCellRenderer extends DefaultListCellRenderer {
         } else if (value instanceof User) {
             User user = (User) value;
             text = user.getName();
+
+            // get icon
+            Icon userIcon = null;
+            if (!StringUtils.isEmpty(text) && !StringUtils.isEmpty(repositoryId)) {
+                BacklogRepositoryManager manager = BacklogRepositoryManager.getInstance();
+                BacklogRepository repository = manager.getRepository(repositoryId);
+                if (repository != null) {
+                    BacklogData cache = BacklogData.create(repository);
+                    userIcon = cache.getUserIcon(user);
+                }
+            }
+
+            text = StringUtils.isEmpty(text) ? " " : text; // NOI18N
+            JLabel label = (JLabel) renderer.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
+            label.setIcon(userIcon);
+            return label;
         } else if (value instanceof Category) {
             Category category = (Category) value;
             text = category.getName();

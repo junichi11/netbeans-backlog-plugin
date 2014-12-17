@@ -41,13 +41,13 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue;
 
+import com.junichi11.netbeans.modules.backlog.issue.ui.BacklogIssuePanel;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import com.junichi11.netbeans.modules.backlog.issue.ui.BacklogIssuePanel;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import org.netbeans.modules.bugtracking.spi.IssueController;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -60,8 +60,10 @@ final class BacklogIssueController implements IssueController, ChangeListener {
 
     private BacklogIssuePanel panel;
     private boolean isChanged;
+    private final String repositoryId;
 
     public BacklogIssueController(BacklogIssue issue) {
+        repositoryId = issue.getRepository().getID();
         getPanel().setIssue(issue);
         getPanel().update(true);
         getPanel().scrollToTop();
@@ -120,7 +122,7 @@ final class BacklogIssueController implements IssueController, ChangeListener {
 
     private BacklogIssuePanel getPanel() {
         if (panel == null) {
-            panel = new BacklogIssuePanel();
+            panel = new BacklogIssuePanel(repositoryId);
             panel.addChangeListener(this);
         }
         return panel;
