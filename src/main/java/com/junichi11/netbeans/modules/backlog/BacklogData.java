@@ -41,6 +41,8 @@
  */
 package com.junichi11.netbeans.modules.backlog;
 
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
 import com.nulabinc.backlog4j.Category;
 import com.nulabinc.backlog4j.DiskUsage;
@@ -50,11 +52,19 @@ import com.nulabinc.backlog4j.Resolution;
 import com.nulabinc.backlog4j.Status;
 import com.nulabinc.backlog4j.User;
 import com.nulabinc.backlog4j.Version;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 
 /**
  * Data cache.
@@ -72,8 +82,10 @@ public final class BacklogData {
     private List<User> users;
     private List<Version> versions;
     private User myself;
+    private final Map<User, Icon> userIcons = new HashMap<>();
     private final BacklogRepository repository;
     private static final Map<String, BacklogData> DATA = new HashMap<>();
+    private static final Logger LOGGER = Logger.getLogger(BacklogData.class.getName());
 
     private BacklogData(BacklogRepository repository) {
         this.repository = repository;
@@ -145,6 +157,41 @@ public final class BacklogData {
      */
     public List<User> getUsers() {
         return getUsers(false);
+    }
+
+    /**
+     * Get user icon. Icon size is 16x16.
+     *
+     * @param user
+     * @return user icon if it was got, otherwise {@code null}
+     */
+    @CheckForNull
+    public Icon getUserIcon(User user) {
+        Icon icon = userIcons.get(user);
+        if (icon != null) {
+            return icon;
+        }
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient != null) {
+            try {
+                com.nulabinc.backlog4j.Icon userIcon = backlogClient.getUserIcon(user.getId());
+                if (userIcon != null) {
+                    try {
+                        // resize to 16x16
+                        BufferedImage image = ImageIO.read(userIcon.getContent());
+                        Image resizedImage = image.getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+                        icon = new ImageIcon(resizedImage);
+                        userIcons.put(user, icon);
+                        return icon;
+                    } catch (IOException ex) {
+                        LOGGER.log(Level.WARNING, ex.getMessage());
+                    }
+                }
+            } catch (BacklogAPIException ex) {
+                LOGGER.log(Level.WARNING, "{0}:{1}", new Object[]{repository.getProjectKey(), ex.getMessage()}); // NOI18N
+            }
+        }
+        return null;
     }
 
     /**

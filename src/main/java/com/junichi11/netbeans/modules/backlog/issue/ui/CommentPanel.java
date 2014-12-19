@@ -41,11 +41,15 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue.ui;
 
+import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.IssueComment;
+import com.nulabinc.backlog4j.User;
 import java.util.Date;
+import javax.swing.Icon;
 import org.openide.util.NbBundle;
 
 /**
@@ -67,10 +71,10 @@ public class CommentPanel extends javax.swing.JPanel {
         initComponents();
     }
 
-    public CommentPanel(IssueComment comment) {
+    public CommentPanel(BacklogRepository repository, IssueComment comment) {
         this.comment = comment;
         initComponents();
-        setUserName(comment.getCreatedUser().getName());
+        setUser(repository, comment.getCreatedUser());
         setCreatedDate(comment.getCreated());
         setUpdatedDate(comment.getUpdated());
         setContent(comment.getContent());
@@ -79,8 +83,15 @@ public class CommentPanel extends javax.swing.JPanel {
         deleteLinkButton.setEnabled(false);
     }
 
-    private void setUserName(String name) {
-        userLinkButton.setText(name);
+    private void setUser(BacklogRepository repository, User user) {
+        BacklogData cache = BacklogData.create(repository);
+        Icon userIcon = cache.getUserIcon(user);
+        if (userIcon != null) {
+            userLinkButton.setIcon(userIcon);
+        } else {
+            userLinkButton.setIcon(null);
+        }
+        userLinkButton.setText(user.getName());
     }
 
     private void setCreatedDate(Date date) {

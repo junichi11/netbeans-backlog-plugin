@@ -65,6 +65,10 @@ public class BacklogRepositoryManager {
         return REPOSITORIES.values();
     }
 
+    public synchronized BacklogRepository getRepository(String repositoryId) {
+        return REPOSITORIES.get(repositoryId);
+    }
+
     public synchronized void add(BacklogRepository repository) {
         if (repository == null) {
             return;
