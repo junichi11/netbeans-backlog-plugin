@@ -14,6 +14,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <verifyRuntime>warn</verifyRuntime>
+                    <codeNameBase>com.junichi11.netbeans.backlog.plugin</codeNameBase>
                     <licenseName>Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2</licenseName>
                     <licenseFile>license.txt</licenseFile>
                     <author>Junichi Yamamoto</author>
