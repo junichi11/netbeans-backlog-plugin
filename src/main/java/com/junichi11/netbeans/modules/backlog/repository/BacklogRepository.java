@@ -41,11 +41,22 @@
  */
 package com.junichi11.netbeans.modules.backlog.repository;
 
+import com.junichi11.netbeans.modules.backlog.BacklogConfig;
+import com.junichi11.netbeans.modules.backlog.BacklogConnector;
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.options.BacklogOptions;
+import com.junichi11.netbeans.modules.backlog.query.AssignedToMeQuery;
+import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
+import com.junichi11.netbeans.modules.backlog.query.CreatedByMeQuery;
+import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
 import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.Issue;
 import com.nulabinc.backlog4j.Project;
+import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
 import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
@@ -64,17 +75,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.CheckForNull;
-import com.junichi11.netbeans.modules.backlog.BacklogConfig;
-import com.junichi11.netbeans.modules.backlog.BacklogConnector;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.options.BacklogOptions;
-import com.junichi11.netbeans.modules.backlog.query.AssignedToMeQuery;
-import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
-import com.junichi11.netbeans.modules.backlog.query.CreatedByMeQuery;
-import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
-import com.nulabinc.backlog4j.ResponseList;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.api.Util;
@@ -460,7 +460,7 @@ public final class BacklogRepository {
      * @param query a query
      */
     public void addQuery(BacklogQuery query) {
-        queries.add(query);
+        getQueries().add(query);
     }
 
     /**
@@ -473,7 +473,7 @@ public final class BacklogRepository {
         if (!(query instanceof DefaultQuery)) {
             removeQueryConfig(query);
         }
-        queries.remove(query);
+        getQueries().remove(query);
         fireQueryListChanged();
     }
 
@@ -505,12 +505,12 @@ public final class BacklogRepository {
 
     private void setDefaultQuery(BacklogQuery query, boolean isEnabled) {
         if (isEnabled) {
-            if (!queries.contains(query)) {
-                queries.add(query);
+            if (!getQueries().contains(query)) {
+                getQueries().add(query);
             }
         } else {
-            if (queries.contains(query)) {
-                queries.remove(query);
+            if (getQueries().contains(query)) {
+                getQueries().remove(query);
             }
         }
     }
