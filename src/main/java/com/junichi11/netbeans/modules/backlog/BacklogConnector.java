@@ -41,8 +41,8 @@
  */
 package com.junichi11.netbeans.modules.backlog;
 
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepositoryManager;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepositoryManager;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.spi.BugtrackingConnector;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
@@ -75,11 +75,11 @@ public class BacklogConnector implements BugtrackingConnector {
     @Override
     public Repository createRepository(RepositoryInfo info) {
         BacklogRepository repository = new BacklogRepository(info);
+        BacklogRepositoryManager.getInstance().add(repository);
         return createRepository(repository);
     }
 
     private Repository createRepository(BacklogRepository repository) {
-        BacklogRepositoryManager.getInstance().add(repository);
         Backlog backlog = Backlog.getInstance();
         return backlog.getBugtrackingSupport().createRepository(
                 repository,

@@ -41,13 +41,13 @@
  */
 package com.junichi11.netbeans.modules.backlog.repository;
 
+import com.junichi11.netbeans.modules.backlog.BacklogConnector;
+import com.junichi11.netbeans.modules.backlog.repository.ui.BacklogRepositoryPanel;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import java.util.Collection;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import com.junichi11.netbeans.modules.backlog.BacklogConnector;
-import com.junichi11.netbeans.modules.backlog.repository.ui.BacklogRepositoryPanel;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.spi.RepositoryController;
@@ -167,6 +167,7 @@ public class BacklogRepositoryController implements RepositoryController, Change
                 .setProjectKey(p.getProjectKey())
                 .setProject(p.getProject());
         repository.setRepositoryInfo(repositoryInfo);
+        BacklogRepositoryManager.getInstance().add(repository);
     }
 
     @Override
