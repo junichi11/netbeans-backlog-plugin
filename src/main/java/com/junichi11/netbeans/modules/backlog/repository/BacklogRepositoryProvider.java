@@ -41,11 +41,11 @@
  */
 package com.junichi11.netbeans.modules.backlog.repository;
 
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import org.netbeans.modules.bugtracking.spi.RepositoryController;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.netbeans.modules.bugtracking.spi.RepositoryProvider;

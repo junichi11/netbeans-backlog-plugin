@@ -64,22 +64,22 @@ public final class BacklogOptions {
     }
 
     public void setAssignedToMeQuery(boolean isEnabled) {
-        getPrefereces().putBoolean(ASSIGNED_TO_ME, isEnabled);
+        getPreferences().putBoolean(ASSIGNED_TO_ME, isEnabled);
     }
 
     public boolean isAssignedToMeQuery() {
-        return getPrefereces().getBoolean(ASSIGNED_TO_ME, true);
+        return getPreferences().getBoolean(ASSIGNED_TO_ME, true);
     }
 
     public void setCreatedByMeQuery(boolean isEnabled) {
-        getPrefereces().putBoolean(CREATED_BY_ME, isEnabled);
+        getPreferences().putBoolean(CREATED_BY_ME, isEnabled);
     }
 
     public boolean isCreatedByMeQuery() {
-        return getPrefereces().getBoolean(CREATED_BY_ME, true);
+        return getPreferences().getBoolean(CREATED_BY_ME, true);
     }
 
-    private Preferences getPrefereces() {
+    private Preferences getPreferences() {
         return NbPreferences.forModule(BacklogOptions.class).node(PREFERENCES_PATH);
     }
 
