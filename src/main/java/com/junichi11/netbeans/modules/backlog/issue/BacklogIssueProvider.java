@@ -117,12 +117,12 @@ public class BacklogIssueProvider implements IssueProvider<BacklogIssue> {
     }
 
     @Override
-    public void removePropertyChangeListener(BacklogIssue issue, PropertyChangeListener listener) {
+    public void addPropertyChangeListener(BacklogIssue issue, PropertyChangeListener listener) {
         issue.addPropertyChangeListener(listener);
     }
 
     @Override
-    public void addPropertyChangeListener(BacklogIssue issue, PropertyChangeListener listener) {
+    public void removePropertyChangeListener(BacklogIssue issue, PropertyChangeListener listener) {
         issue.removePropertyChangeListener(listener);
     }
 
