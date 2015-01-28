@@ -52,20 +52,18 @@ import org.netbeans.modules.bugtracking.spi.IssueScheduleProvider;
 public class BacklogIssueScheduleProvider implements IssueScheduleProvider<BacklogIssue> {
 
     @Override
-    public void setSchedule(BacklogIssue i, IssueScheduleInfo isi) {
-        // TODO
+    public void setSchedule(BacklogIssue issue, IssueScheduleInfo info) {
+        issue.setSchedule(info);
     }
 
     @Override
-    public Date getDueDate(BacklogIssue i) {
-        // TODO
-        return null;
+    public Date getDueDate(BacklogIssue issue) {
+        return issue.getDueDate();
     }
 
     @Override
-    public IssueScheduleInfo getSchedule(BacklogIssue i) {
-        // TODO
-        return null;
+    public IssueScheduleInfo getSchedule(BacklogIssue issue) {
+        return issue.getSchedule();
     }
 
 }

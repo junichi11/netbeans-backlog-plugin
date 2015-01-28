@@ -105,7 +105,7 @@ public final class BacklogRepository {
     private BacklogQuery assignedToMeQuery;
     private BacklogQuery createdByMeQuery;
 
-    private final Map<String, BacklogIssue> issueCache = new HashMap<>();
+    private final Map<String, BacklogIssue> issueCache = Collections.synchronizedMap(new HashMap<String, BacklogIssue>());
     // XXX for subtask
     private BacklogIssue subtaskParentIssue;
     private static final Logger LOGGER = Logger.getLogger(BacklogRepository.class.getName());
