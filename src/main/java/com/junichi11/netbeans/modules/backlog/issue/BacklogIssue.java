@@ -324,9 +324,9 @@ public final class BacklogIssue {
     }
 
     /**
-     * Get assingnee.
+     * Get assignee.
      *
-     * @return Assingnee if issue is not {@code null}, {@code null} otherwise
+     * @return Assignee if issue is not {@code null}, {@code null} otherwise
      */
     @CheckForNull
     public User getAssignee() {
@@ -644,8 +644,8 @@ public final class BacklogIssue {
      * Add comment when changes are committed by vcs(e.g. git).
      *
      * @param comment comment
-     * @param resolveAsFixed {@code true} Resolve an issue as FIXED when
-     * chnanges are committed by vcs, {@code false} otherwise
+     * @param resolveAsFixed {@code true} Resolve an issue as FIXED when changes
+     * are committed by vcs, {@code false} otherwise
      */
     public void addComment(String comment, boolean resolveAsFixed) {
         // TODO add comment?
