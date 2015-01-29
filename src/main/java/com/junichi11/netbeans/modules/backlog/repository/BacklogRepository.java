@@ -191,7 +191,7 @@ public final class BacklogRepository {
      * @param issue an issue
      * @return backlog issue
      */
-    public BacklogIssue createIssue(Issue issue) {
+    public synchronized BacklogIssue createIssue(Issue issue) {
         // use cache
         String keyId = String.valueOf(issue.getKeyId());
         BacklogIssue backlogIssue = issueCache.get(keyId);
@@ -208,7 +208,7 @@ public final class BacklogRepository {
      *
      * @param issue BacklogIssue
      */
-    public void addIssue(BacklogIssue issue) {
+    public synchronized void addIssue(BacklogIssue issue) {
         if (issue == null) {
             return;
         }
@@ -236,7 +236,10 @@ public final class BacklogRepository {
         }
         List<BacklogIssue> backlogIssues = new ArrayList<>(keyIds.length);
         for (String keyId : keyIds) {
-            BacklogIssue backlogIssue = issueCache.get(keyId);
+            BacklogIssue backlogIssue;
+            synchronized (this) {
+                backlogIssue = issueCache.get(keyId);
+            }
             if (backlogIssue != null) {
                 backlogIssues.add(backlogIssue);
                 continue;
@@ -294,9 +297,11 @@ public final class BacklogRepository {
             return null;
         }
         // try to get from cache
-        for (BacklogIssue backlogIssue : issueCache.values()) {
-            if (issueKey.equals(backlogIssue.getIssueKey())) {
-                return backlogIssue;
+        synchronized (this) {
+            for (BacklogIssue backlogIssue : issueCache.values()) {
+                if (issueKey.equals(backlogIssue.getIssueKey())) {
+                    return backlogIssue;
+                }
             }
         }
         BacklogClient backlogClient = createBacklogClient();
@@ -400,10 +405,12 @@ public final class BacklogRepository {
         }
 
         // check cache
-        for (BacklogIssue issue : issueCache.values()) {
-            Issue i = issue.getIssue();
-            if (i.getId() == parentIssueId) {
-                return issue;
+        synchronized (this) {
+            for (BacklogIssue issue : issueCache.values()) {
+                Issue i = issue.getIssue();
+                if (i.getId() == parentIssueId) {
+                    return issue;
+                }
             }
         }
 
