@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-backlog-plugin</artifactId>
-    <version>0.1.1</version>
+    <version>0.2.0</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -151,6 +151,7 @@
 &lt;li&gt;Update an issue&lt;/li&gt;
 &lt;li&gt;Create queries&lt;/li&gt;
 &lt;li&gt;Find issues&lt;/li&gt;
+&lt;li&gt;Schedules&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2&gt;Resources&lt;/h2&gt;

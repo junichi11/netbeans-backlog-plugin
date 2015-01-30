@@ -41,17 +41,22 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue;
 
+import com.junichi11.netbeans.modules.backlog.BacklogConnector;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
 import com.nulabinc.backlog4j.Attachment;
 import com.nulabinc.backlog4j.AttachmentData;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
 import com.nulabinc.backlog4j.Issue;
+import com.nulabinc.backlog4j.IssueComment;
 import com.nulabinc.backlog4j.IssueType;
 import com.nulabinc.backlog4j.Priority;
 import com.nulabinc.backlog4j.Resolution;
 import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.User;
 import com.nulabinc.backlog4j.api.option.CreateIssueParams;
+import com.nulabinc.backlog4j.api.option.UpdateIssueCommentParams;
 import com.nulabinc.backlog4j.api.option.UpdateIssueParams;
 import com.nulabinc.backlog4j.internal.file.AttachmentDataImpl;
 import java.beans.PropertyChangeListener;
@@ -60,6 +65,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -68,15 +74,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
 import org.netbeans.api.annotations.common.CheckForNull;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.nulabinc.backlog4j.IssueComment;
-import com.nulabinc.backlog4j.api.option.UpdateIssueCommentParams;
-import java.util.Arrays;
+import org.netbeans.modules.bugtracking.api.Repository;
+import org.netbeans.modules.bugtracking.api.RepositoryManager;
+import org.netbeans.modules.bugtracking.api.Util;
 import org.netbeans.modules.bugtracking.commons.UIUtils;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
 import org.netbeans.modules.bugtracking.spi.IssueController;
 import org.netbeans.modules.bugtracking.spi.IssueProvider;
+import org.netbeans.modules.bugtracking.spi.IssueScheduleInfo;
+import org.netbeans.modules.bugtracking.spi.IssueScheduleProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.NbBundle;
@@ -92,6 +99,7 @@ public final class BacklogIssue {
     private BacklogIssueController controller;
     private IssueNode node;
     private String subtaskParentIssueKey;
+    private IssueScheduleInfo scheduleInfo;
     private final BacklogRepository repository;
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -160,8 +168,48 @@ public final class BacklogIssue {
      *
      * @return String for tooltip
      */
+    @NbBundle.Messages({
+        "BacklogIssue.LBL.assignee=Assignee",
+        "BacklogIssue.LBL.created=Created",
+        "BacklogIssue.LBL.dueDate=Due date",
+        "BacklogIssue.LBL.createdBy=Created by",
+        "BacklogIssue.LBL.startDate=Start date",
+        "BacklogIssue.LBL.status=Status"
+    })
     public String getTooltip() {
-        return getDisplayName();
+        StringBuilder sb = new StringBuilder();
+        String displayName = getDisplayName();
+        sb.append("<html>") // NOI18N
+                .append("<b>").append(displayName).append("</b>"); // NOI18N
+        if (!isNew()) {
+            sb.append("<hr>"); // NOI18N
+            User assignee = getAssignee();
+            User createdUser = getCreatedUser();
+            Date created = getCreated();
+            Date dueDate = getDueDate();
+            Date startDate = getStartDate();
+            com.nulabinc.backlog4j.Status issueStatus = getIssueStatus();
+            if (createdUser != null) {
+                sb.append(Bundle.BacklogIssue_LBL_createdBy()).append(": ").append(createdUser.getName()).append("<br>"); // NOI18N
+            }
+            if (assignee != null) {
+                sb.append(Bundle.BacklogIssue_LBL_assignee()).append(": ").append(assignee.getName()).append("<br>"); // NOI18N
+            }
+            if (issueStatus != null) {
+                sb.append(Bundle.BacklogIssue_LBL_status()).append(": ").append(issueStatus.getName()).append("<br>"); // NOI18N
+            }
+            if (created != null) {
+                sb.append(Bundle.BacklogIssue_LBL_created()).append(": ").append(DEFAULT_DATE_FORMAT.format(created)).append("<br>"); // NOI18N
+            }
+            if (startDate != null) {
+                sb.append(Bundle.BacklogIssue_LBL_startDate()).append(": ").append(DEFAULT_DATE_FORMAT.format(startDate)).append("<br>"); // NOI18N
+            }
+            if (dueDate != null) {
+                sb.append(Bundle.BacklogIssue_LBL_dueDate()).append(": ").append(DEFAULT_DATE_FORMAT.format(dueDate)).append("<br>"); // NOI18N
+            }
+        }
+        sb.append("</html>"); // NOI18N
+        return sb.toString();
     }
 
     /**
@@ -278,6 +326,19 @@ public final class BacklogIssue {
     }
 
     /**
+     * Get start date.
+     *
+     * @return Start date if issue is not {@code null} and chart is enabled,
+     * otherwise {@code null}
+     */
+    public Date getStartDate() {
+        if (issue == null) {
+            return null;
+        }
+        return issue.getStartDate();
+    }
+
+    /**
      * Get due date.
      *
      * @return Due date if issue is not {@code null}, {@code null} otherwise
@@ -304,9 +365,9 @@ public final class BacklogIssue {
     }
 
     /**
-     * Get assingnee.
+     * Get assignee.
      *
-     * @return Assingnee if issue is not {@code null}, {@code null} otherwise
+     * @return Assignee if issue is not {@code null}, {@code null} otherwise
      */
     @CheckForNull
     public User getAssignee() {
@@ -399,6 +460,10 @@ public final class BacklogIssue {
         changeSupport.firePropertyChange(IssueStatusProvider.EVENT_STATUS_CHANGED, null, null);
     }
 
+    void fireScheduleChange() {
+        changeSupport.firePropertyChange(IssueScheduleProvider.EVENT_ISSUE_SCHEDULE_CHANGED, null, null);
+    }
+
     public BacklogIssue getParentIssue() {
         if (subtaskParentIssueKey != null) {
             BacklogIssue parent = repository.getIssue(subtaskParentIssueKey);
@@ -450,6 +515,7 @@ public final class BacklogIssue {
             repository.addIssue(this);
             fireChange();
             fireDataChange();
+            fireScheduleChange();
 //            fireStatusChange();
             ((BacklogIssueController) getController()).setChanged(false);
         }
@@ -478,6 +544,8 @@ public final class BacklogIssue {
             fireChange();
             fireDataChange();
             fireStatusChange();
+            scheduleInfo = createScheduleInfo();
+            fireScheduleChange();
             ((BacklogIssueController) getController()).setChanged(false);
         }
         return updatedIssue;
@@ -617,8 +685,8 @@ public final class BacklogIssue {
      * Add comment when changes are committed by vcs(e.g. git).
      *
      * @param comment comment
-     * @param resolveAsFixed {@code true} Resolve an issue as FIXED when
-     * chnanges are committed by vcs, {@code false} otherwise
+     * @param resolveAsFixed {@code true} Resolve an issue as FIXED when changes
+     * are committed by vcs, {@code false} otherwise
      */
     public void addComment(String comment, boolean resolveAsFixed) {
         // TODO add comment?
@@ -640,6 +708,47 @@ public final class BacklogIssue {
                 setIssue(updatedIssue);
             }
         }
+    }
+
+    // schedule
+    public void setSchedule(IssueScheduleInfo scheduleInfo) {
+        // XXX change the due date?
+        // open issue panel
+        Repository repo = RepositoryManager.getInstance().getRepository(BacklogConnector.ID, getRepository().getID());
+        Util.openIssue(repo, getKeyId());
+    }
+
+    public IssueScheduleInfo getSchedule() {
+        com.nulabinc.backlog4j.Status issueStatus = getIssueStatus();
+        if (issueStatus == null || issueStatus.getStatus() == Issue.StatusType.Closed) {
+            return null;
+        }
+        if (scheduleInfo == null) {
+            scheduleInfo = createScheduleInfo();
+        }
+        return scheduleInfo;
+    }
+
+    private IssueScheduleInfo createScheduleInfo() {
+        Date startDate = getStartDate();
+        Date dueDate = getDueDate();
+        if (startDate != null) {
+            if (dueDate == null) {
+                return new IssueScheduleInfo(startDate, 1);
+            } else {
+                // interval
+                long start = startDate.getTime();
+                long due = dueDate.getTime();
+                // XXX check cast
+                int interval = (int) ((due - start) / (1000 * 60 * 60 * 24));
+                return new IssueScheduleInfo(startDate, interval);
+            }
+        } else {
+            if (dueDate != null) {
+                return new IssueScheduleInfo(dueDate, 1);
+            }
+        }
+        return null;
     }
 
     /**
