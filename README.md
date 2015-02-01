@@ -37,6 +37,10 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 Issues of statuses other than Closed are shown.
 If you don't want to use thses, you can disable these in Options (Tools > Options > Team > Backlog).
 
+## NOTE
+
+- Can't set a due date on context menu (Right-click an issue > Schedule for). Please set it on an issue panel.
+
 ## Resources
 
 - [Backlog4j](https://github.com/nulab/backlog4j)
