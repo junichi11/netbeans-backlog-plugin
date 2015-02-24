@@ -652,7 +652,8 @@ public final class BacklogRepository {
     }
 
     public void setRepositoryInfo(BacklogRepositoryInfo repositoryInfo) {
-        info = createRepositoryInfo(repositoryInfo, null, null, null, null, null);
+        String url = String.format("https://%s.backlog.jp/", repositoryInfo.getSpaceId()); // NOI18N
+        info = createRepositoryInfo(repositoryInfo, url, null, null, null, null);
         setProperties(repositoryInfo);
 
         project = repositoryInfo.getProject();
