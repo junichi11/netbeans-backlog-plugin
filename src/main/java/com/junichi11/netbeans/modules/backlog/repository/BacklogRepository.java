@@ -76,6 +76,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
@@ -83,6 +84,8 @@ import org.netbeans.modules.bugtracking.api.Util;
 import org.netbeans.modules.bugtracking.spi.RepositoryController;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.netbeans.modules.bugtracking.spi.RepositoryProvider;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
@@ -103,6 +106,8 @@ public final class BacklogRepository {
     private RepositoryController controller;
     private Project project;
     private Set<BacklogQuery> queries = null;
+    // for empty domain
+    private boolean showingRepositoryDialog = false;
 
     // default queries
     private BacklogQuery assignedToMeQuery;
@@ -120,6 +125,7 @@ public final class BacklogRepository {
         this.info = info;
     }
 
+    @CheckForNull
     public BacklogClient createBacklogClient() {
         // XXX client will keep waiting a connection if connection was interrupted.
         // So create a new client each time.
@@ -135,10 +141,27 @@ public final class BacklogRepository {
      * @return BacklogClient
      */
     @NbBundle.Messages({
-        "BacklogRepository.backlog.api.error=Can't connect to backlog account"
+        "BacklogRepository.backlog.api.error=Can't connect to a backlog account",
+        "BacklogRepository.backlog.domain.error=Backlog domain is not set. Please select backlog.jp or baclogtool.com"
     })
     BacklogClient createBacklogClient(String domain, String spaceId, String apiKey) {
-        if (domain == null) {
+        if (StringUtils.isEmpty(domain)) {
+            // open panel
+            if (!showingRepositoryDialog) {
+                showingRepositoryDialog = true;
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        NotifyDescriptor.Message message = new NotifyDescriptor.Message(Bundle.BacklogRepository_backlog_domain_error(), NotifyDescriptor.ERROR_MESSAGE);
+                        if (DialogDisplayer.getDefault().notify(message) == NotifyDescriptor.OK_OPTION) {
+                            Repository repo = RepositoryManager.getInstance().getRepository(BacklogConnector.ID, getID());
+                            if (repo != null) {
+                                Util.edit(repo);
+                            }
+                        }
+                    }
+                });
+            }
             return null;
         }
         try {
@@ -263,6 +286,9 @@ public final class BacklogRepository {
             }
             // get issue
             BacklogClient client = createBacklogClient();
+            if (client == null) {
+                return Collections.emptyList();
+            }
             String issueKey = String.format("%s-%s", p.getProjectKey(), keyId);
             try {
                 Issue issue = client.getIssue(issueKey);
@@ -289,6 +315,9 @@ public final class BacklogRepository {
             return Collections.emptyList();
         }
         BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         List<BacklogIssue> backlogIssues = new ArrayList<>();
         try {
             ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
@@ -322,6 +351,9 @@ public final class BacklogRepository {
             }
         }
         BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         try {
             Issue issue = backlogClient.getIssue(issueKey);
             if (issue != null) {
@@ -342,6 +374,9 @@ public final class BacklogRepository {
     @CheckForNull
     public BacklogIssue getIssue(long issueId) {
         BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         try {
             Issue issue = backlogClient.getIssue(issueId);
             if (issue != null) {
@@ -380,6 +415,9 @@ public final class BacklogRepository {
             return Collections.emptyList();
         }
         BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         GetIssuesParams issuesParams = new GetIssuesParams(Collections.singletonList(p.getId()))
                 .parentChildType(GetIssuesParams.ParentChildType.Child)
                 .parentIssueIds(Collections.singletonList(parentIssue.getIssue().getId()));
@@ -661,6 +699,9 @@ public final class BacklogRepository {
         }
         if (project == null) {
             BacklogClient client = createBacklogClient();
+            if (client == null) {
+                return null;
+            }
             try {
                 project = client.getProject(projectKey);
             } catch (BacklogAPIException ex) {

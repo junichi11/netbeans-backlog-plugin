@@ -55,6 +55,7 @@ import com.nulabinc.backlog4j.Version;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,9 @@ public final class BacklogData {
      */
     public List<Priority> getPriorities(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         if (priorities == null || isForce) {
             priorities = backlogClient.getPriorities();
         }
@@ -144,6 +148,9 @@ public final class BacklogData {
      */
     public List<IssueType> getIssueTypes(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         if (issueTypes == null || isForce) {
             issueTypes = backlogClient.getIssueTypes(repository.getProjectKey());
         }
@@ -203,6 +210,9 @@ public final class BacklogData {
      */
     public List<User> getUsers(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         if (users == null || isForce) {
             users = backlogClient.getUsers();
         }
@@ -227,6 +237,9 @@ public final class BacklogData {
      */
     public List<Category> getCategories(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         if (categories == null || isForce) {
             categories = backlogClient.getCategories(repository.getProjectKey());
         }
@@ -251,6 +264,9 @@ public final class BacklogData {
      */
     public List<Version> getVersions(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         if (versions == null || isForce) {
             versions = backlogClient.getVersions(repository.getProjectKey());
         }
@@ -275,6 +291,9 @@ public final class BacklogData {
      */
     public List<Status> getStatus(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         if (status == null || isForce) {
             status = backlogClient.getStatuses();
         }
@@ -299,6 +318,9 @@ public final class BacklogData {
      */
     public List<Resolution> getResolutions(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         if (resolutions == null || isForce) {
             resolutions = backlogClient.getResolutions();
         }
@@ -312,6 +334,9 @@ public final class BacklogData {
      */
     public User getMyself() {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         if (myself == null) {
             myself = backlogClient.getMyself();
         }
@@ -325,6 +350,9 @@ public final class BacklogData {
      */
     public BacklogPlan getPlan() {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return BacklogPlan.FREE;
+        }
         if (plan == null) {
             DiskUsage diskUsage = backlogClient.getSpaceDiskUsage();
             long capacity = diskUsage.getCapacity();

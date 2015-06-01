@@ -58,6 +58,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.Locale;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
@@ -171,6 +172,15 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
     }
 
     private void setBacklogDomain(String domain) {
+        if (StringUtils.isEmpty(domain)) {
+            Locale locale = Locale.getDefault();
+            if (locale != null && locale == Locale.JAPAN) {
+                backlogComboBox.setSelectedItem(BacklogUtils.BACKLOG_JP);
+            } else {
+                backlogComboBox.setSelectedItem(BacklogUtils.BACKLOGTOOL_COM);
+            }
+            return;
+        }
         backlogComboBox.setSelectedItem(domain);
     }
 

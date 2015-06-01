@@ -423,6 +423,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             @Override
             public void run() {
                 BacklogClient backlogClient = issue.getRepository().createBacklogClient();
+                if (backlogClient == null) {
+                    return;
+                }
                 int commentCount = 0;
                 try {
                     ResponseList<IssueComment> issueComments = backlogClient.getIssueComments(id);
@@ -1353,6 +1356,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         if (DialogDisplayer.getDefault().notify(inputDialog) == NotifyDescriptor.OK_OPTION) {
             BacklogRepository repository = issue.getRepository();
             BacklogClient backlogClient = repository.createBacklogClient();
+            if (backlogClient == null) {
+                return;
+            }
             String inputText = inputDialog.getInputText();
             if (inputText.isEmpty()) {
                 return;
@@ -1603,6 +1609,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             }
             BacklogRepository repository = issue.getRepository();
             BacklogClient backlogClient = repository.createBacklogClient();
+            if (backlogClient == null) {
+                return;
+            }
             try {
                 Version addVersion = backlogClient.addVersion(new AddVersionParams(repository.getProjectKey(), inputText));
                 if (addVersion == null) {
