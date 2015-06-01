@@ -41,11 +41,11 @@
  */
 package com.junichi11.netbeans.modules.backlog;
 
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 
@@ -67,7 +67,7 @@ public final class BacklogConfig {
     }
 
     /**
-     * Reteurn saved query names.
+     * Return saved query names.
      *
      * @param repository repository
      * @return saved query names
