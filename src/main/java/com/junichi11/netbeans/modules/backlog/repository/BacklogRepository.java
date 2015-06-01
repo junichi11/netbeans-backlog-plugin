@@ -50,6 +50,7 @@ import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.query.CreatedByMeQuery;
 import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
@@ -60,6 +61,7 @@ import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
 import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
+import com.nulabinc.backlog4j.conf.BacklogToolConfigure;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -91,6 +93,7 @@ import org.openide.util.NbBundle;
 public final class BacklogRepository {
 
     private static final Image ICON = BacklogImage.ICON_16.getImage();
+    static final String PROPERTY_BACKLOG_DOMAIN = "backlogdomain"; // NOI18N
     static final String PROPERTY_API_KEY = "apikey"; // NOI18N
     static final String PROPERTY_SPACE_ID = "spaceid"; // NOI18N
     static final String PROPERTY_PROJECT_KEY = "projectkey"; // NOI18N
@@ -121,7 +124,7 @@ public final class BacklogRepository {
         // XXX client will keep waiting a connection if connection was interrupted.
         // So create a new client each time.
         // try to create BacklogClient
-        return createBacklogClient(getSpaceId(), getApiKey());
+        return createBacklogClient(getBacklogDomain(), getSpaceId(), getApiKey());
     }
 
     /**
@@ -134,9 +137,23 @@ public final class BacklogRepository {
     @NbBundle.Messages({
         "BacklogRepository.backlog.api.error=Can't connect to backlog account"
     })
-    BacklogClient createBacklogClient(String spaceId, String apiKey) {
+    BacklogClient createBacklogClient(String domain, String spaceId, String apiKey) {
+        if (domain == null) {
+            return null;
+        }
         try {
-            BacklogConfigure configure = new BacklogJpConfigure(spaceId).apiKey(apiKey);
+            BacklogConfigure configure;
+            switch (domain) {
+                case BacklogUtils.BACKLOG_JP:
+                    configure = new BacklogJpConfigure(spaceId).apiKey(apiKey);
+                    break;
+                case BacklogUtils.BACKLOGTOOL_COM:
+                    configure = new BacklogToolConfigure(spaceId).apiKey(apiKey);
+                    break;
+                default:
+                    LOGGER.log(Level.WARNING, "Unsupported domain: {0}", domain);
+                    return null;
+            }
             return new BacklogClientFactory(configure).newClient();
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.WARNING, "{0}:{1}", new Object[]{Bundle.BacklogRepository_backlog_api_error(), ex.getMessage()}); // NOI18N
@@ -588,6 +605,15 @@ public final class BacklogRepository {
     }
 
     /**
+     * Get Backlog domain.
+     *
+     * @return backlog domain.
+     */
+    public String getBacklogDomain() {
+        return getPropertyValue(PROPERTY_BACKLOG_DOMAIN);
+    }
+
+    /**
      * Get API key.
      *
      * @return API key.
@@ -652,7 +678,22 @@ public final class BacklogRepository {
     }
 
     public void setRepositoryInfo(BacklogRepositoryInfo repositoryInfo) {
-        String url = String.format("https://%s.backlog.jp/", repositoryInfo.getSpaceId()); // NOI18N
+        String url;
+        String backlogDomain = repositoryInfo.getBacklogDomain();
+        if (backlogDomain != null) {
+            switch (backlogDomain) {
+                case BacklogUtils.BACKLOG_JP:
+                    url = String.format("https://%s.backlog.jp/", repositoryInfo.getSpaceId()); // NOI18N
+                    break;
+                case BacklogUtils.BACKLOGTOOL_COM:
+                    url = String.format("https://%s.backlogtool.com/", repositoryInfo.getSpaceId()); // NOI18N
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        } else {
+            url = ""; // NOI18N
+        }
         info = createRepositoryInfo(repositoryInfo, url, null, null, null, null);
         setProperties(repositoryInfo);
 
@@ -661,6 +702,7 @@ public final class BacklogRepository {
 
     private void setProperties(BacklogRepositoryInfo repositoryInfo) {
         if (info != null) {
+            info.putValue(PROPERTY_BACKLOG_DOMAIN, repositoryInfo.getBacklogDomain());
             info.putValue(PROPERTY_API_KEY, repositoryInfo.getApiKey());
             info.putValue(PROPERTY_SPACE_ID, repositoryInfo.getSpaceId());
             info.putValue(PROPERTY_PROJECT_KEY, repositoryInfo.getProjectKey());

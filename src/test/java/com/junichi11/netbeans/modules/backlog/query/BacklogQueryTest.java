@@ -43,6 +43,7 @@ package com.junichi11.netbeans.modules.backlog.query;
 
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepositoryInfo;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.nulabinc.backlog4j.Issue.PriorityType;
 import com.nulabinc.backlog4j.Issue.ResolutionType;
 import com.nulabinc.backlog4j.Issue.StatusType;
@@ -88,6 +89,7 @@ public class BacklogQueryTest {
     public void setUp() {
         repository = new BacklogRepository();
         BacklogRepositoryInfo repositoryInfo = new BacklogRepositoryInfo()
+                .setBacklogDomain(BacklogUtils.BACKLOG_JP)
                 .setApiKey("test")
                 .setSpaceId("junichi")
                 .setDisplayName("test name")

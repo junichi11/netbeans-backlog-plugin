@@ -49,6 +49,7 @@ import com.nulabinc.backlog4j.Project;
  */
 public class BacklogRepositoryInfo {
 
+    private String backlogDomain;
     private String displayName;
     private String apiKey;
     private String projectKey;
@@ -60,6 +61,11 @@ public class BacklogRepositoryInfo {
 
     public BacklogRepositoryInfo setDisplayName(String displayName) {
         this.displayName = displayName;
+        return this;
+    }
+
+    public BacklogRepositoryInfo setBacklogDomain(String backlogDomain) {
+        this.backlogDomain = backlogDomain;
         return this;
     }
 
@@ -81,6 +87,10 @@ public class BacklogRepositoryInfo {
     public BacklogRepositoryInfo setProject(Project project) {
         this.project = project;
         return this;
+    }
+
+    String getBacklogDomain() {
+        return backlogDomain;
     }
 
     String getDisplayName() {

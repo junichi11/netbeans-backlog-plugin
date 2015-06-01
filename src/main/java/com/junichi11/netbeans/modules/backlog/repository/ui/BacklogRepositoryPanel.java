@@ -41,6 +41,10 @@
  */
 package com.junichi11.netbeans.modules.backlog.repository.ui;
 
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
 import com.nulabinc.backlog4j.BacklogClientFactory;
@@ -48,7 +52,10 @@ import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
 import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
+import com.nulabinc.backlog4j.conf.BacklogToolConfigure;
 import java.awt.Component;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import javax.swing.DefaultComboBoxModel;
@@ -58,9 +65,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
-import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
@@ -97,6 +101,7 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
         if (info == null) {
             return;
         }
+        setBacklogDomain(repository.getBacklogDomain());
         setDisplayName(info.getDisplayName());
         setApiKey(repository.getApiKey());
         setSaceId(repository.getSpaceId());
@@ -118,8 +123,26 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
         projectComboBox.setRenderer(new ComboBoxListCellRenderer(renderer));
         projectComboBox.setModel(projectComboBoxModel);
 
+        backlogComboBox.setModel(new DefaultComboBoxModel<>(BacklogUtils.BACKLOG_DOMAINS.toArray(new String[0])));
+        backlogComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                isConnectionSuccessful = false;
+                fireChange();
+            }
+        });
+
         // tooltip
         setDisplayNameButton.setToolTipText(Bundle.BacklogRepositoryPanel_tooltip_display_name_button());
+    }
+
+    public String getBacklogDomain() {
+        String domain = (String) backlogComboBox.getSelectedItem();
+        if (domain == null) {
+            backlogComboBox.setSelectedItem(BacklogUtils.BACKLOG_JP);
+            domain = BacklogUtils.BACKLOG_JP;
+        }
+        return domain;
     }
 
     public String getDisplayName() {
@@ -145,6 +168,10 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
 
     public Project getProject() {
         return (Project) projectComboBoxModel.getSelectedItem();
+    }
+
+    private void setBacklogDomain(String domain) {
+        backlogComboBox.setSelectedItem(domain);
     }
 
     private void setDisplayName(String name) {
@@ -190,9 +217,11 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        backlogLabel = new javax.swing.JLabel();
         nameLabel = new javax.swing.JLabel();
         spaceIdLabel = new javax.swing.JLabel();
         apiKeyLabel = new javax.swing.JLabel();
+        backlogComboBox = new javax.swing.JComboBox<String>();
         nameTextField = new javax.swing.JTextField();
         spaceIdTextField = new javax.swing.JTextField();
         apiKeyTextField = new javax.swing.JTextField();
@@ -200,6 +229,8 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
         projectLabel = new javax.swing.JLabel();
         projectComboBox = new javax.swing.JComboBox<Project>();
         setDisplayNameButton = new javax.swing.JButton();
+
+        org.openide.awt.Mnemonics.setLocalizedText(backlogLabel, org.openide.util.NbBundle.getMessage(BacklogRepositoryPanel.class, "BacklogRepositoryPanel.backlogLabel.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(nameLabel, org.openide.util.NbBundle.getMessage(BacklogRepositoryPanel.class, "BacklogRepositoryPanel.nameLabel.text")); // NOI18N
 
@@ -236,29 +267,37 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(setDisplayNameButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(connectButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(spaceIdLabel)
                             .addComponent(apiKeyLabel)
                             .addComponent(nameLabel)
-                            .addComponent(projectLabel))
+                            .addComponent(projectLabel)
+                            .addComponent(backlogLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(backlogComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(spaceIdTextField, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(apiKeyTextField)
                             .addComponent(nameTextField)
-                            .addComponent(projectComboBox, 0, 452, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(setDisplayNameButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(connectButton)))
+                            .addComponent(projectComboBox, 0, 452, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(backlogLabel)
+                    .addComponent(backlogComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(spaceIdLabel)
                     .addComponent(spaceIdTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -287,14 +326,25 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
     })
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
         connectButton.setEnabled(false);
+        String domain = getBacklogDomain();
         String spaceId = getSpaceId();
         String apiKey = getApiKey();
-        if (StringUtils.isEmpty(Arrays.asList(spaceId, apiKey))) {
+        if (StringUtils.isEmpty(Arrays.asList(domain, spaceId, apiKey))) {
             return;
         }
         isConnectionSuccessful = true;
         try {
-            BacklogConfigure configure = new BacklogJpConfigure(spaceId).apiKey(apiKey);
+            BacklogConfigure configure;
+            switch (domain) {
+                case BacklogUtils.BACKLOG_JP:
+                    configure = new BacklogJpConfigure(spaceId).apiKey(apiKey);
+                    break;
+                case BacklogUtils.BACKLOGTOOL_COM:
+                    configure = new BacklogToolConfigure(spaceId).apiKey(apiKey);
+                    break;
+                default:
+                    throw new AssertionError();
+            }
             BacklogClient backlog = new BacklogClientFactory(configure).newClient();
             // try to get projects
             projects = backlog.getProjects();
@@ -330,6 +380,8 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel apiKeyLabel;
     private javax.swing.JTextField apiKeyTextField;
+    private javax.swing.JComboBox<String> backlogComboBox;
+    private javax.swing.JLabel backlogLabel;
     private javax.swing.JButton connectButton;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nameTextField;
