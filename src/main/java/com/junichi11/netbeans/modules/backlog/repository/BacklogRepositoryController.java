@@ -162,6 +162,7 @@ public class BacklogRepositoryController implements RepositoryController, Change
         BacklogRepositoryPanel p = getPanel();
         BacklogRepositoryInfo repositoryInfo = new BacklogRepositoryInfo()
                 .setDisplayName(p.getDisplayName())
+                .setBacklogDomain(p.getBacklogDomain())
                 .setApiKey(p.getApiKey())
                 .setSpaceId(p.getSpaceId())
                 .setProjectKey(p.getProjectKey())

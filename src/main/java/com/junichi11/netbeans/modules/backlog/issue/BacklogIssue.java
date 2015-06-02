@@ -421,6 +421,9 @@ public final class BacklogIssue {
         }
         long id = issue.getId();
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return;
+        }
         try {
             issue = backlogClient.getIssue(id);
         } catch (BacklogAPIException ex) {
@@ -504,6 +507,9 @@ public final class BacklogIssue {
     @CheckForNull
     public Issue addIssue(CreateIssueParams issueParams) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         Issue createdIssue = null;
         try {
             createdIssue = backlogClient.createIssue(issueParams);
@@ -533,6 +539,9 @@ public final class BacklogIssue {
     @CheckForNull
     public Issue updateIssue(UpdateIssueParams issueParams) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         Issue updatedIssue = null;
         try {
             updatedIssue = backlogClient.updateIssue(issueParams);
@@ -558,6 +567,9 @@ public final class BacklogIssue {
      */
     public List<BacklogAttachment> getAttachments() {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
         try {
             long issueId = issue.getId();
             ResponseList<Attachment> issueAttachments = backlogClient.getIssueAttachments(issueId);
@@ -580,6 +592,9 @@ public final class BacklogIssue {
      */
     public AttachmentData getAttachmentData(long attachmentId) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         AttachmentData attachmentData = null;
         try {
             attachmentData = backlogClient.downloadIssueAttachment(issue.getId(), attachmentId);
@@ -591,6 +606,9 @@ public final class BacklogIssue {
 
     public Attachment deleteIssueAttachment(long attachmentId) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         Attachment attachment = null;
         try {
             attachment = backlogClient.deleteIssueAttachment(issue.getId(), attachmentId);
@@ -611,6 +629,9 @@ public final class BacklogIssue {
     @CheckForNull
     public IssueComment updateIssueComment(IssueComment comment, String content) {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         IssueComment updatedIssueComment = null;
         try {
             UpdateIssueCommentParams updateIssueCommentParams = new UpdateIssueCommentParams(issue.getId(), comment.getId(), content);
@@ -661,6 +682,9 @@ public final class BacklogIssue {
     @CheckForNull
     public Attachment postAttachmentFile(File file, String description) throws FileNotFoundException {
         BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
         try {
             return backlogClient.postAttachment(new AttachmentDataImpl(file.getName(), new FileInputStream(file)));
         } catch (BacklogAPIException ex) {

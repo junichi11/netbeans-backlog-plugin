@@ -41,12 +41,14 @@
  */
 package com.junichi11.netbeans.modules.backlog.utils;
 
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.nulabinc.backlog4j.Project;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import java.util.List;
 
 /**
  *
@@ -58,6 +60,9 @@ public final class BacklogUtils {
     public static final String DATE_FORMAT_YYYY_MM_DD_HH_MM_SS = "yyyy/MM/dd HH:mm:ss"; // NOI18N
     public static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD);
     public static final DateFormat DEFAULT_DATE_FORMAT_WITH_TIME = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD_HH_MM_SS);
+    public static final String BACKLOG_JP = "backlog.jp"; // NOI18N
+    public static final String BACKLOGTOOL_COM = "backlogtool.com"; // NOI18N
+    public static final List<String> BACKLOG_DOMAINS = Arrays.asList(BACKLOG_JP, BACKLOGTOOL_COM);
 
     private BacklogUtils() {
     }

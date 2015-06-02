@@ -41,6 +41,10 @@
  */
 package com.junichi11.netbeans.modules.backlog.query;
 
+import com.junichi11.netbeans.modules.backlog.BacklogData;
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.Issue.PriorityType;
 import com.nulabinc.backlog4j.Issue.ResolutionType;
 import com.nulabinc.backlog4j.Issue.StatusType;
@@ -49,15 +53,12 @@ import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.Resolution;
 import com.nulabinc.backlog4j.Status;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
+import com.nulabinc.backlog4j.http.BacklogHttpClientImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
-import com.junichi11.netbeans.modules.backlog.BacklogData;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
@@ -243,7 +244,7 @@ public class BacklogQuery {
 
     /**
      * Return query param. params is return value of
-     * GetIssuesParams.getIssueParamString().
+     * BacklogHttpClientImpl.getParamString().
      *
      * @return query param
      */
@@ -260,7 +261,8 @@ public class BacklogQuery {
         if (params == null) {
             return;
         }
-        queryParam = params.getParamString(true);
+        // since backlog4j 2.1.3
+        queryParam = new BacklogHttpClientImpl().getParamsString(true, params);
         parseQueryParam();
     }
 
@@ -613,31 +615,31 @@ public class BacklogQuery {
             String key = split[0];
             String value = split[1];
             switch (key) {
-                case "statusId[]": // NOI18N
+                case "statusId%5B%5D": // NOI18N
                     statusIds.add(Long.decode(value));
                     break;
-                case "priorityId[]": // NOI18N
+                case "priorityId%5B%5D": // NOI18N
                     priorityIds.add(Long.decode(value));
                     break;
-                case "categoryId[]": // NOI18N
+                case "categoryId%5B%5D": // NOI18N
                     categoryIds.add(Long.decode(value));
                     break;
-                case "assigneeId[]": // NOI18N
+                case "assigneeId%5B%5D": // NOI18N
                     assigneeIds.add(Long.decode(value));
                     break;
-                case "versionId[]": // NOI18N
+                case "versionId%5B%5D": // NOI18N
                     versionIds.add(Long.decode(value));
                     break;
-                case "createdUserId[]": // NOI18N
+                case "createdUserId%5B%5D": // NOI18N
                     createdUserIds.add(Long.decode(value));
                     break;
-                case "milestoneId[]": // NOI18N
+                case "milestoneId%5B%5D": // NOI18N
                     milestoneIds.add(Long.decode(value));
                     break;
-                case "resolutionId[]": // NOI18N
+                case "resolutionId%5B%5D": // NOI18N
                     resolutionIds.add(Long.decode(value));
                     break;
-                case "issueTypeId[]": // NOI18N
+                case "issueTypeId%5B%5D": // NOI18N
                     issueTypeIds.add(Long.decode(value));
                     break;
                 case "keyword": // NOI18N
