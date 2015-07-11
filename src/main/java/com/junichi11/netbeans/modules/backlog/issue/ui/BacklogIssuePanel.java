@@ -104,6 +104,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.bugtracking.issuetable.IssueTable;
@@ -127,7 +128,8 @@ import org.openide.util.RequestProcessor;
 public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyChangeListener {
 
     private static final long serialVersionUID = 4070385780716024165L;
-    private static final String BACKLOG_ISSUE_URL_FORMAT = "https://%s.backlog.jp/view/%s-%s"; // NOI18N
+    private static final String BACKLOG_JP_ISSUE_URL_FORMAT = "https://%s.backlog.jp/view/%s-%s"; // NOI18N
+    private static final String BACKLOGTOOL_COM_ISSUE_URL_FORMAT = "https://%s.backlogtool.com/view/%s-%s"; // NOI18N
     private static final Logger LOGGER = Logger.getLogger(BacklogIssuePanel.class.getName());
     private static final RequestProcessor RP = new RequestProcessor(BacklogIssuePanel.class);
     private static final String BACKLOG_ATTACHMENT_SUFFIX = ".backlog-attachment"; // NOI18N
@@ -1018,14 +1020,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(headerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(headerIssueKeyLabel)
+                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(showOnBrowserLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(refreshLinkButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jSeparator5)
                         .addComponent(jSeparator3)
-                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(addSubtaskLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(headerIssueKeyLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerCreatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1589,7 +1591,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         BacklogRepository repository = issue.getRepository();
         String spaceId = repository.getSpaceId();
         String projectKey = repository.getProjectKey();
-        String url = String.format(BACKLOG_ISSUE_URL_FORMAT, spaceId, projectKey, existingIssue.getKeyId());
+        String url = getIssueUrl(spaceId, projectKey, existingIssue.getKeyId());
+        if (url == null) {
+            return;
+        }
         try {
             HtmlBrowser.URLDisplayer.getDefault().showURL(new URL(url));
         } catch (MalformedURLException ex) {
@@ -1753,6 +1758,32 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private boolean isCommentUpdated() {
         String comment = getComment();
         return !StringUtils.isEmpty(comment);
+    }
+
+    @CheckForNull
+    private String getIssueUrl(String spaceId, String projectKey, long issueKeyId) {
+        BacklogRepository repository = issue.getRepository();
+        String backlogDomain = repository.getBacklogDomain();
+        String urlFormat = getBacklogIssueUrlFormat(backlogDomain);
+        if (urlFormat == null) {
+            return null;
+        }
+        return String.format(urlFormat, spaceId, projectKey, issueKeyId);
+    }
+
+    private static String getBacklogIssueUrlFormat(String backlogDomain) {
+        if (null != backlogDomain) {
+            switch (backlogDomain) {
+                case BacklogUtils.BACKLOGTOOL_COM:
+                    return BACKLOGTOOL_COM_ISSUE_URL_FORMAT;
+                case BacklogUtils.BACKLOG_JP:
+                    return BACKLOG_JP_ISSUE_URL_FORMAT;
+                default:
+                    break;
+            }
+        }
+        LOGGER.log(Level.WARNING, "Invalid backlog domain: {0}", backlogDomain);
+        return null;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
