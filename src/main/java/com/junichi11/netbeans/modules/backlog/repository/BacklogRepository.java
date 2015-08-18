@@ -232,11 +232,15 @@ public final class BacklogRepository {
      * @param issue an issue
      * @return backlog issue
      */
-    public synchronized BacklogIssue createIssue(Issue issue) {
+    public synchronized BacklogIssue createIssue(Issue issue, boolean isRefresh) {
         // use cache
         String keyId = String.valueOf(issue.getKeyId());
         BacklogIssue backlogIssue = issueCache.get(keyId);
         if (backlogIssue != null) {
+            // #27
+            if (isRefresh) {
+                backlogIssue.refreshIssue(issue);
+            }
             return backlogIssue;
         }
         backlogIssue = new BacklogIssue(this, issue);
@@ -294,7 +298,7 @@ public final class BacklogRepository {
             try {
                 Issue issue = client.getIssue(issueKey);
                 if (issue != null) {
-                    backlogIssue = createIssue(issue);
+                    backlogIssue = createIssue(issue, false);
                     backlogIssues.add(backlogIssue);
                 }
             } catch (BacklogAPIException ex) {
@@ -323,13 +327,9 @@ public final class BacklogRepository {
         }
         List<BacklogIssue> backlogIssues = new ArrayList<>();
         try {
-            // #27
-            if (isRefresh) {
-                clearIssueCache();
-            }
             ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
             for (Issue issue : issues) {
-                BacklogIssue backlogIssue = createIssue(issue);
+                BacklogIssue backlogIssue = createIssue(issue, isRefresh);
                 backlogIssues.add(backlogIssue);
             }
         } catch (BacklogAPIException ex) {
@@ -364,7 +364,7 @@ public final class BacklogRepository {
         try {
             Issue issue = backlogClient.getIssue(issueKey);
             if (issue != null) {
-                return createIssue(issue);
+                return createIssue(issue, false);
             }
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
@@ -387,16 +387,12 @@ public final class BacklogRepository {
         try {
             Issue issue = backlogClient.getIssue(issueId);
             if (issue != null) {
-                return createIssue(issue);
+                return createIssue(issue, false);
             }
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
         return null;
-    }
-
-    private synchronized void clearIssueCache() {
-        issueCache.clear();
     }
 
     /**
@@ -450,7 +446,7 @@ public final class BacklogRepository {
         List<Issue> subissues = getSubissues(parentIssue);
         ArrayList<BacklogIssue> backlogSubissues = new ArrayList<>(subissues.size());
         for (Issue subissue : subissues) {
-            backlogSubissues.add(createIssue(subissue));
+            backlogSubissues.add(createIssue(subissue, false));
         }
         return backlogSubissues;
     }
