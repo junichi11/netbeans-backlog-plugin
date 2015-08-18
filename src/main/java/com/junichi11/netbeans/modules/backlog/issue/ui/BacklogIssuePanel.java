@@ -333,6 +333,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         Issue existingIssue = issue.getIssue();
         setHeaderIssueKey(existingIssue.getIssueKey() + " " + existingIssue.getSummary());
         setDateLabel(headerCreatedDateLabel, existingIssue.getCreated(), true);
+        setDateLabel(headerUpdatedDateLabel, existingIssue.getUpdated(), true);
         setDateLabel(headerStartDateViewLabel, existingIssue.getStartDate(), false);
         setDateLabel(headerDueDateViewLabel, existingIssue.getDueDate(), false);
         User createdUser = existingIssue.getCreatedUser();
@@ -848,6 +849,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         headerIssueKeyLabel = new javax.swing.JLabel();
         headerCreatedLabel = new javax.swing.JLabel();
         headerCreatedDateLabel = new javax.swing.JLabel();
+        headerUpdatedLabel = new javax.swing.JLabel();
+        headerUpdatedDateLabel = new javax.swing.JLabel();
         headerStartDateLabel = new javax.swing.JLabel();
         headerStartDateViewLabel = new javax.swing.JLabel();
         headerDueDateLabel = new javax.swing.JLabel();
@@ -949,6 +952,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         org.openide.awt.Mnemonics.setLocalizedText(headerCreatedDateLabel, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.headerCreatedDateLabel.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(headerUpdatedLabel, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.headerUpdatedLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(headerUpdatedDateLabel, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.headerUpdatedDateLabel.text")); // NOI18N
+
         org.openide.awt.Mnemonics.setLocalizedText(headerStartDateLabel, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.headerStartDateLabel.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(headerStartDateViewLabel, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.headerStartDateViewLabel.text")); // NOI18N
@@ -989,6 +996,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                         .addComponent(headerCreatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(headerCreatedDateLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(headerUpdatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(headerUpdatedDateLabel)
                         .addGap(18, 18, 18)
                         .addComponent(headerStartDateLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1037,7 +1048,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                     .addComponent(headerCreatedByLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(headerCreatedUserLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(headerStartDateLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(headerStartDateViewLabel))
+                    .addComponent(headerStartDateViewLabel)
+                    .addComponent(headerUpdatedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(headerUpdatedDateLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(errorHeaderLabel)
@@ -1466,11 +1479,11 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 ProgressHandle handle = ProgressHandleFactory.createHandle(
                         Bundle.BacklogIssuePanel_message_uploading_attachments(),
                         new Cancellable() {
-                            @Override
-                            public boolean cancel() {
-                                return true;
-                            }
-                        });
+                    @Override
+                    public boolean cancel() {
+                        return true;
+                    }
+                });
                 try {
                     handle.start(attachments.length);
                     int progressCount = 0;
@@ -1823,6 +1836,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JPanel headerPanel;
     private javax.swing.JLabel headerStartDateLabel;
     private javax.swing.JLabel headerStartDateViewLabel;
+    private javax.swing.JLabel headerUpdatedDateLabel;
+    private javax.swing.JLabel headerUpdatedLabel;
     private javax.swing.JLabel hoursActualLabel;
     private javax.swing.JLabel hoursEstimatedLabel;
     private javax.swing.JComboBox<IssueType> issueTypeComboBox;
