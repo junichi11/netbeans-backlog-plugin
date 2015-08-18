@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue;
 
+import com.junichi11.netbeans.modules.backlog.BacklogConfig;
 import com.junichi11.netbeans.modules.backlog.BacklogConnector;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
@@ -429,6 +430,7 @@ public final class BacklogIssue {
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
+        fireStatusChange();
     }
 
     /**
@@ -437,8 +439,12 @@ public final class BacklogIssue {
      * @return status
      */
     public Status getStatus() {
-        // TODO
-        return Status.SEEN;
+        return BacklogConfig.getInstance().getStatus(this);
+    }
+
+    public void setStatus(Status status) {
+        BacklogConfig.getInstance().setStatus(this, status);
+        fireStatusChange();
     }
 
     /**
@@ -522,7 +528,7 @@ public final class BacklogIssue {
             fireChange();
             fireDataChange();
             fireScheduleChange();
-//            fireStatusChange();
+            fireStatusChange();
             ((BacklogIssueController) getController()).setChanged(false);
         }
         subtaskParentIssueKey = null;
@@ -767,10 +773,8 @@ public final class BacklogIssue {
                 int interval = (int) ((due - start) / (1000 * 60 * 60 * 24));
                 return new IssueScheduleInfo(startDate, interval);
             }
-        } else {
-            if (dueDate != null) {
-                return new IssueScheduleInfo(dueDate, 1);
-            }
+        } else if (dueDate != null) {
+            return new IssueScheduleInfo(dueDate, 1);
         }
         return null;
     }
