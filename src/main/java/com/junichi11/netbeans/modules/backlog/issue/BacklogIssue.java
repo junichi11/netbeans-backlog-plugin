@@ -711,7 +711,9 @@ public final class BacklogIssue {
     private void setIssue(Issue issue) {
         this.issue = issue;
         this.summary = issue.getSummary();
-        refreshIssueComments();
+        // XXX many requests may be posted for getting comments
+        // Use notification?
+//        refreshIssueComments();
     }
 
     /**
