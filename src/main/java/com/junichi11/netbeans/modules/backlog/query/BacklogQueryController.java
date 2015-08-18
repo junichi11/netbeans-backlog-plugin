@@ -191,7 +191,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
         if (issuesParams == null) {
             return;
         }
-        Collection<BacklogIssue> issues = query.getIssues(issuesParams);
+        Collection<BacklogIssue> issues = query.getIssues(issuesParams, false);
         int issueCount = issues.size();
         String text = Bundle.BacklogQueryController_label_matching_no_issue();
         if (issueCount == 1) {
