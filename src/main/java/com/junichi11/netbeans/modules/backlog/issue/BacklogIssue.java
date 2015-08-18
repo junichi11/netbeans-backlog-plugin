@@ -101,6 +101,7 @@ public final class BacklogIssue {
     private IssueNode node;
     private String subtaskParentIssueKey;
     private IssueScheduleInfo scheduleInfo;
+    private final List<IssueComment> comments = Collections.synchronizedList(new ArrayList<IssueComment>());
     private final BacklogRepository repository;
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -426,11 +427,15 @@ public final class BacklogIssue {
             return;
         }
         try {
-            issue = backlogClient.getIssue(id);
+            setIssue(backlogClient.getIssue(id));
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
         fireStatusChange();
+    }
+
+    public void refreshIssue(Issue issue) {
+        setIssue(issue);
     }
 
     /**
@@ -445,6 +450,47 @@ public final class BacklogIssue {
     public void setStatus(Status status) {
         BacklogConfig.getInstance().setStatus(this, status);
         fireStatusChange();
+    }
+
+    public List<IssueComment> getIssueComments() {
+        if (issue == null) {
+            return Collections.emptyList();
+        }
+        return comments;
+    }
+
+    private void refreshIssueComments() {
+        if (issue == null) {
+            return;
+        }
+        comments.clear();
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient != null) {
+            try {
+                ResponseList<IssueComment> issueComments = backlogClient.getIssueComments(issue.getId());
+                comments.addAll(issueComments);
+            } catch (BacklogAPIException ex) {
+                LOGGER.log(Level.WARNING, ex.getMessage());
+            }
+        }
+    }
+
+    public long getLastUpdatedTime() {
+        Date updated = this.getUpdated();
+        if (updated != null) {
+            long time = updated.getTime();
+            for (IssueComment issueComment : getIssueComments()) {
+                Date commentUpdated = issueComment.getUpdated();
+                if (commentUpdated != null) {
+                    long commentTime = commentUpdated.getTime();
+                    if (time < commentTime) {
+                        time = commentTime;
+                    }
+                }
+            }
+            return time;
+        }
+        return -1L;
     }
 
     /**
@@ -665,6 +711,7 @@ public final class BacklogIssue {
     private void setIssue(Issue issue) {
         this.issue = issue;
         this.summary = issue.getSummary();
+        refreshIssueComments();
     }
 
     /**

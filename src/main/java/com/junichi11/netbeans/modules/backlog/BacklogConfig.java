@@ -45,7 +45,6 @@ import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
-import java.util.Date;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
@@ -90,9 +89,9 @@ public final class BacklogConfig {
         Status status = Status.valueOf(split[0]);
         long lastUpdated = Long.parseLong(split[1]);
         if (status == Status.SEEN) {
-            Date updated = issue.getUpdated();
-            if (updated != null) {
-                if (lastUpdated < updated.getTime()) {
+            long lastUpdatedTime = issue.getLastUpdatedTime();
+            if (lastUpdatedTime != -1L) {
+                if (lastUpdated < lastUpdatedTime) {
                     setStatus(issue, Status.INCOMING_MODIFIED);
                     return Status.INCOMING_MODIFIED;
                 }
@@ -102,12 +101,11 @@ public final class BacklogConfig {
     }
 
     public void setStatus(BacklogIssue issue, Status status) {
-        Date updated = issue.getUpdated();
-        if (updated != null) {
-            long time = updated.getTime();
+        long lastUpdatedTime = issue.getLastUpdatedTime();
+        if (lastUpdatedTime != -1L) {
             BacklogRepository repository = issue.getRepository();
             Preferences preferences = getPreferences().node(repository.getID()).node(STATUS);
-            preferences.put(issue.getKeyId(), String.format(STATUS_FORMAT, status.name(), time));
+            preferences.put(issue.getKeyId(), String.format(STATUS_FORMAT, status.name(), lastUpdatedTime));
         }
     }
 
