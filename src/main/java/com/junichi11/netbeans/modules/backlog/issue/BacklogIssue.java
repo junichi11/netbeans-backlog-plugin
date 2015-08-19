@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue;
 
+import com.junichi11.netbeans.modules.backlog.BacklogConfig;
 import com.junichi11.netbeans.modules.backlog.BacklogConnector;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
@@ -100,6 +101,7 @@ public final class BacklogIssue {
     private IssueNode node;
     private String subtaskParentIssueKey;
     private IssueScheduleInfo scheduleInfo;
+    private final List<IssueComment> comments = Collections.synchronizedList(new ArrayList<IssueComment>());
     private final BacklogRepository repository;
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -425,10 +427,15 @@ public final class BacklogIssue {
             return;
         }
         try {
-            issue = backlogClient.getIssue(id);
+            setIssue(backlogClient.getIssue(id));
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
+        fireStatusChange();
+    }
+
+    public void refreshIssue(Issue issue) {
+        setIssue(issue);
     }
 
     /**
@@ -437,8 +444,53 @@ public final class BacklogIssue {
      * @return status
      */
     public Status getStatus() {
-        // TODO
-        return Status.SEEN;
+        return BacklogConfig.getInstance().getStatus(this);
+    }
+
+    public void setStatus(Status status) {
+        BacklogConfig.getInstance().setStatus(this, status);
+        fireStatusChange();
+    }
+
+    public List<IssueComment> getIssueComments() {
+        if (issue == null) {
+            return Collections.emptyList();
+        }
+        return comments;
+    }
+
+    private void refreshIssueComments() {
+        if (issue == null) {
+            return;
+        }
+        comments.clear();
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient != null) {
+            try {
+                ResponseList<IssueComment> issueComments = backlogClient.getIssueComments(issue.getId());
+                comments.addAll(issueComments);
+            } catch (BacklogAPIException ex) {
+                LOGGER.log(Level.WARNING, ex.getMessage());
+            }
+        }
+    }
+
+    public long getLastUpdatedTime() {
+        Date updated = this.getUpdated();
+        if (updated != null) {
+            long time = updated.getTime();
+            for (IssueComment issueComment : getIssueComments()) {
+                Date commentUpdated = issueComment.getUpdated();
+                if (commentUpdated != null) {
+                    long commentTime = commentUpdated.getTime();
+                    if (time < commentTime) {
+                        time = commentTime;
+                    }
+                }
+            }
+            return time;
+        }
+        return -1L;
     }
 
     /**
@@ -522,7 +574,7 @@ public final class BacklogIssue {
             fireChange();
             fireDataChange();
             fireScheduleChange();
-//            fireStatusChange();
+            fireStatusChange();
             ((BacklogIssueController) getController()).setChanged(false);
         }
         subtaskParentIssueKey = null;
@@ -659,6 +711,9 @@ public final class BacklogIssue {
     private void setIssue(Issue issue) {
         this.issue = issue;
         this.summary = issue.getSummary();
+        // XXX many requests may be posted for getting comments
+        // Use notification?
+//        refreshIssueComments();
     }
 
     /**
@@ -767,10 +822,8 @@ public final class BacklogIssue {
                 int interval = (int) ((due - start) / (1000 * 60 * 60 * 24));
                 return new IssueScheduleInfo(startDate, interval);
             }
-        } else {
-            if (dueDate != null) {
-                return new IssueScheduleInfo(dueDate, 1);
-            }
+        } else if (dueDate != null) {
+            return new IssueScheduleInfo(dueDate, 1);
         }
         return null;
     }

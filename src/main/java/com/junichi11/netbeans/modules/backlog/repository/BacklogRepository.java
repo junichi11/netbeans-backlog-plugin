@@ -113,6 +113,7 @@ public final class BacklogRepository {
     private BacklogQuery assignedToMeQuery;
     private BacklogQuery createdByMeQuery;
 
+    // key id, issue
     private final Map<String, BacklogIssue> issueCache = Collections.synchronizedMap(new HashMap<String, BacklogIssue>());
     // XXX for subtask
     private BacklogIssue subtaskParentIssue;
@@ -231,11 +232,15 @@ public final class BacklogRepository {
      * @param issue an issue
      * @return backlog issue
      */
-    public synchronized BacklogIssue createIssue(Issue issue) {
+    public synchronized BacklogIssue createIssue(Issue issue, boolean isRefresh) {
         // use cache
         String keyId = String.valueOf(issue.getKeyId());
         BacklogIssue backlogIssue = issueCache.get(keyId);
         if (backlogIssue != null) {
+            // #27
+            if (isRefresh) {
+                backlogIssue.refreshIssue(issue);
+            }
             return backlogIssue;
         }
         backlogIssue = new BacklogIssue(this, issue);
@@ -293,7 +298,7 @@ public final class BacklogRepository {
             try {
                 Issue issue = client.getIssue(issueKey);
                 if (issue != null) {
-                    backlogIssue = createIssue(issue);
+                    backlogIssue = createIssue(issue, false);
                     backlogIssues.add(backlogIssue);
                 }
             } catch (BacklogAPIException ex) {
@@ -307,9 +312,11 @@ public final class BacklogRepository {
      * Get BacklogIssues.
      *
      * @param issuesParams GetIssuesParams
+     * @param isRefresh {@code true} if clear an issue cache, otherwise
+     * {@code false}
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
+    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams, boolean isRefresh) {
         Project p = getProject();
         if (p == null || issuesParams == null) {
             return Collections.emptyList();
@@ -322,7 +329,7 @@ public final class BacklogRepository {
         try {
             ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
             for (Issue issue : issues) {
-                BacklogIssue backlogIssue = createIssue(issue);
+                BacklogIssue backlogIssue = createIssue(issue, isRefresh);
                 backlogIssues.add(backlogIssue);
             }
         } catch (BacklogAPIException ex) {
@@ -357,7 +364,7 @@ public final class BacklogRepository {
         try {
             Issue issue = backlogClient.getIssue(issueKey);
             if (issue != null) {
-                return createIssue(issue);
+                return createIssue(issue, false);
             }
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
@@ -380,7 +387,7 @@ public final class BacklogRepository {
         try {
             Issue issue = backlogClient.getIssue(issueId);
             if (issue != null) {
-                return createIssue(issue);
+                return createIssue(issue, false);
             }
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
@@ -439,7 +446,7 @@ public final class BacklogRepository {
         List<Issue> subissues = getSubissues(parentIssue);
         ArrayList<BacklogIssue> backlogSubissues = new ArrayList<>(subissues.size());
         for (Issue subissue : subissues) {
-            backlogSubissues.add(createIssue(subissue));
+            backlogSubissues.add(createIssue(subissue, false));
         }
         return backlogSubissues;
     }
@@ -570,10 +577,8 @@ public final class BacklogRepository {
             if (!getQueries().contains(query)) {
                 getQueries().add(query);
             }
-        } else {
-            if (getQueries().contains(query)) {
-                getQueries().remove(query);
-            }
+        } else if (getQueries().contains(query)) {
+            getQueries().remove(query);
         }
     }
 
@@ -638,7 +643,7 @@ public final class BacklogRepository {
         GetIssuesParams issuesParams;
         issuesParams = new GetIssuesParams(Collections.singletonList(p.getId()))
                 .keyword(criteria);
-        issues.addAll(getIssues(issuesParams));
+        issues.addAll(getIssues(issuesParams, false));
         return issues;
     }
 

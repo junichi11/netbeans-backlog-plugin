@@ -41,11 +41,13 @@
  */
 package com.junichi11.netbeans.modules.backlog;
 
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 
@@ -58,12 +60,53 @@ public final class BacklogConfig {
     private static final BacklogConfig INSTANCE = new BacklogConfig();
     private static final String QUERY = "query"; // NOI18N
     private static final String QUERY_PARAMS = "query.params"; // NOI18N
+    private static final String STATUS = "status"; // NOI18N
+    //  [status]::[last updated]
+    private static final String STATUS_FORMAT = "%s::%s"; // NOI18N
+    private static final String STATUS_DELIMITER = "::"; // NOI18N
 
     private BacklogConfig() {
     }
 
     public static BacklogConfig getInstance() {
         return INSTANCE;
+    }
+
+    public Status getStatus(BacklogIssue issue) {
+        BacklogRepository repository = issue.getRepository();
+        Preferences preferences = getPreferences().node(repository.getID()).node(STATUS);
+        String statusTime = preferences.get(issue.getKeyId(), null);
+        if (statusTime == null) {
+            return Status.INCOMING_NEW;
+        }
+
+        String[] split = statusTime.split(STATUS_DELIMITER);
+        if (split.length != 2) {
+            return Status.INCOMING_NEW;
+        }
+
+        // TODO CONFLICT, OUTGOING_NEW, OUTGOING_MODIFIED
+        Status status = Status.valueOf(split[0]);
+        long lastUpdated = Long.parseLong(split[1]);
+        if (status == Status.SEEN) {
+            long lastUpdatedTime = issue.getLastUpdatedTime();
+            if (lastUpdatedTime != -1L) {
+                if (lastUpdated < lastUpdatedTime) {
+                    setStatus(issue, Status.INCOMING_MODIFIED);
+                    return Status.INCOMING_MODIFIED;
+                }
+            }
+        }
+        return status;
+    }
+
+    public void setStatus(BacklogIssue issue, Status status) {
+        long lastUpdatedTime = issue.getLastUpdatedTime();
+        if (lastUpdatedTime != -1L) {
+            BacklogRepository repository = issue.getRepository();
+            Preferences preferences = getPreferences().node(repository.getID()).node(STATUS);
+            preferences.put(issue.getKeyId(), String.format(STATUS_FORMAT, status.name(), lastUpdatedTime));
+        }
     }
 
     /**
