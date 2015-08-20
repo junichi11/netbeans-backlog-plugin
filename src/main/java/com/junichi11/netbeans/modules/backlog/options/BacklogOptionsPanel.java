@@ -64,12 +64,15 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         defaultQueriesLabel = new javax.swing.JLabel();
         assignedToMeCheckBox = new javax.swing.JCheckBox();
         createdByMeCheckBox = new javax.swing.JCheckBox();
+        notificationsCheckBox = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(defaultQueriesLabel, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.defaultQueriesLabel.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(assignedToMeCheckBox, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.assignedToMeCheckBox.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(createdByMeCheckBox, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.createdByMeCheckBox.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(notificationsCheckBox, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.notificationsCheckBox.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -83,7 +86,8 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(createdByMeCheckBox)
-                            .addComponent(assignedToMeCheckBox))))
+                            .addComponent(assignedToMeCheckBox)
+                            .addComponent(notificationsCheckBox))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -95,6 +99,8 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
                 .addComponent(assignedToMeCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(createdByMeCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(notificationsCheckBox)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -103,12 +109,14 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         BacklogOptions options = BacklogOptions.getInstance();
         assignedToMeCheckBox.setSelected(options.isAssignedToMeQuery());
         createdByMeCheckBox.setSelected(options.isCreatedByMeQuery());
+        notificationsCheckBox.setSelected(options.isNotificationsQuery());
     }
 
     void store() {
         BacklogOptions options = BacklogOptions.getInstance();
         options.setAssignedToMeQuery(isAssignedToMeQuery());
         options.setCreatedByMeQuery(isCreatedByMeQuery());
+        options.setNotificationsQuery(isNotificationsQuery());
     }
 
     boolean valid() {
@@ -124,9 +132,14 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         return createdByMeCheckBox.isSelected();
     }
 
+    private boolean isNotificationsQuery() {
+        return notificationsCheckBox.isSelected();
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox assignedToMeCheckBox;
     private javax.swing.JCheckBox createdByMeCheckBox;
     private javax.swing.JLabel defaultQueriesLabel;
+    private javax.swing.JCheckBox notificationsCheckBox;
     // End of variables declaration//GEN-END:variables
 }
