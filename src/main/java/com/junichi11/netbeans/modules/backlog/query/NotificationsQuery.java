@@ -102,7 +102,7 @@ public final class NotificationsQuery extends BacklogQuery implements DefaultQue
             notifications.addAll(repository.getNotifications());
         }
         for (final Notification notification : notifications) {
-            if (notification.isAlreadyRead()) {
+            if (notification.isResourceAlreadyRead()) {
                 continue;
             }
             final BacklogIssue issue = repository.getIssue(notification, isRefresh);
