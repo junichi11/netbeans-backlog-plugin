@@ -56,6 +56,8 @@ import com.nulabinc.backlog4j.Priority;
 import com.nulabinc.backlog4j.Resolution;
 import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.User;
+import com.nulabinc.backlog4j.api.option.AddIssueCommentNotificationParams;
+import com.nulabinc.backlog4j.api.option.AddIssueCommentParams;
 import com.nulabinc.backlog4j.api.option.CreateIssueParams;
 import com.nulabinc.backlog4j.api.option.UpdateIssueCommentParams;
 import com.nulabinc.backlog4j.api.option.UpdateIssueParams;
@@ -75,6 +77,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
 import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.api.Util;
@@ -671,11 +674,58 @@ public final class BacklogIssue {
     }
 
     /**
+     * Add IssueComment.
+     *
+     * @param content the added issue comment
+     * @param userIds user identifers
+     * @return IssueComment if adding is successful, otherwise {@code null}
+     */
+    @CheckForNull
+    public IssueComment addIssueComment(String content, List<Long> userIds) {
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
+        IssueComment issueComment = null;
+        try {
+            AddIssueCommentParams addIssueCommentParams = new AddIssueCommentParams(issue.getId(), content);
+            addIssueCommentParams.notifiedUserIds(userIds);
+            issueComment = backlogClient.addIssueComment(addIssueCommentParams);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return issueComment;
+    }
+
+    /**
+     * Add an issue comment notification.
+     *
+     * @param comment the issue comment
+     * @param userIds user identifers
+     * @return IssueComment if adding is successful, otherwise {@code null}
+     */
+    @CheckForNull
+    public IssueComment addIssueCommentNotification(@NonNull IssueComment comment, List<Long> userIds) {
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
+        IssueComment issueComment = null;
+        try {
+            AddIssueCommentNotificationParams params = new AddIssueCommentNotificationParams(issue.getId(), comment.getId(), userIds);
+            issueComment = backlogClient.addIssueCommentNotification(params);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return issueComment;
+    }
+
+    /**
      * Update IssueComment.
      *
      * @param comment IssueComment
      * @param content new content
-     * @return Updated IssueComment if update is successful, otherwise
+     * @return Updated IssueComment if updating is successful, otherwise
      * {@code null}
      */
     @CheckForNull
