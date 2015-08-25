@@ -41,10 +41,10 @@
  */
 package com.junichi11.netbeans.modules.backlog.query;
 
-import com.junichi11.netbeans.modules.backlog.BacklogConfig;
 import com.junichi11.netbeans.modules.backlog.BacklogConnector;
 import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.query.ui.NotificationPanel;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.Issue;
@@ -52,18 +52,25 @@ import com.nulabinc.backlog4j.IssueComment;
 import com.nulabinc.backlog4j.Notification;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.User;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.api.Util;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.NotificationDisplayer;
+import org.openide.awt.NotificationDisplayer.Priority;
 import org.openide.util.NbBundle;
 
 /**
@@ -73,6 +80,7 @@ import org.openide.util.NbBundle;
 public final class NotificationsQuery extends BacklogQuery implements DefaultQuery {
 
     private final List<Notification> notifications = Collections.synchronizedList(new ArrayList<Notification>());
+    private final Set<String> alreadyNotifiedIds = Collections.synchronizedSet(new HashSet<String>());
 
     public NotificationsQuery(BacklogRepository repository) {
         super(repository);
@@ -92,7 +100,8 @@ public final class NotificationsQuery extends BacklogQuery implements DefaultQue
     @Override
     @NbBundle.Messages({
         "# {0} - content",
-        "NotificationsQuery.notification.comment=Comment: {0}"
+        "NotificationsQuery.notification.comment=Comment: {0}",
+        "NotificationsQuery.notification.marked.all.as.read=Marked all notifications as read."
     })
     public Collection<BacklogIssue> getIssues(boolean isRefresh) {
         final BacklogRepository repository = getRepository();
@@ -102,12 +111,15 @@ public final class NotificationsQuery extends BacklogQuery implements DefaultQue
             notifications.addAll(repository.getNotifications());
         }
         for (final Notification notification : notifications) {
-            if (notification.isResourceAlreadyRead()) {
+            if (notification.isAlreadyRead() || notification.isResourceAlreadyRead()) {
                 continue;
             }
             final BacklogIssue issue = repository.getIssue(notification, isRefresh);
             if (!issues.contains(issue)) {
-                BacklogConfig.getInstance().setStatus(issue, Status.INCOMING_MODIFIED);
+                Status status = issue.getStatus();
+                if (status == Status.SEEN) {
+                    issue.setStatus(Status.INCOMING_MODIFIED);
+                }
                 issues.add(issue);
             }
             // icon
@@ -115,18 +127,38 @@ public final class NotificationsQuery extends BacklogQuery implements DefaultQue
             Icon senderIcon = data.getUserIcon(notification.getSender());
 
             IssueComment comment = notification.getComment();
-            NotificationDisplayer.getDefault().notify(
-                    getTitle(notification),
-                    senderIcon,
-                    Bundle.NotificationsQuery_notification_comment(comment.getContent()),
-                    new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Repository repo = RepositoryManager.getInstance().getRepository(BacklogConnector.ID, repository.getID());
-                    Util.openIssue(repo, issue.getKeyId());
-                    repository.markAsReadNotification(notification.getId());
-                }
-            });
+            String id = String.valueOf(notification.getId());
+            if (!alreadyNotifiedIds.contains(id)) {
+                // show notification
+                alreadyNotifiedIds.add(id);
+                NotificationPanel notificationPanel = new NotificationPanel(comment.getContent(), notification.getId());
+                notificationPanel.addPropertyChangeListener(new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        if (evt.getPropertyName().equals(NotificationPanel.PROPERTY_MARK_AS_READ)) {
+                            Repository repo = RepositoryManager.getInstance().getRepository(BacklogConnector.ID, repository.getID());
+                            Util.openIssue(repo, issue.getKeyId());
+                            repository.markAsReadNotification(notification.getId());
+                        } else if (evt.getPropertyName().equals(NotificationPanel.PROPERTY_MARK_ALL_AS_READ)) {
+                            repository.resetNotificationCount();
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(Bundle.NotificationsQuery_notification_marked_all_as_read()));
+                                }
+                            });
+                        }
+                    }
+                });
+                NotificationDisplayer.getDefault().notify(
+                        getTitle(notification),
+                        senderIcon,
+                        new JLabel(getTitle(notification)),
+                        notificationPanel,
+                        Priority.NORMAL,
+                        NotificationDisplayer.Category.INFO
+                );
+            }
         }
         return issues;
     }
