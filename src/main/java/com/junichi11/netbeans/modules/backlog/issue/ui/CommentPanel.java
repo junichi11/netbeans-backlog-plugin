@@ -58,11 +58,16 @@ import org.openide.util.NbBundle;
  */
 public class CommentPanel extends javax.swing.JPanel {
 
+    public enum Status {
+        Quote,
+        Edited,
+        Deleted,
+        None
+    }
+
     private static final long serialVersionUID = 4522741935313865234L;
     private IssueComment comment;
-    private boolean isQuote;
-    private boolean isEdited;
-    private boolean isDeleted;
+    private Status status = Status.None;
 
     /**
      * Creates new form CommentPanel
@@ -125,22 +130,12 @@ public class CommentPanel extends javax.swing.JPanel {
         return contentTextPane.getSelectedText();
     }
 
-    public boolean isQuote() {
-        return isQuote;
-    }
-
-    public boolean isEdited() {
-        return isEdited;
-    }
-
-    public boolean isDeleted() {
-        return isDeleted;
+    public Status getStatus() {
+        return status;
     }
 
     void resetProperties() {
-        isQuote = false;
-        isEdited = false;
-        isDeleted = false;
+        status = Status.None;
     }
 
     /**
@@ -246,7 +241,7 @@ public class CommentPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void quoteLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quoteLinkButtonActionPerformed
-        isQuote = true;
+        status = Status.Quote;
         firePropertyChange(BacklogIssue.PROP_COMMENT_QUOTE, null, null);
     }//GEN-LAST:event_quoteLinkButtonActionPerformed
 
@@ -257,12 +252,12 @@ public class CommentPanel extends javax.swing.JPanel {
         if (!UiUtils.showQuestionDialog(Bundle.CommentPanel_message_delete_issue())) {
             return;
         }
-        isDeleted = true;
+        status = Status.Deleted;
         firePropertyChange(BacklogIssue.PROP_COMMENT_DELETED, null, null);
     }//GEN-LAST:event_deleteLinkButtonActionPerformed
 
     private void editLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLinkButtonActionPerformed
-        isEdited = true;
+        status = Status.Edited;
         firePropertyChange(BacklogIssue.PROP_COMMENT_EDITED, null, null);
     }//GEN-LAST:event_editLinkButtonActionPerformed
 

@@ -168,7 +168,7 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         synchronized (commentPanels) {
             quoteCommentPanel = null;
             for (CommentPanel comment : commentPanels) {
-                if (comment.isQuote()) {
+                if (comment.getStatus() == CommentPanel.Status.Quote) {
                     quoteCommentPanel = comment;
                     comment.resetProperties();
                     firePropertyChange(BacklogIssue.PROP_COMMENT_QUOTE, null, null);
@@ -182,7 +182,7 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         synchronized (commentPanels) {
             deletedCommentPanel = null;
             for (CommentPanel comment : commentPanels) {
-                if (comment.isDeleted()) {
+                if (comment.getStatus() == CommentPanel.Status.Deleted) {
                     deletedCommentPanel = comment;
                     comment.resetProperties();
                     firePropertyChange(BacklogIssue.PROP_COMMENT_DELETED, null, null);
@@ -196,7 +196,7 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         synchronized (commentPanels) {
             editedCommentPanel = null;
             for (CommentPanel comment : commentPanels) {
-                if (comment.isEdited()) {
+                if (comment.getStatus() == CommentPanel.Status.Edited) {
                     editedCommentPanel = comment;
                     comment.resetProperties();
                     firePropertyChange(BacklogIssue.PROP_COMMENT_EDITED, null, null);
