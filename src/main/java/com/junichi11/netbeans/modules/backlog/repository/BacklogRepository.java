@@ -388,6 +388,26 @@ public final class BacklogRepository {
     }
 
     /**
+     * Reset notification count.
+     *
+     */
+    public void resetNotificationCount() {
+        Project p = getProject();
+        if (p == null) {
+            return;
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return;
+        }
+        try {
+            backlogClient.resetNotificationCount();
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+    }
+
+    /**
      * Get BacklogIssue for Notification.
      *
      * @param notification Notification
