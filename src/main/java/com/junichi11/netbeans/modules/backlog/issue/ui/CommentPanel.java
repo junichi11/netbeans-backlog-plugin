@@ -47,9 +47,12 @@ import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.IssueComment;
+import com.nulabinc.backlog4j.Notification;
 import com.nulabinc.backlog4j.User;
 import java.util.Date;
+import java.util.List;
 import javax.swing.Icon;
+import javax.swing.JLabel;
 import org.openide.util.NbBundle;
 
 /**
@@ -79,12 +82,15 @@ public class CommentPanel extends javax.swing.JPanel {
     public CommentPanel(BacklogRepository repository, IssueComment comment) {
         this.comment = comment;
         initComponents();
+
         setUser(repository, comment.getCreatedUser());
         setCreatedDate(comment.getCreated());
         setUpdatedDate(comment.getUpdated());
         setContent(comment.getContent());
 
-        // XXX delete comment is still not supported by api v2
+        setNotifications(comment, repository);
+
+        // TODO delete comment is still not supported by api v2
         deleteLinkButton.setEnabled(false);
     }
 
@@ -119,6 +125,20 @@ public class CommentPanel extends javax.swing.JPanel {
             contentTextPane.setText(""); // NOI18N
         } else {
             contentTextPane.setText(content); // NOI18N
+        }
+    }
+
+    private void setNotifications(IssueComment comment, BacklogRepository repository) {
+        List<Notification> notifications = comment.getNotifications();
+        BacklogData data = BacklogData.create(repository);
+        for (Notification notification : notifications) {
+            User user = notification.getUser();
+            Icon userIcon = data.getUserIcon(user);
+            if (userIcon != null) {
+                JLabel userLabel = new JLabel(userIcon);
+                userLabel.setToolTipText(user.getName());
+                notificationUsersPanel.add(userLabel);
+            }
         }
     }
 
@@ -157,6 +177,8 @@ public class CommentPanel extends javax.swing.JPanel {
         contentTextPane = new javax.swing.JTextPane();
         quoteLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         deleteLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
+        notificationSentToLabel = new javax.swing.JLabel();
+        notificationUsersPanel = new javax.swing.JPanel();
 
         org.openide.awt.Mnemonics.setLocalizedText(createdLabel, org.openide.util.NbBundle.getMessage(CommentPanel.class, "CommentPanel.createdLabel.text")); // NOI18N
 
@@ -192,15 +214,19 @@ public class CommentPanel extends javax.swing.JPanel {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(notificationSentToLabel, org.openide.util.NbBundle.getMessage(CommentPanel.class, "CommentPanel.notificationSentToLabel.text")); // NOI18N
+
+        notificationUsersPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(contentTextPane)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(contentTextPane, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(userLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 139, Short.MAX_VALUE)
                         .addComponent(createdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -216,7 +242,11 @@ public class CommentPanel extends javax.swing.JPanel {
                         .addComponent(editLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING))
+                    .addComponent(jSeparator1)
+                    .addComponent(notificationUsersPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(notificationSentToLabel)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -236,6 +266,10 @@ public class CommentPanel extends javax.swing.JPanel {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(contentTextPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(notificationSentToLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(notificationUsersPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -268,6 +302,8 @@ public class CommentPanel extends javax.swing.JPanel {
     private org.netbeans.modules.bugtracking.commons.LinkButton deleteLinkButton;
     private org.netbeans.modules.bugtracking.commons.LinkButton editLinkButton;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel notificationSentToLabel;
+    private javax.swing.JPanel notificationUsersPanel;
     private org.netbeans.modules.bugtracking.commons.LinkButton quoteLinkButton;
     private javax.swing.JLabel updatedDateLabel;
     private javax.swing.JLabel updatedLabel;
