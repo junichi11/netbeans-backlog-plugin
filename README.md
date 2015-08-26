@@ -5,6 +5,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 ## Download
 
 - https://github.com/junichi11/netbeans-backlog-plugin/releases
+- [NetBeans Pluign Portal](http://plugins.netbeans.org/plugin/56831/backlog)
 
 ## Requirements
 
