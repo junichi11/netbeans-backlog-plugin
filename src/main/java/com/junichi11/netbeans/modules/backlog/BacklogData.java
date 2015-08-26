@@ -163,9 +163,12 @@ public final class BacklogData {
      * @return Users
      */
     public List<User> getUsers() {
-        return getUsers(false);
+        return getUsers(false,repository.getProjectKey());
     }
 
+
+    
+    
     /**
      * Get user icon. Icon size is 16x16.
      *
@@ -208,13 +211,18 @@ public final class BacklogData {
      * you want to use cache data
      * @return Users
      */
-    public List<User> getUsers(boolean isForce) {
+    public List<User> getUsers(boolean isForce, String projectKey ) {
         BacklogClient backlogClient = repository.createBacklogClient();
         if (backlogClient == null) {
             return Collections.emptyList();
         }
         if (users == null || isForce) {
-            users = backlogClient.getUsers();
+            if(projectKey !=null ){
+                
+                users = backlogClient.getProjectUsers(projectKey);
+            }else{
+                users = backlogClient.getUsers();
+            }
         }
         return users;
     }
