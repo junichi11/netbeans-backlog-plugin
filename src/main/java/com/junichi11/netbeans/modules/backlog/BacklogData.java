@@ -48,6 +48,7 @@ import com.nulabinc.backlog4j.Category;
 import com.nulabinc.backlog4j.DiskUsage;
 import com.nulabinc.backlog4j.IssueType;
 import com.nulabinc.backlog4j.Priority;
+import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.Resolution;
 import com.nulabinc.backlog4j.Status;
 import com.nulabinc.backlog4j.User;
@@ -217,7 +218,10 @@ public final class BacklogData {
             return Collections.emptyList();
         }
         if (users == null || isForce) {
-            users = backlogClient.getUsers();
+            Project project = repository.getProject();
+            if (project != null) {
+                users = backlogClient.getProjectUsers(project.getId());
+            }
         }
         return users;
     }
