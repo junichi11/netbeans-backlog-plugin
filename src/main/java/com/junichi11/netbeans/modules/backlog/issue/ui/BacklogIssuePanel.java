@@ -648,11 +648,16 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     }
 
     private void setUsers(BacklogData data) {
-        List<User> users = data.getUsers();
-        assigneeComboBoxModel.removeAllElements();
-        assigneeComboBoxModel.addElement(new UserJSONImpl());
-        for (User user : users) {
-            assigneeComboBoxModel.addElement(user);
+        try{
+            List<User> users = data.getUsers();
+            assigneeComboBoxModel.removeAllElements();
+            assigneeComboBoxModel.addElement(new UserJSONImpl());
+            for (User user : users) {
+                assigneeComboBoxModel.addElement(user);
+            }
+        }catch(Exception e){
+            System.out.print(e);
+            assigneeComboBox.setEnabled(false);
         }
         assigneeComboBox.setModel(assigneeComboBoxModel);
     }
