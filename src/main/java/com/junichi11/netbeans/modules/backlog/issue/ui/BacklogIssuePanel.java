@@ -53,6 +53,7 @@ import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT_WITH_TIME;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.Attachment;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
@@ -62,6 +63,7 @@ import com.nulabinc.backlog4j.Issue.PriorityType;
 import com.nulabinc.backlog4j.IssueComment;
 import com.nulabinc.backlog4j.IssueType;
 import com.nulabinc.backlog4j.Milestone;
+import com.nulabinc.backlog4j.Notification;
 import com.nulabinc.backlog4j.Priority;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.Resolution;
@@ -1925,6 +1927,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             case BacklogIssue.PROP_COMMENT_EDITED:
                 editComment(commentsPanel.getEditedComment());
                 break;
+            case BacklogIssue.PROP_COMMENT_NOTIFY:
+                notifyComment(commentsPanel.getNotifyComment());
+                break;
             case AttachmentPanel.PROP_ATTACHMENT_DELETED:
                 Attachment attachment = (Attachment) event.getOldValue();
                 deleteAttachment(attachment);
@@ -1974,6 +1979,48 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 }
             }
         });
+    }
+
+    @NbBundle.Messages("BacklogIssuePanel.no.notification.user=There are no users that can be notified.")
+    private void notifyComment(final IssueComment comment) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                // users
+                List<User> allUsers = getAllNotificationUsers(comment);
+                if (allUsers.isEmpty()) {
+                    UiUtils.showPlainDialog(Bundle.BacklogIssuePanel_no_notification_user());
+                    return;
+                }
+
+                // show dialog
+                List<Long> userIds = NotifyCommentPanel.showDialog(allUsers, issue.getRepository());
+                if (userIds.isEmpty()) {
+                    return;
+                }
+                IssueComment updatedIssueComment = issue.addIssueCommentNotification(comment, userIds);
+                if (updatedIssueComment != null) {
+                    update(true);
+                }
+            }
+        });
+    }
+
+    private List<User> getAllNotificationUsers(IssueComment comment) {
+        BacklogRepository repository = issue.getRepository();
+        BacklogData data = BacklogData.create(repository);
+        User myself = data.getMyself();
+        List<Notification> notifications = comment.getNotifications();
+        List<User> allUsers = new ArrayList<>(data.getUsers());
+        allUsers.remove(myself);
+        for (Notification notification : notifications) {
+            User user = notification.getUser();
+            if (user != null) {
+                allUsers.remove(user);
+            }
+        }
+        return allUsers;
     }
 
     private void deleteAttachment(Attachment attachment) {

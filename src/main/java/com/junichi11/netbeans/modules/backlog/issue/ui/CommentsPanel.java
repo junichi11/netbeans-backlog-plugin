@@ -63,6 +63,7 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
     private CommentPanel quoteCommentPanel;
     private CommentPanel deletedCommentPanel;
     private CommentPanel editedCommentPanel;
+    private CommentPanel notifyCommentPanel;
 
     /**
      * Creates new form UnsubmittedAttachmentsPanel
@@ -127,10 +128,15 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         return editedCommentPanel == null ? null : editedCommentPanel.getComment();
     }
 
+    public IssueComment getNotifyComment() {
+        return notifyCommentPanel == null ? null : notifyCommentPanel.getComment();
+    }
+
     public void resetChangedPanels() {
         quoteCommentPanel = null;
         deletedCommentPanel = null;
         editedCommentPanel = null;
+        notifyCommentPanel = null;
     }
 
     /**
@@ -158,6 +164,9 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
                 break;
             case BacklogIssue.PROP_COMMENT_EDITED:
                 fireEditedPropertyChanged();
+                break;
+            case BacklogIssue.PROP_COMMENT_NOTIFY:
+                fireNotifyPropertyChanged();
                 break;
             default:
                 break;
@@ -200,6 +209,20 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
                     editedCommentPanel = comment;
                     comment.resetProperties();
                     firePropertyChange(BacklogIssue.PROP_COMMENT_EDITED, null, null);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void fireNotifyPropertyChanged() {
+        synchronized (commentPanels) {
+            notifyCommentPanel = null;
+            for (CommentPanel comment : commentPanels) {
+                if (comment.getStatus() == CommentPanel.Status.Notify) {
+                    notifyCommentPanel = comment;
+                    comment.resetProperties();
+                    firePropertyChange(BacklogIssue.PROP_COMMENT_NOTIFY, null, null);
                     break;
                 }
             }

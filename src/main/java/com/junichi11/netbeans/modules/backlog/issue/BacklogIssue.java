@@ -125,6 +125,7 @@ public final class BacklogIssue {
     public static final String PROP_COMMENT_DELETED = "backlog.comment.deleted"; // NOI18N
     public static final String PROP_COMMENT_QUOTE = "backlog.comment.quote"; // NOI18N
     public static final String PROP_COMMENT_EDITED = "backlog.comment.edited"; // NOI18N
+    public static final String PROP_COMMENT_NOTIFY = "backlog.comment.notify"; // NOI18N
     private static final Logger LOGGER = Logger.getLogger(BacklogIssue.class.getName());
 
     public BacklogIssue(BacklogRepository repository) {
