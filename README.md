@@ -18,6 +18,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 - Create queries
 - Find issues
 - Schedules
+- Notification (only comment)
 
 ## Add Backlog repository
 
