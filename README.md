@@ -9,7 +9,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 
 ## Requirements
 
-- NetBeans 8.0+
+- NetBeans 8.1+
 
 ## Features
 

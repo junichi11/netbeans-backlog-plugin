@@ -8,7 +8,7 @@
 
 ## 必要条件
 
-- NetBeans 8.0+
+- NetBeans 8.1+
 
 ## 機能
 
