@@ -218,7 +218,6 @@ public final class BacklogData {
         }
         if (users == null || isForce) {
             if(projectKey !=null ){
-                
                 users = backlogClient.getProjectUsers(projectKey);
             }else{
                 users = backlogClient.getUsers();
