@@ -18,6 +18,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 - Create queries
 - Find issues
 - Schedules
+- Notification (only comment)
 
 ## Add Backlog repository
 
@@ -35,6 +36,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 
 - Assigned to me
 - Created by me
+- Notifications
 
 Issues of statuses other than Closed are shown.
 If you don't want to use thses, you can disable these in Options (Tools > Options > Team > Backlog).

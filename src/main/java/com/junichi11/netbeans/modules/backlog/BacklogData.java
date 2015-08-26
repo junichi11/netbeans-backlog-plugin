@@ -174,6 +174,9 @@ public final class BacklogData {
      */
     @CheckForNull
     public Icon getUserIcon(User user) {
+        if (user == null) {
+            return null;
+        }
         Icon icon = userIcons.get(user);
         if (icon != null) {
             return icon;

@@ -49,6 +49,7 @@ import com.junichi11.netbeans.modules.backlog.query.AssignedToMeQuery;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.query.CreatedByMeQuery;
 import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
+import com.junichi11.netbeans.modules.backlog.query.NotificationsQuery;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
@@ -56,6 +57,7 @@ import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
 import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.Issue;
+import com.nulabinc.backlog4j.Notification;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
@@ -78,6 +80,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.api.Util;
@@ -112,6 +115,7 @@ public final class BacklogRepository {
     // default queries
     private BacklogQuery assignedToMeQuery;
     private BacklogQuery createdByMeQuery;
+    private final BacklogQuery notificationQuery = new NotificationsQuery(this);
 
     // key id, issue
     private final Map<String, BacklogIssue> issueCache = Collections.synchronizedMap(new HashMap<String, BacklogIssue>());
@@ -339,6 +343,83 @@ public final class BacklogRepository {
     }
 
     /**
+     * Get Notifications.
+     *
+     * @return Notifications
+     */
+    public Collection<Notification> getNotifications() {
+        Project p = getProject();
+        if (p == null) {
+            return Collections.emptyList();
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return Collections.emptyList();
+        }
+        List<Notification> notifications = new ArrayList<>();
+        try {
+            ResponseList<Notification> responses = backlogClient.getNotifications();
+            notifications.addAll(responses);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+        return notifications;
+    }
+
+    /**
+     * Mark as read a notification.
+     *
+     * @param id notification identifer
+     */
+    public void markAsReadNotification(long id) {
+        Project p = getProject();
+        if (p == null) {
+            return;
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return;
+        }
+        try {
+            backlogClient.markAsReadNotification(id);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+    }
+
+    /**
+     * Reset notification count.
+     *
+     */
+    public void resetNotificationCount() {
+        Project p = getProject();
+        if (p == null) {
+            return;
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return;
+        }
+        try {
+            backlogClient.resetNotificationCount();
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+    }
+
+    /**
+     * Get BacklogIssue for Notification.
+     *
+     * @param notification Notification
+     * @param isRefresh
+     * @return BacklogIssue
+     */
+    public BacklogIssue getIssue(@NonNull Notification notification, boolean isRefresh) {
+        Issue issue = notification.getIssue();
+        return createIssue(issue, isRefresh);
+    }
+
+    /**
      * Get BacklogIssue.
      *
      * @param issueKey issue key
@@ -507,6 +588,9 @@ public final class BacklogRepository {
             if (options.isCreatedByMeQuery()) {
                 addQuery(getCreatedByMeQuery());
             }
+            if (options.isNotificationsQuery()) {
+                addQuery(getNotificationQuery());
+            }
 
             // add user queries
             String[] queryNames = BacklogConfig.getInstance().getQueryNames(this);
@@ -569,6 +653,7 @@ public final class BacklogRepository {
         BacklogOptions options = BacklogOptions.getInstance();
         setDefaultQuery(getAssignedToMeQuery(), options.isAssignedToMeQuery());
         setDefaultQuery(getCreatedByMeQuery(), options.isCreatedByMeQuery());
+        setDefaultQuery(getNotificationQuery(), options.isNotificationsQuery());
         fireQueryListChanged();
     }
 
@@ -794,6 +879,15 @@ public final class BacklogRepository {
             createdByMeQuery = new CreatedByMeQuery(this);
         }
         return createdByMeQuery;
+    }
+
+    /**
+     * Get NotificationQuery.
+     *
+     * @return CreatedByMeQuery
+     */
+    private BacklogQuery getNotificationQuery() {
+        return notificationQuery;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {

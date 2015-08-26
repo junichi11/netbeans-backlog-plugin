@@ -53,6 +53,7 @@ import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT_WITH_TIME;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.Attachment;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
@@ -62,6 +63,7 @@ import com.nulabinc.backlog4j.Issue.PriorityType;
 import com.nulabinc.backlog4j.IssueComment;
 import com.nulabinc.backlog4j.IssueType;
 import com.nulabinc.backlog4j.Milestone;
+import com.nulabinc.backlog4j.Notification;
 import com.nulabinc.backlog4j.Priority;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.Resolution;
@@ -87,6 +89,7 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -153,6 +156,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private final DefaultListModel<Category> categoryListModel = new DefaultListModel<>();
     private final DefaultListModel<Version> versionListModel = new DefaultListModel<>();
     private final DefaultListModel<Version> milestoneListModel = new DefaultListModel<>();
+    private final DefaultListModel<User> notificationUserListModel = new DefaultListModel<>();
     private final ChangeSupport changeSupport = new ChangeSupport(this);
 
     // icon
@@ -210,6 +214,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         versionList.setCellRenderer(new AttributesListCellRenderer(versionList.getCellRenderer()));
         categoryList.setCellRenderer(new AttributesListCellRenderer(categoryList.getCellRenderer()));
         milestoneList.setCellRenderer(new AttributesListCellRenderer(milestoneList.getCellRenderer()));
+        notificationUserList.setCellRenderer(new AttributesListCellRenderer(notificationUserList.getCellRenderer(), repositoryId));
         resolutionComboBox.setRenderer(new AttributesListCellRenderer(resolutionComboBox.getRenderer()));
 
         // attachments
@@ -649,13 +654,21 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     }
 
     private void setUsers(BacklogData data) {
+        // asssignee, notification user
         List<User> users = data.getUsers();
         assigneeComboBoxModel.removeAllElements();
         assigneeComboBoxModel.addElement(new UserJSONImpl());
+        notificationUserListModel.removeAllElements();
+        notificationUserListModel.addElement(new UserJSONImpl());
+        User myself = data.getMyself();
         for (User user : users) {
             assigneeComboBoxModel.addElement(user);
+            if (!user.equals(myself)) {
+                notificationUserListModel.addElement(user);
+            }
         }
         assigneeComboBox.setModel(assigneeComboBoxModel);
+        notificationUserList.setModel(notificationUserListModel);
     }
 
     private void setVersions(BacklogData data, boolean force) {
@@ -812,6 +825,24 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         return commentTextArea.getText();
     }
 
+    public List<User> getNotificationUsers() {
+        return notificationUserList.getSelectedValuesList();
+    }
+
+    public List<Long> getNotificationUserIds() {
+        List<User> users = getNotificationUsers();
+        if (users.size() == 1 && StringUtils.isEmpty(users.get(0).getName())) {
+            return Collections.emptyList();
+        }
+        List<Long> ids = new ArrayList<>();
+        for (User user : users) {
+            if (!StringUtils.isEmpty(user.getName())) {
+                ids.add(user.getId());
+            }
+        }
+        return ids;
+    }
+
     void fireChange() {
         changeSupport.fireChange();
     }
@@ -910,6 +941,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         hoursActualLabel = new javax.swing.JLabel();
         attachmentsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
         subtaskingCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
+        notificationLabel = new javax.swing.JLabel();
+        notificationUserScrollPane = new javax.swing.JScrollPane();
+        notificationUserList = new javax.swing.JList<User>();
 
         mainCommentsPanel.setLayout(new javax.swing.BoxLayout(mainCommentsPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
@@ -1159,6 +1193,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         subtaskingCollapsibleSectionPanel.setExpanded(false);
         subtaskingCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.subtaskingCollapsibleSectionPanel.label")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(notificationLabel, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.notificationLabel.text")); // NOI18N
+
+        notificationUserScrollPane.setViewportView(notificationUserList);
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -1166,29 +1204,16 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addComponent(subtaskingCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addComponent(attachmentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addComponent(jSeparator1)
-                        .addContainerGap())
+                    .addComponent(subtaskingCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator1)
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(summaryLabel)
-                                    .addComponent(descriptionLabel))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(descriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(summaryTextField)))
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(attributeLabel)
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addContainerGap())
+                            .addComponent(summaryLabel)
+                            .addComponent(descriptionLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(descriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(summaryTextField)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1201,7 +1226,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                             .addComponent(typeLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dueDatePicker, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(dueDatePicker, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
                             .addComponent(startDatePicker, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(milestoneScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addComponent(versionScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -1236,23 +1261,27 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                                     .addComponent(assigneeComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addGroup(mainPanelLayout.createSequentialGroup()
                                         .addComponent(assignToMyselfLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 0, Short.MAX_VALUE))
+                                        .addGap(0, 62, Short.MAX_VALUE))
                                     .addGroup(mainPanelLayout.createSequentialGroup()
                                         .addComponent(actualHoursTextField)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(hoursActualLabel)))))
-                        .addContainerGap())
+                                        .addComponent(hoursActualLabel))))))
+                    .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(attachmentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(attributeLabel))
+                        .addGap(0, 0, 0))
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(commentLabel)
                         .addGap(18, 18, 18)
                         .addComponent(commentScrollPane)
-                        .addGap(12, 12, 12))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                        .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                        .addComponent(jSeparator2)
-                        .addContainerGap())))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(notificationLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(notificationUserScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1328,10 +1357,14 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 .addComponent(attachmentsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(commentLabel)
-                    .addComponent(commentScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(commentLabel)
+                            .addComponent(commentScrollPane)
+                            .addComponent(notificationUserScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(notificationLabel))
                 .addContainerGap())
         );
 
@@ -1349,7 +1382,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(headerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 987, Short.MAX_VALUE))
+                .addComponent(mainScrollPane))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1578,13 +1611,18 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     })
     private void updateIssue() {
         UpdateIssueParams issueParams = createUpdateIssueParams();
-        final Issue updateIssue = issue.updateIssue(issueParams);
-        final boolean hasComment = isCommentUpdated();
+        // TODO check changes
+        final Issue updatedIssue = issue.updateIssue(issueParams);
+
+        final boolean hasComment = hasComment();
+        if (hasComment) {
+            IssueComment addedComment = issue.addIssueComment(getComment(), getNotificationUserIds());
+        }
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
-                if (updateIssue != null) {
+                if (updatedIssue != null) {
                     unsubmittedAttachmentsPanel.removeAllAttachments();
                     StatusDisplayer.getDefault().setStatusText(Bundle.BacklogIssuePanel_message_update_issue_success());
                 } else {
@@ -1719,11 +1757,11 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         }
 
         // comment
-        String comment = getComment();
-        if (!StringUtils.isEmpty(comment)) {
-            issueParams = issueParams.comment(comment);
-        }
-
+        // sepalate
+//        String comment = getComment();
+//        if (!StringUtils.isEmpty(comment)) {
+//            issueParams = issueParams.comment(comment);
+//        }
         // check status
         // Can't change to the same status
         Issue existingIssue = issue.getIssue();
@@ -1768,7 +1806,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         return issueParams;
     }
 
-    private boolean isCommentUpdated() {
+    private boolean hasComment() {
         String comment = getComment();
         return !StringUtils.isEmpty(comment);
     }
@@ -1853,6 +1891,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JLabel milestoneLabel;
     private javax.swing.JList<Version> milestoneList;
     private javax.swing.JScrollPane milestoneScrollPane;
+    private javax.swing.JLabel notificationLabel;
+    private javax.swing.JList<User> notificationUserList;
+    private javax.swing.JScrollPane notificationUserScrollPane;
     private javax.swing.JComboBox<Priority> priorityComboBox;
     private javax.swing.JLabel priorityLabel;
     private org.netbeans.modules.bugtracking.commons.LinkButton refreshLinkButton;
@@ -1885,6 +1926,9 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 break;
             case BacklogIssue.PROP_COMMENT_EDITED:
                 editComment(commentsPanel.getEditedComment());
+                break;
+            case BacklogIssue.PROP_COMMENT_NOTIFY:
+                notifyComment(commentsPanel.getNotifyComment());
                 break;
             case AttachmentPanel.PROP_ATTACHMENT_DELETED:
                 Attachment attachment = (Attachment) event.getOldValue();
@@ -1935,6 +1979,48 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 }
             }
         });
+    }
+
+    @NbBundle.Messages("BacklogIssuePanel.no.notification.user=There are no users that can be notified.")
+    private void notifyComment(final IssueComment comment) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                // users
+                List<User> allUsers = getAllNotificationUsers(comment);
+                if (allUsers.isEmpty()) {
+                    UiUtils.showPlainDialog(Bundle.BacklogIssuePanel_no_notification_user());
+                    return;
+                }
+
+                // show dialog
+                List<Long> userIds = NotifyCommentPanel.showDialog(allUsers, issue.getRepository());
+                if (userIds.isEmpty()) {
+                    return;
+                }
+                IssueComment updatedIssueComment = issue.addIssueCommentNotification(comment, userIds);
+                if (updatedIssueComment != null) {
+                    update(true);
+                }
+            }
+        });
+    }
+
+    private List<User> getAllNotificationUsers(IssueComment comment) {
+        BacklogRepository repository = issue.getRepository();
+        BacklogData data = BacklogData.create(repository);
+        User myself = data.getMyself();
+        List<Notification> notifications = comment.getNotifications();
+        List<User> allUsers = new ArrayList<>(data.getUsers());
+        allUsers.remove(myself);
+        for (Notification notification : notifications) {
+            User user = notification.getUser();
+            if (user != null) {
+                allUsers.remove(user);
+            }
+        }
+        return allUsers;
     }
 
     private void deleteAttachment(Attachment attachment) {

@@ -54,6 +54,7 @@ public final class BacklogOptions {
     private static final String PREFERENCES_PATH = "backlog"; // NOI18N
     private static final String ASSIGNED_TO_ME = "assigned.to.me"; // NOI18N
     private static final String CREATED_BY_ME = "created.by.me"; // NOI18N
+    private static final String NOTIFICATIONS = "notifications"; // NOI18N
     private static final BacklogOptions INSTANCE = new BacklogOptions();
 
     private BacklogOptions() {
@@ -77,6 +78,14 @@ public final class BacklogOptions {
 
     public boolean isCreatedByMeQuery() {
         return getPreferences().getBoolean(CREATED_BY_ME, true);
+    }
+
+    public void setNotificationsQuery(boolean isEnabled) {
+        getPreferences().putBoolean(NOTIFICATIONS, isEnabled);
+    }
+
+    public boolean isNotificationsQuery() {
+        return getPreferences().getBoolean(NOTIFICATIONS, false);
     }
 
     private Preferences getPreferences() {
