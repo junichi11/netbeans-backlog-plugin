@@ -655,7 +655,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
     private void setUsers(BacklogData data) {
         // asssignee, notification user
-        List<User> users = data.getUsers();
+        List<User> users = data.getProjectUsers();
         assigneeComboBoxModel.removeAllElements();
         assigneeComboBoxModel.addElement(new UserJSONImpl());
         notificationUserListModel.removeAllElements();
@@ -2012,7 +2012,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         BacklogData data = BacklogData.create(repository);
         User myself = data.getMyself();
         List<Notification> notifications = comment.getNotifications();
-        List<User> allUsers = new ArrayList<>(data.getUsers());
+        List<User> allUsers = new ArrayList<>(data.getProjectUsers());
         allUsers.remove(myself);
         for (Notification notification : notifications) {
             User user = notification.getUser();
