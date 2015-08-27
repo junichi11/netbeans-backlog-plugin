@@ -46,7 +46,6 @@
 ## リソース
 
 - [Backlog4j](https://github.com/nulab/backlog4j)
-- [yenta](https://bitbucket.org/jglick/yenta)
 
 ## ライセンス
 

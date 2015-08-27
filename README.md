@@ -48,7 +48,6 @@ If you don't want to use thses, you can disable these in Options (Tools > Option
 ## Resources
 
 - [Backlog4j](https://github.com/nulab/backlog4j)
-- [yenta](https://bitbucket.org/jglick/yenta)
 
 ## License
 
