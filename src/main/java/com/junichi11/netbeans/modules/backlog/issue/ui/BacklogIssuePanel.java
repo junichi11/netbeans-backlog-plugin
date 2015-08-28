@@ -1417,10 +1417,10 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
     private void selectFilesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectFilesButtonActionPerformed
         SwingUtilities.invokeLater(new Runnable() {
-           @Override
-           public void run() {
-               selectFiles();
-           }
+            @Override
+            public void run() {
+                selectFiles();
+            }
         });
     }//GEN-LAST:event_selectFilesButtonActionPerformed
 
@@ -1451,22 +1451,21 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     })
     private void selectFiles() {
         // attachment
-
-         // TODO add FileFilter
+        // TODO add FileFilter
         final File[] attachments = new FileChooserBuilder(BacklogIssuePanel.class.getName() + BACKLOG_ATTACHMENT_SUFFIX)
-                        .setTitle(Bundle.BacklogIssuePanel_label_select_file())
-                        .setFilesOnly(true)
-                        .showMultiOpenDialog();
+                .setTitle(Bundle.BacklogIssuePanel_label_select_file())
+                .setFilesOnly(true)
+                .showMultiOpenDialog();
 
-        if(attachments==null){
+        if (attachments == null) {
             return;
         }
-        
+
         RP.post(new Runnable() {
 
             @Override
             public void run() {
-     
+
                 submitHeaderButton.setEnabled(false);
 
                 // show progress bar
