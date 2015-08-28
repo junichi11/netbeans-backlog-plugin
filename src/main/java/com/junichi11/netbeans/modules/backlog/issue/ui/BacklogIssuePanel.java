@@ -1416,7 +1416,12 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     }//GEN-LAST:event_refreshLinkButtonActionPerformed
 
     private void selectFilesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectFilesButtonActionPerformed
-        selectFiles();
+        SwingUtilities.invokeLater(new Runnable() {
+           @Override
+           public void run() {
+               selectFiles();
+           }
+        });
     }//GEN-LAST:event_selectFilesButtonActionPerformed
 
     private void addSubtaskLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubtaskLinkButtonActionPerformed
