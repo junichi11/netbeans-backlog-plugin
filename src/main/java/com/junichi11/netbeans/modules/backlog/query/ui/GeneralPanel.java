@@ -41,6 +41,13 @@
  */
 package com.junichi11.netbeans.modules.backlog.query.ui;
 
+import com.junichi11.netbeans.modules.backlog.Backlog.FileType;
+import com.junichi11.netbeans.modules.backlog.BacklogData;
+import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
+import com.junichi11.netbeans.modules.backlog.query.QueryUtils;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.ui.AttributesListCellRenderer;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.Category;
 import com.nulabinc.backlog4j.Issue;
 import com.nulabinc.backlog4j.Issue.PriorityType;
@@ -63,13 +70,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.DefaultListModel;
-import com.junichi11.netbeans.modules.backlog.Backlog.FileType;
-import com.junichi11.netbeans.modules.backlog.BacklogData;
-import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
-import com.junichi11.netbeans.modules.backlog.query.QueryUtils;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.ui.AttributesListCellRenderer;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -198,6 +199,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         categoryListModel.removeAllElements();
         categoryListModel.addElement(new CategoryJSONImpl());
+        categoryListModel.addElement(new NoCategory());
         for (Category category : categories) {
             categoryListModel.addElement(category);
         }
@@ -209,6 +211,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         versionListModel.removeAllElements();
         versionListModel.addElement(new VersionJSONImpl());
+        versionListModel.addElement(new NoVersion());
         for (Version version : versions) {
             versionListModel.addElement(version);
         }
@@ -220,6 +223,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         milestoneListModel.removeAllElements();
         milestoneListModel.addElement(new VersionJSONImpl());
+        milestoneListModel.addElement(new NoMilestone());
         for (Version milestone : milestones) {
             milestoneListModel.addElement(milestone);
         }
@@ -231,6 +235,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         resolutionListModel.removeAllElements();
         resolutionListModel.addElement(new ResolutionJSONImpl());
+        resolutionListModel.addElement(new NoResolution());
         for (Resolution resolution : resolutions) {
             resolutionListModel.addElement(resolution);
         }
@@ -242,6 +247,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         assigneeListModel.removeAllElements();
         assigneeListModel.addElement(new UserJSONImpl());
+        assigneeListModel.addElement(new UnassignedUser());
         for (User assignee : assignees) {
             assigneeListModel.addElement(assignee);
         }
@@ -867,4 +873,83 @@ public class GeneralPanel extends javax.swing.JPanel {
     private javax.swing.JList<Version> versionList;
     private javax.swing.JScrollPane versionScrollPane;
     // End of variables declaration//GEN-END:variables
+
+    //~ inner classes
+    private static class UnassignedUser extends UserJSONImpl {
+
+        @Override
+        public long getId() {
+            return -1L;
+        }
+
+        @NbBundle.Messages("UnassignedUser.name=Unassigned")
+        @Override
+        public String getName() {
+            return Bundle.UnassignedUser_name();
+        }
+
+    }
+
+    private static class NoCategory extends CategoryJSONImpl {
+
+        @Override
+        public long getId() {
+            return -1L;
+        }
+
+        @NbBundle.Messages("NoCategory.name=No Category")
+        @Override
+        public String getName() {
+            return Bundle.NoCategory_name();
+        }
+    }
+
+    private static class NoVersion extends VersionJSONImpl {
+
+        @Override
+        public long getId() {
+            return -1L;
+        }
+
+        @NbBundle.Messages("NoVersion.name=No Version")
+        @Override
+        public String getName() {
+            return Bundle.NoVersion_name();
+        }
+    }
+
+    private static class NoMilestone extends VersionJSONImpl {
+
+        @Override
+        public long getId() {
+            return -1L;
+        }
+
+        @NbBundle.Messages("NoMilestone.name=No Milestone")
+        @Override
+        public String getName() {
+            return Bundle.NoMilestone_name();
+        }
+    }
+
+    private static class NoResolution extends ResolutionJSONImpl {
+
+        @Override
+        public long getId() {
+            return -1L;
+        }
+
+        @NbBundle.Messages("NoResolution.name=No Resolution")
+        @Override
+        public String getName() {
+            return Bundle.NoResolution_name();
+        }
+
+        @Override
+        public ResolutionType getResolution() {
+            return ResolutionType.NotSet;
+        }
+
+    }
+
 }

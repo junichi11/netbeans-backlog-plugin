@@ -1416,7 +1416,12 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     }//GEN-LAST:event_refreshLinkButtonActionPerformed
 
     private void selectFilesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectFilesButtonActionPerformed
-        selectFiles();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                selectFiles();
+            }
+        });
     }//GEN-LAST:event_selectFilesButtonActionPerformed
 
     private void addSubtaskLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubtaskLinkButtonActionPerformed
@@ -1446,21 +1451,22 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     })
     private void selectFiles() {
         // attachment
+        // TODO add FileFilter
+        final File[] attachments = new FileChooserBuilder(BacklogIssuePanel.class.getName() + BACKLOG_ATTACHMENT_SUFFIX)
+                .setTitle(Bundle.BacklogIssuePanel_label_select_file())
+                .setFilesOnly(true)
+                .showMultiOpenDialog();
+
+        if (attachments == null) {
+            return;
+        }
+
         RP.post(new Runnable() {
 
             @Override
             public void run() {
+
                 submitHeaderButton.setEnabled(false);
-                // TODO add FileFilter
-                File[] attachments = new FileChooserBuilder(BacklogIssuePanel.class.getName() + BACKLOG_ATTACHMENT_SUFFIX)
-                        .setTitle(Bundle.BacklogIssuePanel_label_select_file())
-                        .setFilesOnly(true)
-                        .showMultiOpenDialog();
-                if (attachments == null) {
-                    submitHeaderButton.setEnabled(true);
-                    fireChange();
-                    return;
-                }
 
                 // show progress bar
                 ProgressHandle handle = ProgressHandleFactory.createHandle(
