@@ -1450,11 +1450,20 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         "BacklogIssuePanel.message.uploading.attachments=Uploading files"
     })
     private void selectFiles() {
+        // attachment
 
-        class AttachmentUploader implements Runnable {
-            
-            File[] attachments;
-            
+         // TODO add FileFilter
+        final File[] attachments = new FileChooserBuilder(BacklogIssuePanel.class.getName() + BACKLOG_ATTACHMENT_SUFFIX)
+                        .setTitle(Bundle.BacklogIssuePanel_label_select_file())
+                        .setFilesOnly(true)
+                        .showMultiOpenDialog();
+
+        if(attachments==null){
+            return;
+        }
+        
+        RP.post(new Runnable() {
+
             @Override
             public void run() {
      
@@ -1495,19 +1504,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                     fireChange();
                 }
             }
-        }
-                
-        AttachmentUploader attachUploadIntent = new AttachmentUploader();
-        
-        attachUploadIntent.attachments = new FileChooserBuilder(BacklogIssuePanel.class.getName() + BACKLOG_ATTACHMENT_SUFFIX)
-                        .setTitle(Bundle.BacklogIssuePanel_label_select_file())
-                        .setFilesOnly(true)
-                        .showMultiOpenDialog();
-        
-        if(attachUploadIntent.attachments!=null){
-            RP.post(attachUploadIntent);
-        }
-
+        });
     }
 
     private void refresh() {
