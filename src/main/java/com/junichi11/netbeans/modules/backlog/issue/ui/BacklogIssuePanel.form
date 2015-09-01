@@ -101,11 +101,11 @@
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="addSubtaskLinkButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jSeparator3" min="-2" pref="6" max="-2" attributes="0"/>
+                          <Component id="jSeparator3" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="refreshLinkButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jSeparator5" min="-2" pref="6" max="-2" attributes="0"/>
+                          <Component id="jSeparator5" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="showOnBrowserLinkButton" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -119,16 +119,18 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="showOnBrowserLinkButton" alignment="3" max="32767" attributes="0"/>
-                          <Component id="refreshLinkButton" alignment="3" max="32767" attributes="0"/>
-                          <Component id="jSeparator5" max="32767" attributes="0"/>
-                          <Component id="jSeparator3" max="32767" attributes="0"/>
-                          <Component id="addSubtaskLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
                       <Component id="headerIssueKeyLabel" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="jSeparator5" max="32767" attributes="0"/>
+                              <Component id="jSeparator3" max="32767" attributes="0"/>
+                              <Component id="addSubtaskLinkButton" max="32767" attributes="0"/>
+                              <Component id="refreshLinkButton" alignment="1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="showOnBrowserLinkButton" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="headerCreatedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="headerCreatedDateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -332,7 +334,7 @@
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="dueDatePicker" pref="170" max="32767" attributes="0"/>
+                                  <Component id="dueDatePicker" pref="197" max="32767" attributes="0"/>
                                   <Component id="startDatePicker" alignment="0" max="32767" attributes="0"/>
                                   <Component id="milestoneScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
                                   <Component id="versionScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
@@ -373,7 +375,7 @@
                                           <Component id="assigneeComboBox" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" attributes="0">
                                               <Component id="assignToMyselfLinkButton" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="0" pref="62" max="32767" attributes="0"/>
+                                              <EmptySpace min="0" pref="87" max="32767" attributes="0"/>
                                           </Group>
                                           <Group type="102" alignment="0" attributes="0">
                                               <Component id="actualHoursTextField" max="32767" attributes="0"/>
@@ -386,13 +388,8 @@
                           </Group>
                           <Component id="commentsCollapsibleSectionPanel" alignment="1" max="32767" attributes="0"/>
                           <Component id="jSeparator2" alignment="1" max="32767" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="attachmentsCollapsibleSectionPanel" max="32767" attributes="0"/>
-                                  <Component id="attributeLabel" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="attachmentsCollapsibleSectionPanel" max="32767" attributes="0"/>
+                          <Component id="attributeLabel" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="commentLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
