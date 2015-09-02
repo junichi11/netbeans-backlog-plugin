@@ -53,6 +53,8 @@ import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.Status;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import com.nulabinc.backlog4j.http.BacklogHttpClientImpl;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -62,6 +64,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.spi.QueryProvider;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -605,34 +608,40 @@ public class BacklogQuery {
             if (split.length != 2) {
                 continue;
             }
-            String key = split[0];
-            String value = split[1];
+            String key = ""; // NOI18N
+            String value = ""; // NOI18N
+            try {
+                key = URLDecoder.decode(split[0], "UTF-8"); // NOI18N
+                value = URLDecoder.decode(split[1], "UTF-8"); // NOI18N
+            } catch (UnsupportedEncodingException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             switch (key) {
-                case "statusId%5B%5D": // NOI18N
+                case "statusId[]": // NOI18N
                     statusIds.add(Long.decode(value));
                     break;
-                case "priorityId%5B%5D": // NOI18N
+                case "priorityId[]": // NOI18N
                     priorityIds.add(Long.decode(value));
                     break;
-                case "categoryId%5B%5D": // NOI18N
+                case "categoryId[]": // NOI18N
                     categoryIds.add(Long.decode(value));
                     break;
-                case "assigneeId%5B%5D": // NOI18N
+                case "assigneeId[]": // NOI18N
                     assigneeIds.add(Long.decode(value));
                     break;
-                case "versionId%5B%5D": // NOI18N
+                case "versionId[]": // NOI18N
                     versionIds.add(Long.decode(value));
                     break;
-                case "createdUserId%5B%5D": // NOI18N
+                case "createdUserId[]": // NOI18N
                     createdUserIds.add(Long.decode(value));
                     break;
-                case "milestoneId%5B%5D": // NOI18N
+                case "milestoneId[]": // NOI18N
                     milestoneIds.add(Long.decode(value));
                     break;
-                case "resolutionId%5B%5D": // NOI18N
+                case "resolutionId[]": // NOI18N
                     resolutionIds.add(Long.decode(value));
                     break;
-                case "issueTypeId%5B%5D": // NOI18N
+                case "issueTypeId[]": // NOI18N
                     issueTypeIds.add(Long.decode(value));
                     break;
                 case "keyword": // NOI18N
