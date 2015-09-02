@@ -50,7 +50,6 @@ import com.nulabinc.backlog4j.Issue.ResolutionType;
 import com.nulabinc.backlog4j.Issue.StatusType;
 import com.nulabinc.backlog4j.Priority;
 import com.nulabinc.backlog4j.Project;
-import com.nulabinc.backlog4j.Resolution;
 import com.nulabinc.backlog4j.Status;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import com.nulabinc.backlog4j.http.BacklogHttpClientImpl;
@@ -483,16 +482,9 @@ public class BacklogQuery {
      * @return ResolutionType list
      */
     public List<ResolutionType> getResolutions() {
-        BacklogData data = BacklogData.create(repository);
-        List<Resolution> resolutions = data.getResolutions();
         List<ResolutionType> list = new ArrayList<>(resolutionIds.size());
         for (Long resolutionId : resolutionIds) {
-            for (Resolution r : resolutions) {
-                if (resolutionId == r.getId()) {
-                    list.add(r.getResolution());
-                    break;
-                }
-            }
+            list.add(ResolutionType.valueOf(Integer.parseInt(resolutionId.toString())));
         }
         return list;
     }
