@@ -214,6 +214,7 @@ public class BacklogQuery {
                 .keyword(getKeyword())
                 // general
                 .statuses(getStatus())
+                .categoryIds(getCategoryIds())
                 .versionIds(getVersionIds())
                 .milestoneIds(getMilestoneIds())
                 .assignerIds(getAssigneeIds())
