@@ -41,6 +41,15 @@
  */
 package com.junichi11.netbeans.modules.backlog.query;
 
+import com.junichi11.netbeans.modules.backlog.Backlog;
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.query.ui.BacklogQueryPanel;
+import com.junichi11.netbeans.modules.backlog.query.ui.DatePanel;
+import com.junichi11.netbeans.modules.backlog.query.ui.GeneralPanel;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import java.awt.event.ActionEvent;
@@ -51,15 +60,6 @@ import java.util.Collection;
 import java.util.Collections;
 import javax.swing.JComponent;
 import org.netbeans.api.annotations.common.CheckForNull;
-import com.junichi11.netbeans.modules.backlog.Backlog;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
-import com.junichi11.netbeans.modules.backlog.query.ui.BacklogQueryPanel;
-import com.junichi11.netbeans.modules.backlog.query.ui.DatePanel;
-import com.junichi11.netbeans.modules.backlog.query.ui.GeneralPanel;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import org.netbeans.modules.bugtracking.commons.SaveQueryPanel;
 import org.netbeans.modules.bugtracking.issuetable.IssueTable;
 import org.netbeans.modules.bugtracking.issuetable.QueryTableCellRenderer;
@@ -200,6 +200,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
             text = Bundle.BacklogQueryController_label_matching_issues(issueCount);
         }
         StatusDisplayer.getDefault().setStatusText(text);
+        getPanel().setResultMessage(text);
         for (BacklogIssue issue : issues) {
             issueTable.addNode(issue.getIssueNode());
         }
@@ -287,6 +288,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                 .milestoneIds(generalPanel.getMilestoneIds())
                 .resolutions(generalPanel.getResolutions())
                 .issueTypeIds(generalPanel.getIssueTypeIds())
+                .count(GetIssuesParamsSupport.ISSUE_COUNT)
                 // date
                 .createdSince(BacklogUtils.toApiDateFormat(datePanel.getCreatedSince()))
                 .createdUntil(BacklogUtils.toApiDateFormat(datePanel.getCreatedUntil()))
