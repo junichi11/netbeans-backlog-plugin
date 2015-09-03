@@ -62,7 +62,7 @@ import org.openide.util.NbBundle;
  *
  * @author junichi11
  */
-public class BacklogQueryPanel extends javax.swing.JPanel {
+public final class BacklogQueryPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = -2602864183602734990L;
     private final GeneralPanel generalPanel;
@@ -89,6 +89,7 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
         queryNameLabel.setIcon(ICON);
         // issue table
         mainIssueTablePanel.add(tableComponent);
+        setResultMessage(" "); // NOI18N
         update();
     }
 
@@ -130,6 +131,10 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
 
     public void setKeyword(String keyword) {
         keywordTextField.setText(keyword);
+    }
+
+    public void setResultMessage(String message) {
+        issueCountLabel.setText(message);
     }
 
     public final void update() {
@@ -241,6 +246,7 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
         resetButton = new javax.swing.JButton();
         clearButton = new javax.swing.JButton();
         mainIssueTablePanel = new javax.swing.JPanel();
+        issueCountLabel = new javax.swing.JLabel();
 
         mainGeneralPanel.setLayout(new javax.swing.BoxLayout(mainGeneralPanel, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -284,6 +290,8 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
 
         mainIssueTablePanel.setLayout(new java.awt.BorderLayout());
 
+        org.openide.awt.Mnemonics.setLocalizedText(issueCountLabel, org.openide.util.NbBundle.getMessage(BacklogQueryPanel.class, "BacklogQueryPanel.issueCountLabel.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -297,6 +305,7 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(keywordTextField))
                     .addComponent(generalCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(mainIssueTablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -307,9 +316,9 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
                                 .addComponent(resetButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(clearButton))
-                            .addComponent(queryNameLabel))
-                        .addGap(0, 154, Short.MAX_VALUE))
-                    .addComponent(mainIssueTablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(queryNameLabel)
+                            .addComponent(issueCountLabel))
+                        .addGap(0, 85, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -332,6 +341,8 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dateCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(issueCountLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(mainIssueTablePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -353,6 +364,7 @@ public class BacklogQueryPanel extends javax.swing.JPanel {
     private javax.swing.JButton clearButton;
     private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel dateCollapsibleSectionPanel;
     private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel generalCollapsibleSectionPanel;
+    private javax.swing.JLabel issueCountLabel;
     private javax.swing.JLabel keywordLabel;
     private javax.swing.JTextField keywordTextField;
     private javax.swing.JPanel mainDatePanel;
