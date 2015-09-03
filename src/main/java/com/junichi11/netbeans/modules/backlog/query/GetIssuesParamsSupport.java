@@ -62,6 +62,9 @@ import org.openide.util.Exceptions;
  */
 public final class GetIssuesParamsSupport {
 
+    /**
+     * Count per request.
+     */
     public static final int ISSUE_COUNT = 100;
 
     private final List<Long> assigneeIds = new ArrayList<>();
@@ -98,6 +101,11 @@ public final class GetIssuesParamsSupport {
         parseQueryParam();
     }
 
+    /**
+     * Get query parameter string.
+     *
+     * @return query parameter
+     */
     public synchronized String getQueryParam() {
         return queryParam;
     }
@@ -209,6 +217,11 @@ public final class GetIssuesParamsSupport {
         }
     }
 
+    /**
+     * Create a new GetIssuesParams from parameters of the original one.
+     *
+     * @return GetIssuesParams
+     */
     public synchronized GetIssuesParams newGetIssuesParams() {
         GetIssuesParams issuesParams = new GetIssuesParams(getProjectIds());
         issuesParams.keyword(getKeyword())
