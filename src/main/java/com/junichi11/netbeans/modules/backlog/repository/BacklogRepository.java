@@ -49,6 +49,7 @@ import com.junichi11.netbeans.modules.backlog.query.AssignedToMeQuery;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.query.CreatedByMeQuery;
 import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
+import com.junichi11.netbeans.modules.backlog.query.GetIssuesParamsSupport;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
@@ -117,6 +118,9 @@ public final class BacklogRepository {
     // XXX for subtask
     private BacklogIssue subtaskParentIssue;
     private static final Logger LOGGER = Logger.getLogger(BacklogRepository.class.getName());
+
+    // restrict maximum value of issues that we can get
+    private static final int MAX_ISSUE_COUNT = 500;
 
     public BacklogRepository() {
     }
@@ -318,12 +322,29 @@ public final class BacklogRepository {
         if (backlogClient == null) {
             return Collections.emptyList();
         }
+
+        // count per request
+        int count = GetIssuesParamsSupport.ISSUE_COUNT;
         List<BacklogIssue> backlogIssues = new ArrayList<>();
+        GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
         try {
-            ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
-            for (Issue issue : issues) {
-                BacklogIssue backlogIssue = createIssue(issue);
-                backlogIssues.add(backlogIssue);
+            int total = 0;
+            int loop = 0;
+            while (total < MAX_ISSUE_COUNT) {
+                GetIssuesParams clonedParams = support.newGetIssuesParams();
+                clonedParams = clonedParams.offset(loop * count);
+                ResponseList<Issue> issues = backlogClient.getIssues(clonedParams);
+                for (Issue issue : issues) {
+                    BacklogIssue backlogIssue = createIssue(issue);
+                    backlogIssues.add(backlogIssue);
+                    if (++total == MAX_ISSUE_COUNT) {
+                        break;
+                    }
+                }
+                if (issues.size() < count) {
+                    break;
+                }
+                ++loop;
             }
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
