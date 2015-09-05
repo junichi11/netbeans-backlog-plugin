@@ -47,6 +47,7 @@ import com.nulabinc.backlog4j.Issue.PriorityType;
 import com.nulabinc.backlog4j.Issue.ResolutionType;
 import com.nulabinc.backlog4j.Issue.StatusType;
 import com.nulabinc.backlog4j.Project;
+import com.nulabinc.backlog4j.api.option.GetIssuesCountParams;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import java.util.Collection;
 import java.util.Collections;
@@ -160,6 +161,16 @@ public class BacklogQuery {
      */
     public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
         return repository.getIssues(issuesParams, false);
+    }
+
+    /**
+     * Get an issue count.
+     *
+     * @param issuesCountParams
+     * @return a issue count if it can be got, otherwise -1
+     */
+    public int getIssuesCount(GetIssuesCountParams issuesCountParams) {
+        return repository.getIssuesCount(issuesCountParams);
     }
 
     /**
