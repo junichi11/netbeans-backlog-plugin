@@ -46,6 +46,7 @@ import com.nulabinc.backlog4j.Issue;
 import com.nulabinc.backlog4j.Issue.PriorityType;
 import com.nulabinc.backlog4j.Issue.ResolutionType;
 import com.nulabinc.backlog4j.Issue.StatusType;
+import com.nulabinc.backlog4j.api.option.GetIssuesCountParams;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import com.nulabinc.backlog4j.http.BacklogHttpClientImpl;
 import java.io.UnsupportedEncodingException;
@@ -218,6 +219,44 @@ public final class GetIssuesParamsSupport {
     }
 
     /**
+     * Create a new GetIssuesCountParams from parameters of the original
+     * GetIssuesParams.
+     *
+     * @return GetIssuesCountParams
+     */
+    public synchronized GetIssuesCountParams newGetIssuesCountParams() {
+        GetIssuesCountParams issuesParams = new GetIssuesCountParams(getProjectIds());
+        issuesParams.keyword(getKeyword())
+                // general
+                .statuses(getStatus())
+                .categoryIds(getCategoryIds())
+                .versionIds(getVersionIds())
+                .milestoneIds(getMilestoneIds())
+                .assignerIds(getAssigneeIds())
+                .createdUserIds(getCreatedUserIds())
+                .priorities(getPriorities())
+                .resolutions(getResolutions())
+                .issueTypeIds(getIssueTypeIds())
+                // date
+                .createdSince(getCreatedSince())
+                .createdUntil(getCreatedUntil())
+                .updatedSince(getUpdatedSince())
+                .updatedUntil(getUpdatedUntil())
+                .startDateSince(getStartDateSince())
+                .dueDateSince(getDueDateSince())
+                .dueDateUntil(getDueDateUntil());
+        // file
+        if (isAttachment()) {
+            issuesParams = issuesParams.attachment(true);
+        }
+
+        if (isSharedFile()) {
+            issuesParams = issuesParams.sharedFile(true);
+        }
+        return issuesParams;
+    }
+
+    /**
      * Create a new GetIssuesParams from parameters of the original one.
      *
      * @return GetIssuesParams
@@ -253,7 +292,6 @@ public final class GetIssuesParamsSupport {
             issuesParams = issuesParams.sharedFile(true);
         }
         return issuesParams;
-
     }
 
     public List<Long> getAssigneeIds() {
