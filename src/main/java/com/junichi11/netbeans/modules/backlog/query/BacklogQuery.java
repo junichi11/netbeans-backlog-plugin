@@ -130,16 +130,26 @@ public class BacklogQuery {
     }
 
     /**
-     * Get issues for this query.
+     * Get all BacklogIssues for this query.
      *
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getIssues() {
+    public Collection<BacklogIssue> getAllIssues() {
         GetIssuesParams issuesParams = createGetIssuesParams();
         if (issuesParams == null) {
             return Collections.emptyList();
         }
-        return getIssues(getGetIssuesParams(issuesParams));
+        return getAllIssues(getGetIssuesParams(issuesParams));
+    }
+
+    /**
+     * Get all BacklogIssues for GetIssuesParams.
+     *
+     * @param issuesParams GetIssuesParams
+     * @return BacklogIssues
+     */
+    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams) {
+        return repository.getIssues(issuesParams, true);
     }
 
     /**
@@ -149,7 +159,7 @@ public class BacklogQuery {
      * @return BacklogIssues
      */
     public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
-        return repository.getIssues(issuesParams);
+        return repository.getIssues(issuesParams, false);
     }
 
     /**
@@ -516,7 +526,7 @@ public class BacklogQuery {
             if (issueContainer != null) {
                 issueContainer.refreshingStarted();
                 issueContainer.clear();
-                for (BacklogIssue issue : getIssues()) {
+                for (BacklogIssue issue : getAllIssues()) {
                     issueContainer.add(issue);
                 }
             }
