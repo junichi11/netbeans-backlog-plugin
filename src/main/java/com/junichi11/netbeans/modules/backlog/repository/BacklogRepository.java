@@ -59,6 +59,7 @@ import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.Issue;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.ResponseList;
+import com.nulabinc.backlog4j.api.option.GetIssuesCountParams;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
 import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
@@ -371,6 +372,29 @@ public final class BacklogRepository {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
         return backlogIssues;
+    }
+
+    /**
+     * Get an issue count.
+     *
+     * @param issuesCountParams
+     * @return a issue count if it can be got, otherwise -1
+     */
+    public int getIssuesCount(GetIssuesCountParams issuesCountParams) {
+        Project p = getProject();
+        if (p == null || issuesCountParams == null) {
+            return -1;
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return -1;
+        }
+        try {
+            return backlogClient.getIssuesCount(issuesCountParams);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return -1;
     }
 
     /**
