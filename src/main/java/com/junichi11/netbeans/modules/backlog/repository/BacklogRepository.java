@@ -314,6 +314,26 @@ public final class BacklogRepository {
      * @return BacklogIssues
      */
     public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
+        return getIssues(issuesParams, false);
+    }
+
+    /**
+     * Get BacklogIssues.
+     *
+     * @param issuesParams GetIssuesParams
+     * @return BacklogIssues
+     */
+    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams) {
+        return getIssues(issuesParams, true);
+    }
+
+    /**
+     * Get BacklogIssues.
+     *
+     * @param issuesParams GetIssuesParams
+     * @return BacklogIssues
+     */
+    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams, boolean isAll) {
         Project p = getProject();
         if (p == null || issuesParams == null) {
             return Collections.emptyList();
@@ -326,17 +346,18 @@ public final class BacklogRepository {
         // count per request
         int count = GetIssuesParamsSupport.ISSUE_COUNT;
         List<BacklogIssue> backlogIssues = new ArrayList<>();
-        GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
         try {
             int total = 0;
             int loop = 0;
-            while (total < MAX_ISSUE_COUNT) {
-                GetIssuesParams clonedParams = support.newGetIssuesParams();
-                clonedParams = clonedParams.offset(loop * count);
-                ResponseList<Issue> issues = backlogClient.getIssues(clonedParams);
+            do {
+                if (isAll) {
+                    GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
+                    issuesParams = support.newGetIssuesParams();
+                    issuesParams = issuesParams.offset(loop * count);
+                }
+                ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
                 for (Issue issue : issues) {
-                    BacklogIssue backlogIssue = createIssue(issue);
-                    backlogIssues.add(backlogIssue);
+                    backlogIssues.add(createIssue(issue));
                     if (++total == MAX_ISSUE_COUNT) {
                         break;
                     }
@@ -345,7 +366,7 @@ public final class BacklogRepository {
                     break;
                 }
                 ++loop;
-            }
+            } while (isAll && total < MAX_ISSUE_COUNT);
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
