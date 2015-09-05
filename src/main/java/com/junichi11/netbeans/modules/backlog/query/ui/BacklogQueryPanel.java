@@ -202,8 +202,34 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
         datePanel.clear();
     }
 
+    public void setAllComponentsEnabled(boolean isEnabled) {
+        setSearchButtonEnabled(isEnabled);
+        setSaveButtonEnabled(isEnabled);
+        setResetButtonEnabled(isEnabled);
+        setClearButtonEnabled(isEnabled);
+        setKeywordTextFieldEnabled(isEnabled);
+        getGeneralPanel().setComponentsEnabled(isEnabled);
+        getDatePanel().setComponentsEnabled(isEnabled);
+    }
+
     public void setSaveButtonEnabled(boolean isEnabled) {
         saveButton.setEnabled(isEnabled);
+    }
+
+    public void setSearchButtonEnabled(boolean isEnabled) {
+        searchButton.setEnabled(isEnabled);
+    }
+
+    public void setResetButtonEnabled(boolean isEnabled) {
+        resetButton.setEnabled(isEnabled);
+    }
+
+    public void setClearButtonEnabled(boolean isEnabled) {
+        clearButton.setEnabled(isEnabled);
+    }
+
+    public void setKeywordTextFieldEnabled(boolean isEnabled) {
+        keywordTextField.setEnabled(isEnabled);
     }
 
     public void scrollToBottom() {
@@ -299,27 +325,31 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dateCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(keywordLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(keywordTextField))
-                    .addComponent(generalCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(mainIssueTablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(dateCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(searchButton)
+                                .addComponent(keywordLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(saveButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(resetButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(clearButton))
-                            .addComponent(queryNameLabel)
-                            .addComponent(issueCountLabel))
-                        .addGap(0, 85, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addComponent(keywordTextField))
+                            .addComponent(generalCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(mainIssueTablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(searchButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(saveButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(resetButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(clearButton))
+                                    .addComponent(queryNameLabel))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(issueCountLabel)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
