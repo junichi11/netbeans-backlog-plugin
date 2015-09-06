@@ -41,30 +41,21 @@
  */
 package com.junichi11.netbeans.modules.backlog.query;
 
-import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.Issue.PriorityType;
 import com.nulabinc.backlog4j.Issue.ResolutionType;
 import com.nulabinc.backlog4j.Issue.StatusType;
-import com.nulabinc.backlog4j.Priority;
 import com.nulabinc.backlog4j.Project;
-import com.nulabinc.backlog4j.Status;
+import com.nulabinc.backlog4j.api.option.GetIssuesCountParams;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
-import com.nulabinc.backlog4j.http.BacklogHttpClientImpl;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.spi.QueryProvider;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -76,43 +67,24 @@ public class BacklogQuery {
     private QueryProvider.IssueContainer issueContainer;
     private BacklogQueryController controller;
     private String name;
-    private String queryParam;
-    private String keyword;
     private boolean isSaved;
     private ColumnDescriptor[] columnDescriptors;
-    private final List<Long> assigneeIds = new ArrayList<>();
-    private final List<Long> categoryIds = new ArrayList<>();
-    private final List<Long> createdUserIds = new ArrayList<>();
-    private final List<Long> issueTypeIds = new ArrayList<>();
-    private final List<Long> milestoneIds = new ArrayList<>();
-    private final List<Long> priorityIds = new ArrayList<>();
-    private final List<Long> resolutionIds = new ArrayList<>();
-    private final List<Long> statusIds = new ArrayList<>();
-    private final List<Long> versionIds = new ArrayList<>();
-    private String createdSince;
-    private String createdUntil;
-    private String updatedSince;
-    private String updatedUntil;
-    private String startDateSince;
-    private String startDateUntil;
-    private String dueDateSince;
-    private String dueDateUntil;
-    private boolean attachment;
-    private boolean sharedFile;
+    private final GetIssuesParamsSupport getIssuesParamsSupport;
+    private int maxIssueCount;
     private static final Logger LOGGER = Logger.getLogger(BacklogQuery.class.getName());
 
     public BacklogQuery(BacklogRepository repository) {
-        this(repository, null, null);
+        this(repository, null, null, 20);
     }
 
-    public BacklogQuery(BacklogRepository repository, String name, String queryParam) {
+    public BacklogQuery(BacklogRepository repository, String name, String queryParam, int maxIssueCount) {
         this.repository = repository;
         this.name = name;
-        this.queryParam = queryParam;
         if (queryParam != null) {
             isSaved = true;
         }
-        parseQueryParam();
+        this.getIssuesParamsSupport = new GetIssuesParamsSupport(queryParam);
+        this.maxIssueCount = maxIssueCount;
     }
 
     /**
@@ -161,16 +133,26 @@ public class BacklogQuery {
     }
 
     /**
-     * Get issues for this query.
+     * Get all BacklogIssues for this query.
      *
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getIssues() {
+    public Collection<BacklogIssue> getAllIssues() {
         GetIssuesParams issuesParams = createGetIssuesParams();
         if (issuesParams == null) {
             return Collections.emptyList();
         }
-        return getIssues(getGetIssuesParams(issuesParams));
+        return getAllIssues(getGetIssuesParams(issuesParams), getMaxIssueCount());
+    }
+
+    /**
+     * Get all BacklogIssues for GetIssuesParams.
+     *
+     * @param issuesParams GetIssuesParams
+     * @return BacklogIssues
+     */
+    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams, int maxIssueCount) {
+        return repository.getIssues(issuesParams, maxIssueCount, true);
     }
 
     /**
@@ -180,7 +162,17 @@ public class BacklogQuery {
      * @return BacklogIssues
      */
     public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
-        return repository.getIssues(issuesParams);
+        return repository.getIssues(issuesParams, 100, false);
+    }
+
+    /**
+     * Get an issue count.
+     *
+     * @param issuesCountParams
+     * @return a issue count if it can be got, otherwise -1
+     */
+    public int getIssuesCount(GetIssuesCountParams issuesCountParams) {
+        return repository.getIssuesCount(issuesCountParams);
     }
 
     /**
@@ -225,6 +217,7 @@ public class BacklogQuery {
                 .priorities(getPriorities())
                 .resolutions(getResolutions())
                 .issueTypeIds(getIssueTypeIds())
+                .count(GetIssuesParamsSupport.computeCount(maxIssueCount))
                 // date
                 .createdSince(getCreatedSince())
                 .createdUntil(getCreatedUntil())
@@ -252,7 +245,7 @@ public class BacklogQuery {
      * @return query param
      */
     public String getQueryParam() {
-        return queryParam;
+        return getIssuesParamsSupport.getQueryParam();
     }
 
     /**
@@ -264,18 +257,24 @@ public class BacklogQuery {
         if (params == null) {
             return;
         }
-        // since backlog4j 2.1.3
-        queryParam = new BacklogHttpClientImpl().getParamsString(true, params);
-        parseQueryParam();
+        getIssuesParamsSupport.setQueryParam(params);
+    }
+
+    public int getMaxIssueCount() {
+        return maxIssueCount;
+    }
+
+    public void setMaxIssueCount(int count) {
+        maxIssueCount = count;
     }
 
     /**
-     * Return kewword.
+     * Return keyword.
      *
      * @return keyword
      */
     public String getKeyword() {
-        return keyword;
+        return getIssuesParamsSupport.getKeyword();
     }
 
     /**
@@ -284,18 +283,7 @@ public class BacklogQuery {
      * @return StatusType list
      */
     public List<StatusType> getStatus() {
-        BacklogData data = BacklogData.create(repository);
-        List<Status> status = data.getStatus();
-        List<StatusType> list = new ArrayList<>(statusIds.size());
-        for (Long statusId : statusIds) {
-            for (Status s : status) {
-                if (statusId == s.getId()) {
-                    list.add(s.getStatus());
-                    break;
-                }
-            }
-        }
-        return list;
+        return getIssuesParamsSupport.getStatus();
     }
 
     /**
@@ -304,7 +292,7 @@ public class BacklogQuery {
      * @return status ids
      */
     public List<Long> getStatusIds() {
-        return statusIds;
+        return getIssuesParamsSupport.getStatusIds();
     }
 
     /**
@@ -313,7 +301,7 @@ public class BacklogQuery {
      * @return priority ids
      */
     public List<Long> getPriorityIds() {
-        return priorityIds;
+        return getIssuesParamsSupport.getPriorityIds();
     }
 
     /**
@@ -322,18 +310,7 @@ public class BacklogQuery {
      * @return PriorityType list
      */
     public List<PriorityType> getPriorities() {
-        BacklogData data = BacklogData.create(repository);
-        List<Priority> priorities = data.getPriorities();
-        List<PriorityType> list = new ArrayList<>(priorityIds.size());
-        for (Long priorityId : priorityIds) {
-            for (Priority p : priorities) {
-                if (priorityId == p.getId()) {
-                    list.add(p.getPriority());
-                    break;
-                }
-            }
-        }
-        return list;
+        return getIssuesParamsSupport.getPriorities();
     }
 
     /**
@@ -342,7 +319,7 @@ public class BacklogQuery {
      * @return category ids
      */
     public List<Long> getCategoryIds() {
-        return categoryIds;
+        return getIssuesParamsSupport.getCategoryIds();
     }
 
     /**
@@ -351,7 +328,7 @@ public class BacklogQuery {
      * @return get assinee ids
      */
     public List<Long> getAssigneeIds() {
-        return assigneeIds;
+        return getIssuesParamsSupport.getAssigneeIds();
     }
 
     /**
@@ -360,7 +337,7 @@ public class BacklogQuery {
      * @return user ids
      */
     public List<Long> getCreatedUserIds() {
-        return createdUserIds;
+        return getIssuesParamsSupport.getCreatedUserIds();
     }
 
     /**
@@ -369,7 +346,7 @@ public class BacklogQuery {
      * @return version ids
      */
     public List<Long> getVersionIds() {
-        return versionIds;
+        return getIssuesParamsSupport.getVersionIds();
     }
 
     /**
@@ -378,7 +355,7 @@ public class BacklogQuery {
      * @return milestone ids
      */
     public List<Long> getMilestoneIds() {
-        return milestoneIds;
+        return getIssuesParamsSupport.getMilestoneIds();
     }
 
     /**
@@ -387,7 +364,7 @@ public class BacklogQuery {
      * @return resolution ids
      */
     public List<Long> getResolutionIds() {
-        return resolutionIds;
+        return getIssuesParamsSupport.getResolutionIds();
     }
 
     /**
@@ -396,7 +373,7 @@ public class BacklogQuery {
      * @return created since date
      */
     public String getCreatedSince() {
-        return createdSince;
+        return getIssuesParamsSupport.getCreatedSince();
     }
 
     /**
@@ -405,7 +382,7 @@ public class BacklogQuery {
      * @return created until date
      */
     public String getCreatedUntil() {
-        return createdUntil;
+        return getIssuesParamsSupport.getCreatedUntil();
     }
 
     /**
@@ -414,7 +391,7 @@ public class BacklogQuery {
      * @return updated since date
      */
     public String getUpdatedSince() {
-        return updatedSince;
+        return getIssuesParamsSupport.getUpdatedSince();
     }
 
     /**
@@ -423,7 +400,7 @@ public class BacklogQuery {
      * @return updated until date
      */
     public String getUpdatedUntil() {
-        return updatedUntil;
+        return getIssuesParamsSupport.getUpdatedUntil();
     }
 
     /**
@@ -432,7 +409,7 @@ public class BacklogQuery {
      * @return start date since
      */
     public String getStartDateSince() {
-        return startDateSince;
+        return getIssuesParamsSupport.getStartDateSince();
     }
 
     /**
@@ -441,7 +418,7 @@ public class BacklogQuery {
      * @return start date until
      */
     public String getStartDateUntil() {
-        return startDateUntil;
+        return getIssuesParamsSupport.getStartDateUntil();
     }
 
     /**
@@ -450,7 +427,7 @@ public class BacklogQuery {
      * @return due date since
      */
     public String getDueDateSince() {
-        return dueDateSince;
+        return getIssuesParamsSupport.getDueDateSince();
     }
 
     /**
@@ -459,7 +436,7 @@ public class BacklogQuery {
      * @return due date until
      */
     public String getDueDateUntil() {
-        return dueDateUntil;
+        return getIssuesParamsSupport.getDueDateUntil();
     }
 
     /**
@@ -468,7 +445,7 @@ public class BacklogQuery {
      * @return {@code true} attachment is valid, otherwise {@code false}
      */
     public boolean isAttachment() {
-        return attachment;
+        return getIssuesParamsSupport.isAttachment();
     }
 
     /**
@@ -477,7 +454,7 @@ public class BacklogQuery {
      * @return {@code true} shared file is valid, otherwise {@code false}
      */
     public boolean isSharedFile() {
-        return sharedFile;
+        return getIssuesParamsSupport.isSharedFile();
     }
 
     /**
@@ -486,11 +463,7 @@ public class BacklogQuery {
      * @return ResolutionType list
      */
     public List<ResolutionType> getResolutions() {
-        List<ResolutionType> list = new ArrayList<>(resolutionIds.size());
-        for (Long resolutionId : resolutionIds) {
-            list.add(ResolutionType.valueOf(Integer.parseInt(resolutionId.toString())));
-        }
-        return list;
+        return getIssuesParamsSupport.getResolutions();
     }
 
     /**
@@ -499,7 +472,7 @@ public class BacklogQuery {
      * @return IssueType ids
      */
     public List<Long> getIssueTypeIds() {
-        return issueTypeIds;
+        return getIssuesParamsSupport.getIssueTypeIds();
     }
 
     /**
@@ -574,7 +547,7 @@ public class BacklogQuery {
             if (issueContainer != null) {
                 issueContainer.refreshingStarted();
                 issueContainer.clear();
-                for (BacklogIssue issue : getIssues()) {
+                for (BacklogIssue issue : getAllIssues()) {
                     issueContainer.add(issue);
                 }
             }
@@ -594,96 +567,6 @@ public class BacklogQuery {
     }
 
     /**
-     * Parse query param.
-     */
-    private void parseQueryParam() {
-        clearAllQueryParams();
-        if (StringUtils.isEmpty(queryParam)) {
-            return;
-        }
-        StringTokenizer tokenizer = new StringTokenizer(queryParam, "&"); // NOI18N
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            String[] split = token.split("="); // NOI18N
-            if (split.length != 2) {
-                continue;
-            }
-            String key = ""; // NOI18N
-            String value = ""; // NOI18N
-            try {
-                key = URLDecoder.decode(split[0], "UTF-8"); // NOI18N
-                value = URLDecoder.decode(split[1], "UTF-8"); // NOI18N
-            } catch (UnsupportedEncodingException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            switch (key) {
-                case "statusId[]": // NOI18N
-                    statusIds.add(Long.decode(value));
-                    break;
-                case "priorityId[]": // NOI18N
-                    priorityIds.add(Long.decode(value));
-                    break;
-                case "categoryId[]": // NOI18N
-                    categoryIds.add(Long.decode(value));
-                    break;
-                case "assigneeId[]": // NOI18N
-                    assigneeIds.add(Long.decode(value));
-                    break;
-                case "versionId[]": // NOI18N
-                    versionIds.add(Long.decode(value));
-                    break;
-                case "createdUserId[]": // NOI18N
-                    createdUserIds.add(Long.decode(value));
-                    break;
-                case "milestoneId[]": // NOI18N
-                    milestoneIds.add(Long.decode(value));
-                    break;
-                case "resolutionId[]": // NOI18N
-                    resolutionIds.add(Long.decode(value));
-                    break;
-                case "issueTypeId[]": // NOI18N
-                    issueTypeIds.add(Long.decode(value));
-                    break;
-                case "keyword": // NOI18N
-                    keyword = value;
-                    break;
-                case "createdSince": // NOI18N
-                    createdSince = value;
-                    break;
-                case "createdUntil": // NOI18N
-                    createdUntil = value;
-                    break;
-                case "updatedSince": // NOI18N
-                    updatedSince = value;
-                    break;
-                case "updatedUntil": // NOI18N
-                    updatedUntil = value;
-                    break;
-                case "startDateSince": // NOI18N
-                    startDateSince = value;
-                    break;
-                case "startDateUntil": // NOI18N
-                    startDateUntil = value;
-                    break;
-                case "dueDateSince": // NOI18N
-                    dueDateSince = value;
-                    break;
-                case "dueDateUntil": // NOI18N
-                    dueDateUntil = value;
-                    break;
-                case "attachment": // NOI18N
-                    attachment = Boolean.valueOf(value);
-                    break;
-                case "sharedFile": // NOI18N
-                    sharedFile = Boolean.valueOf(value);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    /**
      * Get ColumnDescriptors.
      *
      * @return ColumnDescriptors
@@ -693,32 +576,6 @@ public class BacklogQuery {
             columnDescriptors = BacklogIssue.getColumnDescriptors();
         }
         return columnDescriptors;
-    }
-
-    /**
-     * Clear all query params.
-     */
-    private void clearAllQueryParams() {
-        keyword = ""; // NOI18N
-        statusIds.clear();
-        priorityIds.clear();
-        categoryIds.clear();
-        assigneeIds.clear();
-        versionIds.clear();
-        createdUserIds.clear();
-        milestoneIds.clear();
-        resolutionIds.clear();
-        issueTypeIds.clear();
-        createdSince = ""; // NOI18N
-        createdUntil = ""; // NOI18N
-        updatedSince = ""; // NOI18N
-        updatedUntil = ""; // NOI18N
-        startDateSince = ""; // NOI18N
-        startDateUntil = ""; // NOI18N
-        dueDateSince = ""; // NOI18N
-        dueDateUntil = ""; // NOI18N
-        attachment = false;
-        sharedFile = false;
     }
 
 }
