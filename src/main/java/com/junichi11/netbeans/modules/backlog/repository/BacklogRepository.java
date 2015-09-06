@@ -120,9 +120,6 @@ public final class BacklogRepository {
     private BacklogIssue subtaskParentIssue;
     private static final Logger LOGGER = Logger.getLogger(BacklogRepository.class.getName());
 
-    // restrict maximum value of issues that we can get
-    private static final int MAX_ISSUE_COUNT = 500;
-
     public BacklogRepository() {
     }
 
@@ -315,7 +312,7 @@ public final class BacklogRepository {
      * @return BacklogIssues
      */
     public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
-        return getIssues(issuesParams, false);
+        return getIssues(issuesParams, 100, false);
     }
 
     /**
@@ -324,8 +321,8 @@ public final class BacklogRepository {
      * @param issuesParams GetIssuesParams
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams) {
-        return getIssues(issuesParams, true);
+    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams, int maxCount) {
+        return getIssues(issuesParams, maxCount, true);
     }
 
     /**
@@ -334,7 +331,7 @@ public final class BacklogRepository {
      * @param issuesParams GetIssuesParams
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams, boolean isAll) {
+    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams, int maxCount, boolean isAll) {
         Project p = getProject();
         if (p == null || issuesParams == null) {
             return Collections.emptyList();
@@ -345,7 +342,7 @@ public final class BacklogRepository {
         }
 
         // count per request
-        int count = GetIssuesParamsSupport.ISSUE_COUNT;
+        int count = GetIssuesParamsSupport.computeCount(maxCount);
         List<BacklogIssue> backlogIssues = new ArrayList<>();
         try {
             int total = 0;
@@ -353,13 +350,13 @@ public final class BacklogRepository {
             do {
                 if (isAll) {
                     GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
-                    issuesParams = support.newGetIssuesParams();
+                    issuesParams = support.newGetIssuesParams().count(count);
                     issuesParams = issuesParams.offset(loop * count);
                 }
                 ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
                 for (Issue issue : issues) {
                     backlogIssues.add(createIssue(issue));
-                    if (++total == MAX_ISSUE_COUNT) {
+                    if (++total == maxCount) {
                         break;
                     }
                 }
@@ -367,7 +364,7 @@ public final class BacklogRepository {
                     break;
                 }
                 ++loop;
-            } while (isAll && total < MAX_ISSUE_COUNT);
+            } while (isAll && total < maxCount);
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
@@ -571,10 +568,11 @@ public final class BacklogRepository {
             String[] queryNames = BacklogConfig.getInstance().getQueryNames(this);
             for (String queryName : queryNames) {
                 String queryParams = BacklogConfig.getInstance().getQueryParams(this, queryName);
+                int maxIssueCount = BacklogConfig.getInstance().getMaxIssueCount(this, queryName);
                 if (StringUtils.isEmpty(queryParams)) {
                     continue;
                 }
-                BacklogQuery backlogQuery = new BacklogQuery(this, queryName, queryParams);
+                BacklogQuery backlogQuery = new BacklogQuery(this, queryName, queryParams, maxIssueCount);
                 backlogQuery.setSaved(true);
                 addQuery(backlogQuery);
             }
@@ -620,6 +618,7 @@ public final class BacklogRepository {
             return;
         }
         BacklogConfig.getInstance().setQueryParams(this, query);
+        BacklogConfig.getInstance().setMaxIssueCount(this, query);
         addQuery(query);
         fireQueryListChanged();
     }

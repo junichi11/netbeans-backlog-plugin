@@ -274,7 +274,8 @@ public final class GetIssuesParamsSupport {
                 .priorities(getPriorities())
                 .resolutions(getResolutions())
                 .issueTypeIds(getIssueTypeIds())
-                .count(ISSUE_COUNT)
+                // .count(ISSUE_COUNT)
+
                 // date
                 .createdSince(getCreatedSince())
                 .createdUntil(getCreatedUntil())
@@ -424,5 +425,18 @@ public final class GetIssuesParamsSupport {
         dueDateUntil = ""; // NOI18N
         attachment = false;
         sharedFile = false;
+    }
+
+    /**
+     * Compute an issue count from the maximum count.
+     *
+     * @param maxCount the maximum count
+     * @return 100 if maximum count is 100 or more, otherwise {@code maxCount}
+     */
+    public static int computeCount(int maxCount) {
+        if (maxCount <= ISSUE_COUNT) {
+            return maxCount;
+        }
+        return ISSUE_COUNT;
     }
 }

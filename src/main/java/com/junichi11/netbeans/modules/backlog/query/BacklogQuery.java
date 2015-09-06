@@ -70,19 +70,21 @@ public class BacklogQuery {
     private boolean isSaved;
     private ColumnDescriptor[] columnDescriptors;
     private final GetIssuesParamsSupport getIssuesParamsSupport;
+    private int maxIssueCount;
     private static final Logger LOGGER = Logger.getLogger(BacklogQuery.class.getName());
 
     public BacklogQuery(BacklogRepository repository) {
-        this(repository, null, null);
+        this(repository, null, null, 20);
     }
 
-    public BacklogQuery(BacklogRepository repository, String name, String queryParam) {
+    public BacklogQuery(BacklogRepository repository, String name, String queryParam, int maxIssueCount) {
         this.repository = repository;
         this.name = name;
         if (queryParam != null) {
             isSaved = true;
         }
-        getIssuesParamsSupport = new GetIssuesParamsSupport(queryParam);
+        this.getIssuesParamsSupport = new GetIssuesParamsSupport(queryParam);
+        this.maxIssueCount = maxIssueCount;
     }
 
     /**
@@ -140,7 +142,7 @@ public class BacklogQuery {
         if (issuesParams == null) {
             return Collections.emptyList();
         }
-        return getAllIssues(getGetIssuesParams(issuesParams));
+        return getAllIssues(getGetIssuesParams(issuesParams), getMaxIssueCount());
     }
 
     /**
@@ -149,8 +151,8 @@ public class BacklogQuery {
      * @param issuesParams GetIssuesParams
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams) {
-        return repository.getIssues(issuesParams, true);
+    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams, int maxIssueCount) {
+        return repository.getIssues(issuesParams, maxIssueCount, true);
     }
 
     /**
@@ -160,7 +162,7 @@ public class BacklogQuery {
      * @return BacklogIssues
      */
     public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
-        return repository.getIssues(issuesParams, false);
+        return repository.getIssues(issuesParams, 100, false);
     }
 
     /**
@@ -215,7 +217,7 @@ public class BacklogQuery {
                 .priorities(getPriorities())
                 .resolutions(getResolutions())
                 .issueTypeIds(getIssueTypeIds())
-                .count(GetIssuesParamsSupport.ISSUE_COUNT)
+                .count(GetIssuesParamsSupport.computeCount(maxIssueCount))
                 // date
                 .createdSince(getCreatedSince())
                 .createdUntil(getCreatedUntil())
@@ -258,8 +260,16 @@ public class BacklogQuery {
         getIssuesParamsSupport.setQueryParam(params);
     }
 
+    public int getMaxIssueCount() {
+        return maxIssueCount;
+    }
+
+    public void setMaxIssueCount(int count) {
+        maxIssueCount = count;
+    }
+
     /**
-     * Return kewword.
+     * Return keyword.
      *
      * @return keyword
      */

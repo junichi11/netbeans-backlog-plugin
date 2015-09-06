@@ -186,7 +186,8 @@ public class BacklogQueryController implements QueryController, ActionListener {
 
     @NbBundle.Messages({
         "# {0} - count",
-        "BacklogQueryController.label.matching.issues=There are {0} issues matching this query.",
+        "# {1} - total",
+        "BacklogQueryController.label.matching.issues=There are {0}/{1} issues matching this query.",
         "BacklogQueryController.label.matching.issue=There is 1 issue matching this query.",
         "BacklogQueryController.label.matching.no.issue=There is no issue matching this query.",
         "BacklogQueryController.label.searching.issues=Searching issues...",
@@ -217,12 +218,13 @@ public class BacklogQueryController implements QueryController, ActionListener {
                         }
                 );
 
+                final int maxIssueCount = getPanel().getMaxIssueCount();
                 try {
                     if (issuesParams != null) {
                         GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
                         int issuesCount = query.getIssuesCount(support.newGetIssuesCountParams());
-                        int count = GetIssuesParamsSupport.ISSUE_COUNT;
-                        int loop = (issuesCount + count - 1) / count;
+                        int count = GetIssuesParamsSupport.computeCount(maxIssueCount);
+                        int loop = getLoopCount(count, maxIssueCount, issuesCount);
 
                         // fetch issues
                         handle.start(loop);
@@ -230,7 +232,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                             if (isCancel.get()) {
                                 break;
                             }
-                            GetIssuesParams clonedParams = support.newGetIssuesParams();
+                            GetIssuesParams clonedParams = support.newGetIssuesParams().count(count);
                             clonedParams = clonedParams.offset(i * count);
                             issues.addAll(query.getIssues(clonedParams));
                             handle.progress(i + 1);
@@ -243,7 +245,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                         if (issueCount == 1) {
                             text = Bundle.BacklogQueryController_label_matching_issue();
                         } else if (issueCount > 1) {
-                            text = Bundle.BacklogQueryController_label_matching_issues(issueCount);
+                            text = Bundle.BacklogQueryController_label_matching_issues(Math.min(issueCount, maxIssueCount), issuesCount);
                         }
                         if (isCancel.get()) {
                             text += Bundle.BacklogQueryController_label_canceled();
@@ -260,14 +262,27 @@ public class BacklogQueryController implements QueryController, ActionListener {
                     public void run() {
                         StatusDisplayer.getDefault().setStatusText(message);
                         getPanel().setResultMessage(message);
+                        int total = 0;
                         for (BacklogIssue issue : issues) {
                             issueTable.addNode(issue.getIssueNode());
+                            if (++total == maxIssueCount) {
+                                break;
+                            }
                         }
                         getPanel().setAllComponentsEnabled(true);
                     }
                 });
             }
         });
+    }
+
+    private static int getLoopCount(int count, int maxIssueCount, int allIssuesCount) {
+        int maxCount = GetIssuesParamsSupport.ISSUE_COUNT;
+        int loop = 1;
+        if (count > maxCount) {
+            loop = (Math.min(maxIssueCount, allIssuesCount) + maxCount - 1) / maxCount;
+        }
+        return loop;
     }
 
     @NbBundle.Messages({
@@ -304,6 +319,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
             query.setName(queryName);
         }
         query.setQueryParam(issuesParams);
+        query.setMaxIssueCount(getPanel().getMaxIssueCount());
         saveQuery();
         query.setSaved(true);
         getPanel().update();
@@ -352,7 +368,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                 .milestoneIds(generalPanel.getMilestoneIds())
                 .resolutions(generalPanel.getResolutions())
                 .issueTypeIds(generalPanel.getIssueTypeIds())
-                .count(GetIssuesParamsSupport.ISSUE_COUNT)
+                .count(GetIssuesParamsSupport.computeCount(getPanel().getMaxIssueCount()))
                 // date
                 .createdSince(BacklogUtils.toApiDateFormat(datePanel.getCreatedSince()))
                 .createdUntil(BacklogUtils.toApiDateFormat(datePanel.getCreatedUntil()))
@@ -371,4 +387,5 @@ public class BacklogQueryController implements QueryController, ActionListener {
         }
         return issuesParams;
     }
+
 }

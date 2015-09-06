@@ -56,6 +56,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.SpinnerNumberModel;
 import org.openide.util.NbBundle;
 
 /**
@@ -69,6 +70,7 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
     private final DatePanel datePanel;
     private final BacklogRepository repository;
     private final BacklogQuery query;
+    private final SpinnerNumberModel maxIssueSpinnerNumberModel;
     private static final Icon ICON = BacklogImage.ICON_32.getIcon();
 
     /**
@@ -90,6 +92,8 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
         // issue table
         mainIssueTablePanel.add(tableComponent);
         setResultMessage(" "); // NOI18N
+        maxIssueSpinnerNumberModel = new SpinnerNumberModel(20, 20, 500, 10);
+        maxIssueCountSpinner.setModel(maxIssueSpinnerNumberModel);
         update();
     }
 
@@ -103,6 +107,10 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
 
     public String getKeyword() {
         return keywordTextField.getText();
+    }
+
+    public int getMaxIssueCount() {
+        return maxIssueSpinnerNumberModel.getNumber().intValue();
     }
 
     public void addSearchButtonActionListener(ActionListener listener) {
@@ -133,6 +141,10 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
         keywordTextField.setText(keyword);
     }
 
+    public void setMaxIssueCount(int count) {
+        maxIssueSpinnerNumberModel.setValue(count);
+    }
+
     public void setResultMessage(String message) {
         issueCountLabel.setText(message);
     }
@@ -141,6 +153,7 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
         setQueryName();
         if (query.isSaved()) {
             setKeyword(query.getKeyword());
+            setMaxIssueCount(query.getMaxIssueCount());
             // GeneralPanel
             generalPanel.setSelectedStatus(query.getStatusIds());
             generalPanel.setSelectedPriority(query.getPriorityIds());
@@ -198,6 +211,7 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
 
     private void clear() {
         setKeyword(""); // NOI18N
+        setMaxIssueCount(20);
         generalPanel.clear();
         datePanel.clear();
     }
@@ -208,6 +222,7 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
         setResetButtonEnabled(isEnabled);
         setClearButtonEnabled(isEnabled);
         setKeywordTextFieldEnabled(isEnabled);
+        setMaxIssueCountSpinnerEnabled(isEnabled);
         getGeneralPanel().setComponentsEnabled(isEnabled);
         getDatePanel().setComponentsEnabled(isEnabled);
     }
@@ -230,6 +245,10 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
 
     public void setKeywordTextFieldEnabled(boolean isEnabled) {
         keywordTextField.setEnabled(isEnabled);
+    }
+
+    public void setMaxIssueCountSpinnerEnabled(boolean isEnabled) {
+        maxIssueCountSpinner.setEnabled(isEnabled);
     }
 
     public void scrollToBottom() {
@@ -273,6 +292,7 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
         clearButton = new javax.swing.JButton();
         mainIssueTablePanel = new javax.swing.JPanel();
         issueCountLabel = new javax.swing.JLabel();
+        maxIssueCountSpinner = new javax.swing.JSpinner();
 
         mainGeneralPanel.setLayout(new javax.swing.BoxLayout(mainGeneralPanel, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -318,6 +338,8 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(issueCountLabel, org.openide.util.NbBundle.getMessage(BacklogQueryPanel.class, "BacklogQueryPanel.issueCountLabel.text")); // NOI18N
 
+        maxIssueCountSpinner.setToolTipText(org.openide.util.NbBundle.getMessage(BacklogQueryPanel.class, "BacklogQueryPanel.maxIssueCountSpinner.toolTipText")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -325,31 +347,29 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dateCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(keywordLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(keywordTextField))
+                    .addComponent(generalCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(mainIssueTablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dateCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(queryNameLabel)
+                            .addComponent(issueCountLabel)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(keywordLabel)
+                                .addComponent(searchButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(keywordTextField))
-                            .addComponent(generalCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(mainIssueTablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(searchButton)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(saveButton)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(resetButton)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(clearButton))
-                                    .addComponent(queryNameLabel))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(issueCountLabel)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addComponent(saveButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(resetButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(clearButton)
+                                .addGap(18, 18, 18)
+                                .addComponent(maxIssueCountSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -361,7 +381,8 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
                     .addComponent(searchButton)
                     .addComponent(resetButton)
                     .addComponent(clearButton)
-                    .addComponent(saveButton))
+                    .addComponent(saveButton)
+                    .addComponent(maxIssueCountSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(keywordLabel)
@@ -400,6 +421,7 @@ public final class BacklogQueryPanel extends javax.swing.JPanel {
     private javax.swing.JPanel mainDatePanel;
     private javax.swing.JPanel mainGeneralPanel;
     private javax.swing.JPanel mainIssueTablePanel;
+    private javax.swing.JSpinner maxIssueCountSpinner;
     private javax.swing.JLabel queryNameLabel;
     private javax.swing.JButton resetButton;
     private javax.swing.JButton saveButton;
