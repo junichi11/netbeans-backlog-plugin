@@ -224,7 +224,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                         GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
                         int issuesCount = query.getIssuesCount(support.newGetIssuesCountParams());
                         int count = GetIssuesParamsSupport.computeCount(maxIssueCount);
-                        int loop = getLoopCount(count, maxIssueCount, issuesCount);
+                        int loop = getLoopCount(maxIssueCount, issuesCount);
 
                         // fetch issues
                         handle.start(loop);
@@ -276,11 +276,16 @@ public class BacklogQueryController implements QueryController, ActionListener {
         });
     }
 
-    private static int getLoopCount(int count, int maxIssueCount, int allIssuesCount) {
-        int maxCount = GetIssuesParamsSupport.ISSUE_COUNT;
+    private static int getLoopCount(int maxIssueCount, int allIssuesCount) {
+        if (allIssuesCount == 0) {
+            return 0;
+        }
+
         int loop = 1;
-        if (count > maxCount) {
-            loop = (Math.min(maxIssueCount, allIssuesCount) + maxCount - 1) / maxCount;
+        int maxCount = GetIssuesParamsSupport.ISSUE_COUNT;
+        int issueCount = Math.min(maxIssueCount, allIssuesCount);
+        if (issueCount > maxCount) {
+            loop = (issueCount + maxCount - 1) / maxCount;
         }
         return loop;
     }
