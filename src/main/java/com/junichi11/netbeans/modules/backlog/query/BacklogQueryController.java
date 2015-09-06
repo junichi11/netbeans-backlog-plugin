@@ -232,8 +232,9 @@ public class BacklogQueryController implements QueryController, ActionListener {
                             if (isCancel.get()) {
                                 break;
                             }
-                            GetIssuesParams clonedParams = support.newGetIssuesParams().count(count);
-                            clonedParams = clonedParams.offset(i * count);
+                            GetIssuesParams clonedParams = support.newGetIssuesParams()
+                                    .count(count)
+                                    .offset(i * count);
                             issues.addAll(query.getIssues(clonedParams));
                             handle.progress(i + 1);
                         }

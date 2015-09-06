@@ -350,8 +350,9 @@ public final class BacklogRepository {
             do {
                 if (isAll) {
                     GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
-                    issuesParams = support.newGetIssuesParams().count(count);
-                    issuesParams = issuesParams.offset(loop * count);
+                    issuesParams = support.newGetIssuesParams()
+                            .count(count)
+                            .offset(loop * count);
                 }
                 ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
                 for (Issue issue : issues) {
