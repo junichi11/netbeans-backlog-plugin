@@ -96,7 +96,7 @@ public class BacklogQueryTest {
                 .setProjectKey("testProjectKey");
         repository.setRepositoryInfo(repositoryInfo);
         query = new BacklogQuery(repository);
-        savedQuery = new BacklogQuery(repository, "saved query", "keyword=test&categoryId%5B%5D=1");
+        savedQuery = new BacklogQuery(repository, "saved query", "keyword=test&categoryId[]=1", 100);
         assignedToMeQuery = new AssignedToMeQuery(repository);
         createdByMeQuery = new CreatedByMeQuery(repository);
     }
@@ -162,7 +162,7 @@ public class BacklogQueryTest {
     @Test
     public void testGetQueryParam() {
         assertEquals(null, query.getQueryParam());
-        assertEquals("keyword=test&categoryId%5B%5D=1", savedQuery.getQueryParam());
+        assertEquals("keyword=test&categoryId[]=1", savedQuery.getQueryParam());
     }
 
     /**
@@ -192,7 +192,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("test", query.getKeyword());
 
-        savedQuery = new BacklogQuery(repository, "test", "keyword=test");
+        savedQuery = new BacklogQuery(repository, "test", "keyword=test", 100);
         assertEquals("test", savedQuery.getKeyword());
     }
 
@@ -218,7 +218,7 @@ public class BacklogQueryTest {
         types.add((long) StatusType.InProgress.getIntValue());
         assertEquals(types, query.getStatusIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "statusId%5B%5D=1&statusId%5B%5D=2");
+        savedQuery = new BacklogQuery(repository, "test", "statusId[]=1&statusId[]=2", 100);
         types.clear();
         types.add(1L);
         types.add(2L);
@@ -240,7 +240,7 @@ public class BacklogQueryTest {
         types.add((long) PriorityType.Normal.getIntValue());
         assertEquals(types, query.getPriorityIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "priorityId%5B%5D=1");
+        savedQuery = new BacklogQuery(repository, "test", "priorityId[]=1", 100);
         types.clear();
         types.add(1L);
         assertEquals(types, savedQuery.getPriorityIds());
@@ -269,7 +269,7 @@ public class BacklogQueryTest {
         ids.add(3L);
         assertEquals(ids, query.getCategoryIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "categoryId%5B%5D=1&categoryId%5B%5D=2&categoryId%5B%5D=3");
+        savedQuery = new BacklogQuery(repository, "test", "categoryId[]=1&categoryId[]=2&categoryId[]=3", 100);
         ids.clear();
         ids.add(1L);
         ids.add(2L);
@@ -292,7 +292,7 @@ public class BacklogQueryTest {
         ids.add(5L);
         assertEquals(ids, query.getAssigneeIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "assigneeId%5B%5D=1&assigneeId%5B%5D=2&assigneeId%5B%5D=3");
+        savedQuery = new BacklogQuery(repository, "test", "assigneeId[]=1&assigneeId[]=2&assigneeId[]=3", 100);
         ids.clear();
         ids.add(1L);
         ids.add(2L);
@@ -316,7 +316,7 @@ public class BacklogQueryTest {
         ids.add(3L);
         assertEquals(ids, query.getCreatedUserIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "createdUserId%5B%5D=1&createdUserId%5B%5D=2&createdUserId%5B%5D=3");
+        savedQuery = new BacklogQuery(repository, "test", "createdUserId[]=1&createdUserId[]=2&createdUserId[]=3", 100);
         ids.clear();
         ids.add(1L);
         ids.add(2L);
@@ -340,7 +340,7 @@ public class BacklogQueryTest {
         ids.add(3L);
         assertEquals(ids, query.getVersionIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "versionId%5B%5D=1&versionId%5B%5D=2&versionId%5B%5D=3");
+        savedQuery = new BacklogQuery(repository, "test", "versionId[]=1&versionId[]=2&versionId[]=3", 100);
         ids.clear();
         ids.add(1L);
         ids.add(2L);
@@ -364,7 +364,7 @@ public class BacklogQueryTest {
         ids.add(3L);
         assertEquals(ids, query.getMilestoneIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "milestoneId%5B%5D=1&milestoneId%5B%5D=2&milestoneId%5B%5D=3");
+        savedQuery = new BacklogQuery(repository, "test", "milestoneId[]=1&milestoneId[]=2&milestoneId[]=3", 100);
         ids.clear();
         ids.add(1L);
         ids.add(2L);
@@ -388,7 +388,7 @@ public class BacklogQueryTest {
         types.add((long) ResolutionType.Duplication.getIntValue());
         assertEquals(types, query.getResolutionIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "resolutionId%5B%5D=1&resolutionId%5B%5D=2&resolutionId%5B%5D=3");
+        savedQuery = new BacklogQuery(repository, "test", "resolutionId[]=1&resolutionId[]=2&resolutionId[]=3", 100);
         types.clear();
         types.add(1L);
         types.add(2L);
@@ -408,7 +408,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-11-11", query.getCreatedSince());
 
-        savedQuery = new BacklogQuery(repository, "test", "createdSince=2014-11-11");
+        savedQuery = new BacklogQuery(repository, "test", "createdSince=2014-11-11", 100);
         assertEquals("2014-11-11", savedQuery.getCreatedSince());
     }
 
@@ -424,7 +424,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-11-12", query.getCreatedUntil());
 
-        savedQuery = new BacklogQuery(repository, "test", "createdUntil=2014-11-12");
+        savedQuery = new BacklogQuery(repository, "test", "createdUntil=2014-11-12", 100);
         assertEquals("2014-11-12", savedQuery.getCreatedUntil());
     }
 
@@ -440,7 +440,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-11-13", query.getUpdatedSince());
 
-        savedQuery = new BacklogQuery(repository, "test", "updatedSince=2014-11-13");
+        savedQuery = new BacklogQuery(repository, "test", "updatedSince=2014-11-13", 100);
         assertEquals("2014-11-13", savedQuery.getUpdatedSince());
     }
 
@@ -456,7 +456,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-11-14", query.getUpdatedUntil());
 
-        savedQuery = new BacklogQuery(repository, "test", "updatedUntil=2014-11-14");
+        savedQuery = new BacklogQuery(repository, "test", "updatedUntil=2014-11-14", 100);
         assertEquals("2014-11-14", savedQuery.getUpdatedUntil());
     }
 
@@ -472,7 +472,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-11-11", query.getStartDateSince());
 
-        savedQuery = new BacklogQuery(repository, "test", "startDateSince=2014-11-11");
+        savedQuery = new BacklogQuery(repository, "test", "startDateSince=2014-11-11", 100);
         assertEquals("2014-11-11", savedQuery.getStartDateSince());
     }
 
@@ -488,7 +488,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-11-12", query.getStartDateUntil());
 
-        savedQuery = new BacklogQuery(repository, "test", "startDateUntil=2014-11-12");
+        savedQuery = new BacklogQuery(repository, "test", "startDateUntil=2014-11-12", 100);
         assertEquals("2014-11-12", savedQuery.getStartDateUntil());
     }
 
@@ -504,7 +504,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-11-11", query.getDueDateSince());
 
-        savedQuery = new BacklogQuery(repository, "test", "dueDateSince=2014-11-11");
+        savedQuery = new BacklogQuery(repository, "test", "dueDateSince=2014-11-11", 100);
         assertEquals("2014-11-11", savedQuery.getDueDateSince());
     }
 
@@ -520,7 +520,7 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals("2014-12-12", query.getDueDateUntil());
 
-        savedQuery = new BacklogQuery(repository, "test", "startDateUntil=2014-11-11");
+        savedQuery = new BacklogQuery(repository, "test", "startDateUntil=2014-11-11", 100);
         assertEquals("2014-11-11", savedQuery.getStartDateUntil());
     }
 
@@ -541,9 +541,9 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals(false, query.isAttachment());
 
-        savedQuery = new BacklogQuery(repository, "test", "attachment=true");
+        savedQuery = new BacklogQuery(repository, "test", "attachment=true", 100);
         assertEquals(true, savedQuery.isAttachment());
-        savedQuery = new BacklogQuery(repository, "test", "attachment=false");
+        savedQuery = new BacklogQuery(repository, "test", "attachment=false", 100);
         assertEquals(false, savedQuery.isAttachment());
     }
 
@@ -564,9 +564,9 @@ public class BacklogQueryTest {
         query.setQueryParam(params);
         assertEquals(false, query.isSharedFile());
 
-        savedQuery = new BacklogQuery(repository, "test", "sharedFile=true");
+        savedQuery = new BacklogQuery(repository, "test", "sharedFile=true", 100);
         assertEquals(true, savedQuery.isSharedFile());
-        savedQuery = new BacklogQuery(repository, "test", "sharedFile=false");
+        savedQuery = new BacklogQuery(repository, "test", "sharedFile=false", 100);
         assertEquals(false, savedQuery.isSharedFile());
     }
 
@@ -593,7 +593,7 @@ public class BacklogQueryTest {
         ids.add(3L);
         assertEquals(ids, query.getIssueTypeIds());
 
-        savedQuery = new BacklogQuery(repository, "test", "issueTypeId%5B%5D=1&issueTypeId%5B%5D=2&issueTypeId%5B%5D=3");
+        savedQuery = new BacklogQuery(repository, "test", "issueTypeId[]=1&issueTypeId[]=2&issueTypeId[]=3", 100);
         ids.clear();
         ids.add(1L);
         ids.add(2L);

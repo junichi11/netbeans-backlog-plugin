@@ -72,6 +72,7 @@ import com.nulabinc.backlog4j.Version;
 import com.nulabinc.backlog4j.api.option.AddCategoryParams;
 import com.nulabinc.backlog4j.api.option.AddVersionParams;
 import com.nulabinc.backlog4j.api.option.CreateIssueParams;
+import com.nulabinc.backlog4j.api.option.QueryParams;
 import com.nulabinc.backlog4j.api.option.UpdateIssueParams;
 import com.nulabinc.backlog4j.internal.json.CategoryJSONImpl;
 import com.nulabinc.backlog4j.internal.json.ResolutionJSONImpl;
@@ -158,6 +159,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     // icon
     private static final Icon ERROR_ICON = BacklogImage.ERROR_16.getIcon();
     private static final Icon ICON = BacklogImage.ICON_32.getIcon();
+
+    private static final int MAX_COMMENT_COUNT = 100;
 
     /**
      * Creates new form IssuePanel
@@ -430,11 +433,23 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 }
                 int commentCount = 0;
                 try {
-                    ResponseList<IssueComment> issueComments = backlogClient.getIssueComments(id);
-                    for (IssueComment comment : issueComments) {
-                        if (!StringUtils.isEmpty(comment.getContent())) {
-                            addComment(comment);
-                            commentCount++;
+                    // #38
+                    int count = MAX_COMMENT_COUNT;
+                    int issueCommentCount = backlogClient.getIssueCommentCount(id);
+                    int loop = (issueCommentCount + count - 1) / count;
+                    long maxId = -1;
+                    for (int i = 0; i < loop; i++) {
+                        QueryParams queryParams = new QueryParams().count(count);
+                        if (maxId != -1) {
+                            queryParams.maxId(maxId);
+                        }
+                        ResponseList<IssueComment> issueComments = backlogClient.getIssueComments(id, queryParams);
+                        for (IssueComment comment : issueComments) {
+                            if (!StringUtils.isEmpty(comment.getContent())) {
+                                addComment(comment);
+                                commentCount++;
+                            }
+                            maxId = comment.getId();
                         }
                     }
                 } catch (BacklogAPIException ex) {
