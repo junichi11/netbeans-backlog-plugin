@@ -42,11 +42,12 @@
 package com.junichi11.netbeans.modules.backlog.query;
 
 import com.junichi11.netbeans.modules.backlog.BacklogData;
-import com.nulabinc.backlog4j.api.option.GetIssuesParams;
-import java.util.Collections;
+import com.junichi11.netbeans.modules.backlog.options.BacklogOptions;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.User;
+import com.nulabinc.backlog4j.api.option.GetIssuesParams;
+import java.util.Collections;
 import org.openide.util.NbBundle;
 
 public final class CreatedByMeQuery extends BacklogQuery implements DefaultQuery {
@@ -95,6 +96,11 @@ public final class CreatedByMeQuery extends BacklogQuery implements DefaultQuery
     public void remove() {
         // XXX delete action is not set to disable
         UiUtils.showOptions();
+    }
+
+    @Override
+    public int getMaxIssueCount() {
+        return BacklogOptions.getInstance().getMaxIssueCountForDefaultQuery();
     }
 
 }

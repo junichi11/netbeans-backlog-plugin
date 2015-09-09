@@ -103,7 +103,7 @@ public final class NotificationsQuery extends BacklogQuery implements DefaultQue
         "NotificationsQuery.notification.comment=Comment: {0}",
         "NotificationsQuery.notification.marked.all.as.read=Marked all notifications as read."
     })
-    public Collection<BacklogIssue> getIssues(boolean isRefresh) {
+    public Collection<BacklogIssue> getAllIssues(boolean isRefresh) {
         final BacklogRepository repository = getRepository();
         List<BacklogIssue> issues = new ArrayList<>();
         if (isRefresh) {

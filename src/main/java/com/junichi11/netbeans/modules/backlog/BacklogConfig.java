@@ -64,6 +64,7 @@ public final class BacklogConfig {
     //  [status]::[last updated]
     private static final String STATUS_FORMAT = "%s::%s"; // NOI18N
     private static final String STATUS_DELIMITER = "::"; // NOI18N
+    private static final String QUERY_MAX_ISSUE_COUNT = "query.max.issue.count"; // NOI18N
 
     private BacklogConfig() {
     }
@@ -166,6 +167,31 @@ public final class BacklogConfig {
         } catch (BackingStoreException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    /**
+     * Return the max issue count for a query.
+     *
+     * @param repository BacklogRepository
+     * @param queryName a query name
+     * @return the max issue count (default value is 20)
+     */
+    public int getMaxIssueCount(BacklogRepository repository, String queryName) {
+        String id = repository.getID();
+        Preferences preferences = getPreferences().node(id).node(QUERY).node(queryName);
+        return preferences.getInt(QUERY_MAX_ISSUE_COUNT, 20);
+    }
+
+    /**
+     * Set the max issue count for a query.
+     *
+     * @param repository BacklogRepository
+     * @param query BacklogQuery
+     */
+    public void setMaxIssueCount(BacklogRepository repository, BacklogQuery query) {
+        String id = repository.getID();
+        Preferences preferences = getPreferences().node(id).node(QUERY).node(query.getDisplayName());
+        preferences.putInt(QUERY_MAX_ISSUE_COUNT, query.getMaxIssueCount());
     }
 
     private Preferences getPreferences() {

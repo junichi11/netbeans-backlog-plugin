@@ -50,6 +50,7 @@ import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.query.CreatedByMeQuery;
 import com.junichi11.netbeans.modules.backlog.query.DefaultQuery;
 import com.junichi11.netbeans.modules.backlog.query.NotificationsQuery;
+import com.junichi11.netbeans.modules.backlog.query.GetIssuesParamsSupport;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogImage;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
@@ -60,6 +61,7 @@ import com.nulabinc.backlog4j.Issue;
 import com.nulabinc.backlog4j.Notification;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.ResponseList;
+import com.nulabinc.backlog4j.api.option.GetIssuesCountParams;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
 import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
@@ -321,6 +323,26 @@ public final class BacklogRepository {
      * @return BacklogIssues
      */
     public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams, boolean isRefresh) {
+        return getIssues(issuesParams, 100, false, isRefresh);
+    }
+
+    /**
+     * Get BacklogIssues.
+     *
+     * @param issuesParams GetIssuesParams
+     * @return BacklogIssues
+     */
+    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams, int maxCount, boolean isRefresh) {
+        return getIssues(issuesParams, maxCount, true, isRefresh);
+    }
+
+    /**
+     * Get BacklogIssues.
+     *
+     * @param issuesParams GetIssuesParams
+     * @return BacklogIssues
+     */
+    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams, int maxCount, boolean isAll, boolean isRefresh) {
         Project p = getProject();
         if (p == null || issuesParams == null) {
             return Collections.emptyList();
@@ -329,13 +351,32 @@ public final class BacklogRepository {
         if (backlogClient == null) {
             return Collections.emptyList();
         }
+
+        // count per request
+        int count = GetIssuesParamsSupport.computeCount(maxCount);
         List<BacklogIssue> backlogIssues = new ArrayList<>();
         try {
-            ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
-            for (Issue issue : issues) {
-                BacklogIssue backlogIssue = createIssue(issue, isRefresh);
-                backlogIssues.add(backlogIssue);
-            }
+            int total = 0;
+            int loop = 0;
+            do {
+                if (isAll) {
+                    GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
+                    issuesParams = support.newGetIssuesParams()
+                            .count(count)
+                            .offset(loop * count);
+                }
+                ResponseList<Issue> issues = backlogClient.getIssues(issuesParams);
+                for (Issue issue : issues) {
+                    backlogIssues.add(createIssue(issue, isRefresh));
+                    if (++total == maxCount) {
+                        break;
+                    }
+                }
+                if (issues.size() < count) {
+                    break;
+                }
+                ++loop;
+            } while (isAll && total < maxCount);
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
@@ -417,6 +458,29 @@ public final class BacklogRepository {
     public BacklogIssue getIssue(@NonNull Notification notification, boolean isRefresh) {
         Issue issue = notification.getIssue();
         return createIssue(issue, isRefresh);
+    }
+
+    /**
+     * Get an issue count.
+     *
+     * @param issuesCountParams
+     * @return a issue count if it can be got, otherwise -1
+     */
+    public int getIssuesCount(GetIssuesCountParams issuesCountParams) {
+        Project p = getProject();
+        if (p == null || issuesCountParams == null) {
+            return -1;
+        }
+        BacklogClient backlogClient = createBacklogClient();
+        if (backlogClient == null) {
+            return -1;
+        }
+        try {
+            return backlogClient.getIssuesCount(issuesCountParams);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return -1;
     }
 
     /**
@@ -596,10 +660,11 @@ public final class BacklogRepository {
             String[] queryNames = BacklogConfig.getInstance().getQueryNames(this);
             for (String queryName : queryNames) {
                 String queryParams = BacklogConfig.getInstance().getQueryParams(this, queryName);
+                int maxIssueCount = BacklogConfig.getInstance().getMaxIssueCount(this, queryName);
                 if (StringUtils.isEmpty(queryParams)) {
                     continue;
                 }
-                BacklogQuery backlogQuery = new BacklogQuery(this, queryName, queryParams);
+                BacklogQuery backlogQuery = new BacklogQuery(this, queryName, queryParams, maxIssueCount);
                 backlogQuery.setSaved(true);
                 addQuery(backlogQuery);
             }
@@ -645,6 +710,7 @@ public final class BacklogRepository {
             return;
         }
         BacklogConfig.getInstance().setQueryParams(this, query);
+        BacklogConfig.getInstance().setMaxIssueCount(this, query);
         addQuery(query);
         fireQueryListChanged();
     }

@@ -42,6 +42,8 @@
 package com.junichi11.netbeans.modules.backlog.query.ui;
 
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import java.awt.Component;
+import java.awt.Container;
 
 /**
  *
@@ -77,6 +79,21 @@ public class DatePanel extends javax.swing.JPanel {
     private void setChartComponentsEnabled() {
         startDateSinceDatePicker.setEnabled(isChartEnabled);
         startDateUntilDatePicker.setEnabled(isChartEnabled);
+    }
+
+    void setComponentsEnabled(boolean isEnabled) {
+        setComponentsEnabled(this, isEnabled);
+    }
+
+    private void setComponentsEnabled(Container container, boolean isEnabled) {
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            component.setEnabled(isEnabled);
+            if (component instanceof Container) {
+                setComponentsEnabled((Container) component, isEnabled);
+            }
+        }
+        setChartComponentsEnabled();
     }
 
     public void clear() {

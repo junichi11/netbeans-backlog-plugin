@@ -66,6 +66,8 @@ import com.nulabinc.backlog4j.internal.json.ResolutionJSONImpl;
 import com.nulabinc.backlog4j.internal.json.StatusJSONImpl;
 import com.nulabinc.backlog4j.internal.json.UserJSONImpl;
 import com.nulabinc.backlog4j.internal.json.VersionJSONImpl;
+import java.awt.Component;
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -143,6 +145,20 @@ public class GeneralPanel extends javax.swing.JPanel {
     void reset(BacklogQuery query) {
         setAttributes();
         if (query != null) {
+        }
+    }
+
+    void setComponentsEnabled(boolean isEnabled) {
+        setComponentsEnabled(this, isEnabled);
+    }
+
+    private void setComponentsEnabled(Container container, boolean isEnabled) {
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            component.setEnabled(isEnabled);
+            if (component instanceof Container) {
+                setComponentsEnabled((Container) component, isEnabled);
+            }
         }
     }
 

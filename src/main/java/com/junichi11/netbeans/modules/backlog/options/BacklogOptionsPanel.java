@@ -41,16 +41,20 @@
  */
 package com.junichi11.netbeans.modules.backlog.options;
 
+import javax.swing.SpinnerNumberModel;
+
 final class BacklogOptionsPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = 1133442997630227735L;
 
     private final BacklogOptionsPanelController controller;
+    private final SpinnerNumberModel maxIssueSpinnerNumberModel;
 
     BacklogOptionsPanel(BacklogOptionsPanelController controller) {
         this.controller = controller;
         initComponents();
-        // TODO listen to changes in form fields and call controller.changed()
+        maxIssueSpinnerNumberModel = new SpinnerNumberModel(20, 20, 500, 10);
+        maxIssueCountSpinner.setModel(maxIssueSpinnerNumberModel);
     }
 
     /**
@@ -64,6 +68,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         defaultQueriesLabel = new javax.swing.JLabel();
         assignedToMeCheckBox = new javax.swing.JCheckBox();
         createdByMeCheckBox = new javax.swing.JCheckBox();
+        maxIssueCountSpinner = new javax.swing.JSpinner();
         notificationsCheckBox = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(defaultQueriesLabel, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.defaultQueriesLabel.text")); // NOI18N
@@ -72,6 +77,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(createdByMeCheckBox, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.createdByMeCheckBox.text")); // NOI18N
 
+        maxIssueCountSpinner.setToolTipText(org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.maxIssueCountSpinner.toolTipText")); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(notificationsCheckBox, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.notificationsCheckBox.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -81,7 +87,10 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(defaultQueriesLabel)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(defaultQueriesLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(maxIssueCountSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -94,7 +103,9 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(defaultQueriesLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(defaultQueriesLabel)
+                    .addComponent(maxIssueCountSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(assignedToMeCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -109,6 +120,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         BacklogOptions options = BacklogOptions.getInstance();
         assignedToMeCheckBox.setSelected(options.isAssignedToMeQuery());
         createdByMeCheckBox.setSelected(options.isCreatedByMeQuery());
+        setMaxIssueCount(options.getMaxIssueCountForDefaultQuery());
         notificationsCheckBox.setSelected(options.isNotificationsQuery());
     }
 
@@ -116,6 +128,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         BacklogOptions options = BacklogOptions.getInstance();
         options.setAssignedToMeQuery(isAssignedToMeQuery());
         options.setCreatedByMeQuery(isCreatedByMeQuery());
+        options.setMaxIssueCountForDefaultQuery(getMaxIssueCount());
         options.setNotificationsQuery(isNotificationsQuery());
     }
 
@@ -132,6 +145,14 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         return createdByMeCheckBox.isSelected();
     }
 
+    private int getMaxIssueCount() {
+        return maxIssueSpinnerNumberModel.getNumber().intValue();
+    }
+
+    private void setMaxIssueCount(int count) {
+        maxIssueSpinnerNumberModel.setValue(count);
+    }
+
     private boolean isNotificationsQuery() {
         return notificationsCheckBox.isSelected();
     }
@@ -140,6 +161,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox assignedToMeCheckBox;
     private javax.swing.JCheckBox createdByMeCheckBox;
     private javax.swing.JLabel defaultQueriesLabel;
+    private javax.swing.JSpinner maxIssueCountSpinner;
     private javax.swing.JCheckBox notificationsCheckBox;
     // End of variables declaration//GEN-END:variables
 }

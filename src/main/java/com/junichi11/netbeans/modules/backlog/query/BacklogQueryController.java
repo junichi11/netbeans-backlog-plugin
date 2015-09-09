@@ -41,30 +41,36 @@
  */
 package com.junichi11.netbeans.modules.backlog.query;
 
+import com.junichi11.netbeans.modules.backlog.Backlog;
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
+import com.junichi11.netbeans.modules.backlog.query.ui.BacklogQueryPanel;
+import com.junichi11.netbeans.modules.backlog.query.ui.DatePanel;
+import com.junichi11.netbeans.modules.backlog.query.ui.GeneralPanel;
+import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
+import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.annotations.common.CheckForNull;
-import com.junichi11.netbeans.modules.backlog.Backlog;
-import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
-import com.junichi11.netbeans.modules.backlog.ui.IssueTableCellRenderer;
-import com.junichi11.netbeans.modules.backlog.query.ui.BacklogQueryPanel;
-import com.junichi11.netbeans.modules.backlog.query.ui.DatePanel;
-import com.junichi11.netbeans.modules.backlog.query.ui.GeneralPanel;
-import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
-import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
-import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.bugtracking.commons.SaveQueryPanel;
 import org.netbeans.modules.bugtracking.issuetable.IssueTable;
 import org.netbeans.modules.bugtracking.issuetable.QueryTableCellRenderer;
 import org.netbeans.modules.bugtracking.spi.QueryController;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Cancellable;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -180,29 +186,109 @@ public class BacklogQueryController implements QueryController, ActionListener {
 
     @NbBundle.Messages({
         "# {0} - count",
-        "BacklogQueryController.label.matching.issues=There are {0} issues matching this query.",
+        "# {1} - total",
+        "BacklogQueryController.label.matching.issues=There are {0}/{1} issues matching this query.",
         "BacklogQueryController.label.matching.issue=There is 1 issue matching this query.",
-        "BacklogQueryController.label.matching.no.issue=There is no issue matching this query."
+        "BacklogQueryController.label.matching.no.issue=There is no issue matching this query.",
+        "BacklogQueryController.label.searching.issues=Searching issues...",
+        "BacklogQueryController.label.canceled=(Canceled)"
     })
     private void search() {
+        getPanel().setAllComponentsEnabled(false);
         // clear node
         issueTable.started();
-        GetIssuesParams issuesParams = createIssuesParams();
-        if (issuesParams == null) {
-            return;
+        getPanel().setResultMessage(Bundle.BacklogQueryController_label_searching_issues());
+        RequestProcessor rp = Backlog.getInstance().getRequestProcessor();
+        rp.post(new Runnable() {
+            @Override
+            public void run() {
+                GetIssuesParams issuesParams = createIssuesParams();
+                String text = ""; // NOI18N
+                final Collection<BacklogIssue> issues = new ArrayList<>();
+
+                // progress bar
+                final AtomicBoolean isCancel = new AtomicBoolean(false);
+                ProgressHandle handle = ProgressHandleFactory.createHandle(
+                        Bundle.BacklogQueryController_label_searching_issues(),
+                        new Cancellable() {
+                    @Override
+                    public boolean cancel() {
+                        return isCancel.getAndSet(true);
+                    }
+                }
+                );
+
+                final int maxIssueCount = getPanel().getMaxIssueCount();
+                try {
+                    if (issuesParams != null) {
+                        GetIssuesParamsSupport support = new GetIssuesParamsSupport(issuesParams);
+                        int issuesCount = query.getIssuesCount(support.newGetIssuesCountParams());
+                        int count = GetIssuesParamsSupport.computeCount(maxIssueCount);
+                        int loop = getLoopCount(maxIssueCount, issuesCount);
+
+                        // fetch issues
+                        handle.start(loop);
+                        for (int i = 0; i < loop; i++) {
+                            if (isCancel.get()) {
+                                break;
+                            }
+                            GetIssuesParams clonedParams = support.newGetIssuesParams()
+                                    .count(count)
+                                    .offset(i * count);
+                            issues.addAll(query.getIssues(clonedParams, false));
+                            handle.progress(i + 1);
+                        }
+
+                        // build message
+                        // actual count
+                        int issueCount = issues.size();
+                        text = Bundle.BacklogQueryController_label_matching_no_issue();
+                        if (issueCount == 1) {
+                            text = Bundle.BacklogQueryController_label_matching_issue();
+                        } else if (issueCount > 1) {
+                            text = Bundle.BacklogQueryController_label_matching_issues(Math.min(issueCount, maxIssueCount), issuesCount);
+                        }
+                        if (isCancel.get()) {
+                            text += Bundle.BacklogQueryController_label_canceled();
+                        }
+                    }
+                } finally {
+                    handle.finish();
+                }
+
+                // add issues to the table
+                final String message = text;
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        StatusDisplayer.getDefault().setStatusText(message);
+                        getPanel().setResultMessage(message);
+                        int total = 0;
+                        for (BacklogIssue issue : issues) {
+                            issueTable.addNode(issue.getIssueNode());
+                            if (++total == maxIssueCount) {
+                                break;
+                            }
+                        }
+                        getPanel().setAllComponentsEnabled(true);
+                    }
+                });
+            }
+        });
+    }
+
+    private static int getLoopCount(int maxIssueCount, int allIssuesCount) {
+        if (allIssuesCount == 0) {
+            return 0;
         }
-        Collection<BacklogIssue> issues = query.getIssues(issuesParams, false);
-        int issueCount = issues.size();
-        String text = Bundle.BacklogQueryController_label_matching_no_issue();
-        if (issueCount == 1) {
-            text = Bundle.BacklogQueryController_label_matching_issue();
-        } else if (issueCount > 1) {
-            text = Bundle.BacklogQueryController_label_matching_issues(issueCount);
+
+        int loop = 1;
+        int maxCount = GetIssuesParamsSupport.ISSUE_COUNT;
+        int issueCount = Math.min(maxIssueCount, allIssuesCount);
+        if (issueCount > maxCount) {
+            loop = (issueCount + maxCount - 1) / maxCount;
         }
-        StatusDisplayer.getDefault().setStatusText(text);
-        for (BacklogIssue issue : issues) {
-            issueTable.addNode(issue.getIssueNode());
-        }
+        return loop;
     }
 
     @NbBundle.Messages({
@@ -239,6 +325,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
             query.setName(queryName);
         }
         query.setQueryParam(issuesParams);
+        query.setMaxIssueCount(getPanel().getMaxIssueCount());
         saveQuery();
         query.setSaved(true);
         getPanel().update();
@@ -287,6 +374,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                 .milestoneIds(generalPanel.getMilestoneIds())
                 .resolutions(generalPanel.getResolutions())
                 .issueTypeIds(generalPanel.getIssueTypeIds())
+                .count(GetIssuesParamsSupport.computeCount(getPanel().getMaxIssueCount()))
                 // date
                 .createdSince(BacklogUtils.toApiDateFormat(datePanel.getCreatedSince()))
                 .createdUntil(BacklogUtils.toApiDateFormat(datePanel.getCreatedUntil()))
@@ -305,4 +393,5 @@ public class BacklogQueryController implements QueryController, ActionListener {
         }
         return issuesParams;
     }
+
 }
