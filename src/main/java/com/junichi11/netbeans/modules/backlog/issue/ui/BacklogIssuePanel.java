@@ -97,6 +97,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
@@ -238,7 +239,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         // comments
         commentsPanel = new CommentsPanel();
         commentsPanel.addPropertyChangeListener(this);
-        mainCommentsPanel.add(commentsPanel);
+        // #40 add a child panel(dummyMainCommentsPanel)
+        ((GroupLayout) mainCommentsPanel.getLayout()).replace(dummyMainCommentsPanel, commentsPanel);
 
         // header
         Font font = errorHeaderLabel.getFont();
@@ -885,6 +887,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private void initComponents() {
 
         mainCommentsPanel = new javax.swing.JPanel();
+        dummyMainCommentsPanel = new javax.swing.JPanel();
         mainAttachmentsPanel = new javax.swing.JPanel();
         selectFilesButton = new javax.swing.JButton();
         mainSubtaskTablePanel = new javax.swing.JPanel();
@@ -909,21 +912,21 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         jSeparator3 = new javax.swing.JSeparator();
         mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
-        priorityComboBox = new javax.swing.JComboBox<Priority>();
+        priorityComboBox = new javax.swing.JComboBox<>();
         descriptionScrollPane = new javax.swing.JScrollPane();
         descriptionEditorPane = new javax.swing.JEditorPane();
         estimatedHoursLabel = new javax.swing.JLabel();
         priorityLabel = new javax.swing.JLabel();
-        resolutionComboBox = new javax.swing.JComboBox<Resolution>();
+        resolutionComboBox = new javax.swing.JComboBox<>();
         jSeparator2 = new javax.swing.JSeparator();
         versionLabel = new javax.swing.JLabel();
         milestoneLabel = new javax.swing.JLabel();
         statusLabel = new javax.swing.JLabel();
         categoryScrollPane = new javax.swing.JScrollPane();
-        categoryList = new javax.swing.JList<Category>();
+        categoryList = new javax.swing.JList<>();
         resolutionLabel = new javax.swing.JLabel();
         assigneeLabel = new javax.swing.JLabel();
-        assigneeComboBox = new javax.swing.JComboBox<User>();
+        assigneeComboBox = new javax.swing.JComboBox<>();
         acturalHoursLabel = new javax.swing.JLabel();
         estimatedHoursTextField = new javax.swing.JTextField();
         actualHoursTextField = new javax.swing.JTextField();
@@ -936,11 +939,11 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         attributeLabel = new javax.swing.JLabel();
         descriptionLabel = new javax.swing.JLabel();
         versionScrollPane = new javax.swing.JScrollPane();
-        versionList = new javax.swing.JList<Version>();
+        versionList = new javax.swing.JList<>();
         categoryLabel = new javax.swing.JLabel();
         milestoneScrollPane = new javax.swing.JScrollPane();
-        milestoneList = new javax.swing.JList<Version>();
-        issueTypeComboBox = new javax.swing.JComboBox<IssueType>();
+        milestoneList = new javax.swing.JList<>();
+        issueTypeComboBox = new javax.swing.JComboBox<>();
         commentLabel = new javax.swing.JLabel();
         commentScrollPane = new javax.swing.JScrollPane();
         commentTextArea = new javax.swing.JTextArea();
@@ -951,16 +954,27 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         addVersionButton = new javax.swing.JButton();
         addMilestoneButton = new javax.swing.JButton();
         assignToMyselfLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
-        statusComboBox = new javax.swing.JComboBox<Status>();
+        statusComboBox = new javax.swing.JComboBox<>();
         hoursEstimatedLabel = new javax.swing.JLabel();
         hoursActualLabel = new javax.swing.JLabel();
         attachmentsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
         subtaskingCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
         notificationLabel = new javax.swing.JLabel();
         notificationUserScrollPane = new javax.swing.JScrollPane();
-        notificationUserList = new javax.swing.JList<User>();
+        notificationUserList = new javax.swing.JList<>();
 
-        mainCommentsPanel.setLayout(new javax.swing.BoxLayout(mainCommentsPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        dummyMainCommentsPanel.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.GroupLayout mainCommentsPanelLayout = new javax.swing.GroupLayout(mainCommentsPanel);
+        mainCommentsPanel.setLayout(mainCommentsPanelLayout);
+        mainCommentsPanelLayout.setHorizontalGroup(
+            mainCommentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyMainCommentsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
+        );
+        mainCommentsPanelLayout.setVerticalGroup(
+            mainCommentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyMainCommentsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         mainAttachmentsPanel.setLayout(new javax.swing.BoxLayout(mainAttachmentsPanel, javax.swing.BoxLayout.Y_AXIS));
 
@@ -1395,7 +1409,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(headerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mainScrollPane))
+                .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1001, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1880,6 +1894,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JScrollPane descriptionScrollPane;
     private javax.swing.JLabel dueDateLabel;
     private org.jdesktop.swingx.JXDatePicker dueDatePicker;
+    private javax.swing.JPanel dummyMainCommentsPanel;
     private javax.swing.JLabel errorHeaderLabel;
     private javax.swing.JLabel estimatedHoursLabel;
     private javax.swing.JTextField estimatedHoursTextField;

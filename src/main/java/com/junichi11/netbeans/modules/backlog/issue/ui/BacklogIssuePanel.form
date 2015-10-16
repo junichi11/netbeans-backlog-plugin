@@ -4,9 +4,24 @@
   <NonVisualComponents>
     <Container class="javax.swing.JPanel" name="mainCommentsPanel">
 
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-        <Property name="axis" type="int" value="3"/>
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Component id="dummyMainCommentsPanel" alignment="0" pref="545" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Component id="dummyMainCommentsPanel" alignment="0" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
       </Layout>
+      <SubComponents>
+        <Container class="javax.swing.JPanel" name="dummyMainCommentsPanel">
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+        </Container>
+      </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="mainAttachmentsPanel">
 
@@ -55,7 +70,7 @@
           <Group type="102" alignment="1" attributes="0">
               <Component id="headerPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="mainScrollPane" max="32767" attributes="0"/>
+              <Component id="mainScrollPane" pref="1001" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -129,7 +144,6 @@
                           </Group>
                           <Component id="showOnBrowserLinkButton" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="headerIssueKeyLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
