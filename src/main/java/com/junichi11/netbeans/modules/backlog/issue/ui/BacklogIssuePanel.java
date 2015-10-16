@@ -94,6 +94,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
@@ -233,7 +234,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         // comments
         commentsPanel = new CommentsPanel();
         commentsPanel.addPropertyChangeListener(this);
-        mainCommentsPanel.add(commentsPanel);
+        // #40 add a child panel(dummyMainCommentsPanel)
+        ((GroupLayout) mainCommentsPanel.getLayout()).replace(dummyMainCommentsPanel, commentsPanel);
 
         // header
         Font font = errorHeaderLabel.getFont();
@@ -853,6 +855,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private void initComponents() {
 
         mainCommentsPanel = new javax.swing.JPanel();
+        dummyMainCommentsPanel = new javax.swing.JPanel();
         mainAttachmentsPanel = new javax.swing.JPanel();
         selectFilesButton = new javax.swing.JButton();
         mainSubtaskTablePanel = new javax.swing.JPanel();
@@ -923,7 +926,18 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         attachmentsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
         subtaskingCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
 
-        mainCommentsPanel.setLayout(new javax.swing.BoxLayout(mainCommentsPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        dummyMainCommentsPanel.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.GroupLayout mainCommentsPanelLayout = new javax.swing.GroupLayout(mainCommentsPanel);
+        mainCommentsPanel.setLayout(mainCommentsPanelLayout);
+        mainCommentsPanelLayout.setHorizontalGroup(
+            mainCommentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyMainCommentsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
+        );
+        mainCommentsPanelLayout.setVerticalGroup(
+            mainCommentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyMainCommentsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         mainAttachmentsPanel.setLayout(new javax.swing.BoxLayout(mainAttachmentsPanel, javax.swing.BoxLayout.Y_AXIS));
 
@@ -1351,7 +1365,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(headerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 987, Short.MAX_VALUE))
+                .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1001, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1831,6 +1845,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JScrollPane descriptionScrollPane;
     private javax.swing.JLabel dueDateLabel;
     private org.jdesktop.swingx.JXDatePicker dueDatePicker;
+    private javax.swing.JPanel dummyMainCommentsPanel;
     private javax.swing.JLabel errorHeaderLabel;
     private javax.swing.JLabel estimatedHoursLabel;
     private javax.swing.JTextField estimatedHoursTextField;
