@@ -2247,7 +2247,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         @NbBundle.Messages({
             "# {0} - name",
-            "ManageTemplateButtonListener.remove.message=Do you really want to remove {0}?"
+            "ManageTemplateButtonListener.remove.message=Do you really want to remove {0}? \n(In case of default, it is just initialized without removing.)"
         })
         private void remove() {
             String selectedTemplateName = manageTemplatesPanel.getSelectedTemplateName();
