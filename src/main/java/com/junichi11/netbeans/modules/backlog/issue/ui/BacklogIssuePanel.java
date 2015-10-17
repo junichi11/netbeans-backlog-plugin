@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue.ui;
 
+import com.junichi11.netbeans.modules.backlog.BacklogConfig;
 import com.junichi11.netbeans.modules.backlog.BacklogData;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogAttachment;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
@@ -81,7 +82,10 @@ import com.nulabinc.backlog4j.internal.json.ResolutionJSONImpl;
 import com.nulabinc.backlog4j.internal.json.UserJSONImpl;
 import com.nulabinc.backlog4j.internal.json.VersionJSONImpl;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -90,6 +94,7 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -109,11 +114,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.bugtracking.issuetable.IssueTable;
 import org.netbeans.modules.bugtracking.issuetable.QueryTableCellRenderer;
+import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
@@ -164,6 +172,13 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     // icon
     private static final Icon ERROR_ICON = BacklogImage.ERROR_16.getIcon();
     private static final Icon ICON = BacklogImage.ICON_32.getIcon();
+
+    // manage templates options
+    private static final String TEMPLATES_ADD_OPTION = Bundle.BacklogIssuePanel_manage_templates_add_option();
+    private static final String TEMPLATES_EDIT_OPTION = Bundle.BacklogIssuePanel_manage_templates_edit_option();
+    private static final String TEMPLATES_DUPLICATE_OPTION = Bundle.BacklogIssuePanel_manage_templates_duplicate_option();
+    private static final String TEMPLATES_REMOVE_OPTION = Bundle.BacklogIssuePanel_manage_templates_remove_option();
+    private static final String TEMPLATES_CLOSE_OPTION = Bundle.BacklogIssuePanel_manage_templates_close_option();
 
     private static final int MAX_COMMENT_COUNT = 100;
 
@@ -962,6 +977,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         notificationLabel = new javax.swing.JLabel();
         notificationUserScrollPane = new javax.swing.JScrollPane();
         notificationUserList = new javax.swing.JList<>();
+        insertTemplateButton = new javax.swing.JButton();
+        manageTemplatesButton = new javax.swing.JButton();
 
         dummyMainCommentsPanel.setLayout(new java.awt.BorderLayout());
 
@@ -1227,6 +1244,24 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         notificationUserScrollPane.setViewportView(notificationUserList);
 
+        insertTemplateButton.setIcon(new javax.swing.ImageIcon("/home/junichi11/NetBeansProjects/netbeans-backlog-plugin/src/main/resources/com/junichi11/netbeans/modules/backlog/resources/template_16.png")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(insertTemplateButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.insertTemplateButton.text")); // NOI18N
+        insertTemplateButton.setToolTipText(org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.insertTemplateButton.toolTipText")); // NOI18N
+        insertTemplateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insertTemplateButtonActionPerformed(evt);
+            }
+        });
+
+        manageTemplatesButton.setIcon(new javax.swing.ImageIcon("/home/junichi11/NetBeansProjects/netbeans-backlog-plugin/src/main/resources/com/junichi11/netbeans/modules/backlog/resources/manage_template_16.png")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(manageTemplatesButton, org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.manageTemplatesButton.text")); // NOI18N
+        manageTemplatesButton.setToolTipText(org.openide.util.NbBundle.getMessage(BacklogIssuePanel.class, "BacklogIssuePanel.manageTemplatesButton.toolTipText")); // NOI18N
+        manageTemplatesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                manageTemplatesButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -1239,7 +1274,11 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(summaryLabel)
-                            .addComponent(descriptionLabel))
+                            .addComponent(descriptionLabel)
+                            .addGroup(mainPanelLayout.createSequentialGroup()
+                                .addComponent(insertTemplateButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(manageTemplatesButton)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(descriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1321,7 +1360,12 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                     .addComponent(summaryLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(descriptionLabel)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(descriptionLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(insertTemplateButton)
+                            .addComponent(manageTemplatesButton)))
                     .addComponent(descriptionScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1517,6 +1561,69 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
             }
         });
     }//GEN-LAST:event_addSubtaskLinkButtonActionPerformed
+
+    @NbBundle.Messages("BacklogIssuePanel.insert.template.title=Insert Template")
+    private void insertTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertTemplateButtonActionPerformed
+        assert EventQueue.isDispatchThread();
+        String[] templateNames = BacklogConfig.getInstance().getTemplateNames();
+        InsertTemplatePanel insertTemplatePanel = new InsertTemplatePanel();
+        insertTemplatePanel.setTemplates(templateNames);
+        NotifyDescriptor.Confirmation message = new NotifyDescriptor.Confirmation(
+                insertTemplatePanel,
+                Bundle.BacklogIssuePanel_insert_template_title(),
+                NotifyDescriptor.OK_CANCEL_OPTION,
+                NotifyDescriptor.PLAIN_MESSAGE);
+        if (DialogDisplayer.getDefault().notify(message) == NotifyDescriptor.OK_OPTION) {
+            String selectedTemplateName = insertTemplatePanel.getSelectedTemplateName();
+            String template = BacklogConfig.getInstance().getTemplate(selectedTemplateName);
+            if (template == null || template.isEmpty()) {
+                return;
+            }
+
+            // insert a template to a caret position
+            int caretPosition = descriptionEditorPane.getCaretPosition();
+            Document document = descriptionEditorPane.getDocument();
+            try {
+                document.insertString(caretPosition, template, null);
+            } catch (BadLocationException ex) {
+                LOGGER.log(Level.WARNING, "Can''t insert a template to " + caretPosition, ex); // NOI18N
+            }
+        }
+
+    }//GEN-LAST:event_insertTemplateButtonActionPerformed
+
+    @NbBundle.Messages({
+        "BacklogIssuePanel.manage.templates.title=Manage Templates",
+        "BacklogIssuePanel.manage.templates.add.option=Add",
+        "BacklogIssuePanel.manage.templates.remove.option=Remove",
+        "BacklogIssuePanel.manage.templates.edit.option=Edit",
+        "BacklogIssuePanel.manage.templates.duplicate.option=Duplicate",
+        "BacklogIssuePanel.manage.templates.close.option=Close"
+    })
+    private void manageTemplatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageTemplatesButtonActionPerformed
+        assert EventQueue.isDispatchThread();
+        final ManageTemplatesPanel manageTemplatesPanel = new ManageTemplatesPanel();
+        final DialogDescriptor descriptor = new DialogDescriptor(
+                manageTemplatesPanel, // message
+                Bundle.BacklogIssuePanel_manage_templates_title(), // title
+                true, // modal
+                null, // options
+                null, // initial value
+                DialogDescriptor.RIGHT_ALIGN,
+                null, // help
+                null // action listener
+        );
+        descriptor.setOptions(new String[]{
+            TEMPLATES_ADD_OPTION,
+            TEMPLATES_EDIT_OPTION,
+            TEMPLATES_DUPLICATE_OPTION,
+            TEMPLATES_REMOVE_OPTION,
+            TEMPLATES_CLOSE_OPTION
+        });
+        descriptor.setClosingOptions(new String[]{TEMPLATES_CLOSE_OPTION});
+        descriptor.setButtonListener(new ManageTemplateButtonListener(descriptor, manageTemplatesPanel));
+        DialogDisplayer.getDefault().notify(descriptor);
+    }//GEN-LAST:event_manageTemplatesButtonActionPerformed
 
     @NbBundle.Messages({
         "BacklogIssuePanel.label.select.file=Select File",
@@ -1912,6 +2019,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JLabel headerUpdatedLabel;
     private javax.swing.JLabel hoursActualLabel;
     private javax.swing.JLabel hoursEstimatedLabel;
+    private javax.swing.JButton insertTemplateButton;
     private javax.swing.JComboBox<IssueType> issueTypeComboBox;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
@@ -1922,6 +2030,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
     private javax.swing.JPanel mainPanel;
     private javax.swing.JScrollPane mainScrollPane;
     private javax.swing.JPanel mainSubtaskTablePanel;
+    private javax.swing.JButton manageTemplatesButton;
     private javax.swing.JLabel milestoneLabel;
     private javax.swing.JList<Version> milestoneList;
     private javax.swing.JScrollPane milestoneScrollPane;
@@ -2093,6 +2202,151 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
 
         private void processUpdate() {
             fireChange();
+        }
+    }
+
+    //~ inner class
+    private static class ManageTemplateButtonListener implements ActionListener {
+
+        private final DialogDescriptor descriptor;
+        private final ManageTemplatesPanel manageTemplatesPanel;
+
+        public ManageTemplateButtonListener(DialogDescriptor descriptor, ManageTemplatesPanel manageTemplatesPanel) {
+            this.descriptor = descriptor;
+            this.manageTemplatesPanel = manageTemplatesPanel;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Object value = descriptor.getValue();
+            if (value == TEMPLATES_ADD_OPTION) {
+                add();
+            } else if (value == TEMPLATES_EDIT_OPTION) {
+                edit();
+            } else if (value == TEMPLATES_DUPLICATE_OPTION) {
+                duplicate();
+            } else if (value == TEMPLATES_REMOVE_OPTION) {
+                remove();
+            }
+        }
+
+        @NbBundle.Messages("ManageTemplateButtonListener.add.title=Add Template")
+        private void add() {
+            showDialog(TEMPLATES_ADD_OPTION, Bundle.ManageTemplateButtonListener_add_title());
+        }
+
+        @NbBundle.Messages("ManageTemplateButtonListener.edit.title=Edit Template")
+        private void edit() {
+            showDialog(TEMPLATES_EDIT_OPTION, Bundle.ManageTemplateButtonListener_edit_title());
+        }
+
+        @NbBundle.Messages("ManageTemplateButtonListener.duplicate.title=Duplicate Template")
+        private void duplicate() {
+            showDialog(TEMPLATES_DUPLICATE_OPTION, Bundle.ManageTemplateButtonListener_duplicate_title());
+        }
+
+        @NbBundle.Messages({
+            "# {0} - name",
+            "ManageTemplateButtonListener.remove.message=Do you really want to remove {0}?"
+        })
+        private void remove() {
+            String selectedTemplateName = manageTemplatesPanel.getSelectedTemplateName();
+            if (selectedTemplateName == null || selectedTemplateName.isEmpty()) {
+                return;
+            }
+            if (UiUtils.showQuestionDialog(Bundle.ManageTemplateButtonListener_remove_message(selectedTemplateName))) {
+                BacklogConfig.getInstance().removeTemplate(selectedTemplateName);
+                manageTemplatesPanel.resetTemplateNameList();
+            }
+        }
+
+        private void showDialog(String option, String title) {
+            if (!option.equals(TEMPLATES_ADD_OPTION)
+                    && !option.equals(TEMPLATES_EDIT_OPTION)
+                    && !option.equals(TEMPLATES_DUPLICATE_OPTION)) {
+                return;
+            }
+
+            // create panel
+            final TemplatePanel templatePanel = new TemplatePanel();
+            String selectedTemplateName = manageTemplatesPanel.getSelectedTemplateName();
+            if (!option.equals(TEMPLATES_ADD_OPTION)) {
+                if (selectedTemplateName == null || selectedTemplateName.isEmpty()) {
+                    return;
+                }
+                templatePanel.setTemplateNameEditable(!option.equals(TEMPLATES_EDIT_OPTION));
+                templatePanel.setTemplateName(selectedTemplateName);
+                templatePanel.setTemplate(BacklogConfig.getInstance().getTemplate(selectedTemplateName));
+            }
+            final NotifyDescriptor.Confirmation notify = new NotifyDescriptor.Confirmation(
+                    templatePanel,
+                    title,
+                    NotifyDescriptor.OK_CANCEL_OPTION,
+                    NotifyDescriptor.PLAIN_MESSAGE);
+
+            // add listener
+            ChangeListener listener = null;
+            if (option.equals(TEMPLATES_ADD_OPTION) || option.equals(TEMPLATES_DUPLICATE_OPTION)) {
+                final List<String> existingNames = new ArrayList<>(Arrays.asList(BacklogConfig.getInstance().getTemplateNames()));
+                listener = new TemplatePanelChangeListener(templatePanel, notify, existingNames);
+                templatePanel.addChangeListener(listener);
+                templatePanel.fireChange();
+            }
+
+            // show dialog
+            if (DialogDisplayer.getDefault().notify(notify) == NotifyDescriptor.OK_OPTION) {
+                String templateName = templatePanel.getTemplateName();
+                if (templateName != null && !templateName.isEmpty()) {
+                    String template = templatePanel.getTemplate();
+                    BacklogConfig.getInstance().setTemplate(templateName, template);
+                    if (option.equals(TEMPLATES_EDIT_OPTION)) {
+                        manageTemplatesPanel.setSelectedTemplateName(selectedTemplateName);
+                    } else {
+                        manageTemplatesPanel.resetTemplateNameList();
+                    }
+                }
+            }
+
+            if (listener != null) {
+                templatePanel.removeChangeListener(listener);
+            }
+        }
+    }
+
+    private static class TemplatePanelChangeListener implements ChangeListener {
+
+        private final TemplatePanel templatePanel;
+        private final NotifyDescriptor.Confirmation notify;
+        private final List<String> existingNames;
+
+        public TemplatePanelChangeListener(TemplatePanel templatePanel, NotifyDescriptor.Confirmation notify, List<String> existingNames) {
+            this.templatePanel = templatePanel;
+            this.notify = notify;
+            this.existingNames = existingNames;
+        }
+
+        @Override
+        @NbBundle.Messages({
+            "TemplatePanelChangeListener.invalid.empty=Name must be set.",
+            "TemplatePanelChangeListener.invalid.existing=It already exisits."
+        })
+        public void stateChanged(ChangeEvent e) {
+            // validate
+            String templateName = templatePanel.getTemplateName();
+            if ((templateName == null || templateName.isEmpty())) {
+                notify.setValid(false);
+                templatePanel.setErrorMessage(Bundle.TemplatePanelChangeListener_invalid_empty());
+                return;
+            }
+            if (existingNames.contains(templateName)) {
+                notify.setValid(false);
+                templatePanel.setErrorMessage(Bundle.TemplatePanelChangeListener_invalid_existing());
+                return;
+            }
+
+            // everything ok
+            notify.setValid(true);
+            templatePanel.setErrorMessage(" "); // NOI18N
         }
     }
 }
