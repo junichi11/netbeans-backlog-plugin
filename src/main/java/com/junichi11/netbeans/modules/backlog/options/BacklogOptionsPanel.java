@@ -55,6 +55,9 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         initComponents();
         maxIssueSpinnerNumberModel = new SpinnerNumberModel(20, 20, 500, 10);
         maxIssueCountSpinner.setModel(maxIssueSpinnerNumberModel);
+
+        // XXX another way should be used
+        notificationsCheckBox.setVisible(false);
     }
 
     /**
