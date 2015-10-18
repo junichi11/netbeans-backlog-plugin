@@ -46,7 +46,6 @@ import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
@@ -257,9 +256,16 @@ public final class BacklogConfig {
         names.add(DEFAULT_TEMPLATE_NAME);
         Preferences preferences = getPreferences().node(TEMPLATE);
         try {
+            // contains the default template if it was edited
             String[] childrenNames = preferences.keys();
-            names.addAll(Arrays.asList(childrenNames));
-            return names.toArray(new String[childrenNames.length + 1]);
+            int count = 1; // default template
+            for (String childName : childrenNames) {
+                if (!childName.equals(DEFAULT_TEMPLATE_NAME)) {
+                    names.add(childName);
+                    count++;
+                }
+            }
+            return names.toArray(new String[count]);
         } catch (BackingStoreException ex) {
             Exceptions.printStackTrace(ex);
         }
