@@ -135,14 +135,16 @@ public class BacklogQuery {
     /**
      * Get all BacklogIssues for this query.
      *
+     * @param isRefresh {@code true} if clear an issue cache, otherwise
+     * {@code false}
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getAllIssues() {
+    public Collection<BacklogIssue> getAllIssues(boolean isRefresh) {
         GetIssuesParams issuesParams = createGetIssuesParams();
         if (issuesParams == null) {
             return Collections.emptyList();
         }
-        return getAllIssues(getGetIssuesParams(issuesParams), getMaxIssueCount());
+        return getAllIssues(getGetIssuesParams(issuesParams), getMaxIssueCount(), isRefresh);
     }
 
     /**
@@ -151,18 +153,20 @@ public class BacklogQuery {
      * @param issuesParams GetIssuesParams
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams, int maxIssueCount) {
-        return repository.getIssues(issuesParams, maxIssueCount, true);
+    public Collection<BacklogIssue> getAllIssues(GetIssuesParams issuesParams, int maxIssueCount, boolean isRefresh) {
+        return repository.getIssues(issuesParams, maxIssueCount, true, isRefresh);
     }
 
     /**
      * Get BacklogIssues for GetIssuesParams.
      *
      * @param issuesParams GetIssuesParams
+     * @param isRefresh {@code true} if clear an issue cache, otherwise
+     * {@code false}
      * @return BacklogIssues
      */
-    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams) {
-        return repository.getIssues(issuesParams, 100, false);
+    public Collection<BacklogIssue> getIssues(GetIssuesParams issuesParams, boolean isRefresh) {
+        return repository.getIssues(issuesParams, 100, false, isRefresh);
     }
 
     /**
@@ -547,7 +551,7 @@ public class BacklogQuery {
             if (issueContainer != null) {
                 issueContainer.refreshingStarted();
                 issueContainer.clear();
-                for (BacklogIssue issue : getAllIssues()) {
+                for (BacklogIssue issue : getAllIssues(true)) {
                     issueContainer.add(issue);
                 }
             }

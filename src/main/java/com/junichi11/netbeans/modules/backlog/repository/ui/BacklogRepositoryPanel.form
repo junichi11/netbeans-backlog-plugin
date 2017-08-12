@@ -16,44 +16,37 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+              <Component id="setDisplayNameButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
+              <Component id="connectButton" min="-2" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      <Component id="setDisplayNameButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="connectButton" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="spaceIdLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="apiKeyLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="nameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="projectLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="backlogLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="backlogComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          </Group>
-                          <Component id="spaceIdTextField" alignment="1" max="32767" attributes="0"/>
-                          <Component id="apiKeyTextField" max="32767" attributes="0"/>
-                          <Component id="nameTextField" max="32767" attributes="0"/>
-                          <Component id="projectComboBox" alignment="0" pref="452" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
+                  <Component id="spaceIdLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="apiKeyLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="nameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="projectLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="backlogLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="backlogComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
+                  <Component id="spaceIdTextField" alignment="1" max="32767" attributes="0"/>
+                  <Component id="apiKeyTextField" max="32767" attributes="0"/>
+                  <Component id="nameTextField" max="32767" attributes="0"/>
+                  <Component id="projectComboBox" alignment="0" pref="476" max="32767" attributes="0"/>
+              </Group>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="backlogLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="backlogComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -83,7 +76,6 @@
                   <Component id="nameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="nameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

@@ -55,6 +55,7 @@ public final class BacklogOptions {
     private static final String ASSIGNED_TO_ME = "assigned.to.me"; // NOI18N
     private static final String CREATED_BY_ME = "created.by.me"; // NOI18N
     private static final String QUERY_MAX_ISSUE_COUNT = "query.max.issue.count"; // NOI18N
+    private static final String NOTIFICATIONS = "notifications"; // NOI18N
     private static final BacklogOptions INSTANCE = new BacklogOptions();
 
     private BacklogOptions() {
@@ -86,6 +87,14 @@ public final class BacklogOptions {
 
     public void setMaxIssueCountForDefaultQuery(int value) {
         getPreferences().putInt(QUERY_MAX_ISSUE_COUNT, value);
+    }
+
+    public void setNotificationsQuery(boolean isEnabled) {
+        getPreferences().putBoolean(NOTIFICATIONS, isEnabled);
+    }
+
+    public boolean isNotificationsQuery() {
+        return getPreferences().getBoolean(NOTIFICATIONS, false);
     }
 
     private Preferences getPreferences() {

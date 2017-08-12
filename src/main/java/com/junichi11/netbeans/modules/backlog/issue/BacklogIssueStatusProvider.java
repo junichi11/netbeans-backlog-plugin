@@ -59,7 +59,15 @@ public class BacklogIssueStatusProvider implements IssueStatusProvider<BacklogRe
     }
 
     @Override
-    public void setSeenIncoming(BacklogIssue i, boolean bln) {
+    public void setSeenIncoming(BacklogIssue issue, boolean seen) {
+        Status status = getStatus(issue);
+        if (!seen) {
+            issue.setStatus(Status.INCOMING_NEW);
+            return;
+        }
+        if (status != Status.SEEN && seen) {
+            issue.setStatus(Status.SEEN);
+        }
     }
 
     @Override

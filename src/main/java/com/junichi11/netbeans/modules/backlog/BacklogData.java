@@ -159,12 +159,12 @@ public final class BacklogData {
     }
 
     /**
-     * Get Users.
+     * Get project Users.
      *
      * @return Users
      */
-    public List<User> getUsers() {
-        return getUsers(false);
+    public List<User> getProjectUsers() {
+        return getProjectUsers(false);
     }
 
     /**
@@ -175,6 +175,9 @@ public final class BacklogData {
      */
     @CheckForNull
     public Icon getUserIcon(User user) {
+        if (user == null) {
+            return null;
+        }
         Icon icon = userIcons.get(user);
         if (icon != null) {
             return icon;
@@ -203,13 +206,13 @@ public final class BacklogData {
     }
 
     /**
-     * Get Users.
+     * Get project Users.
      *
      * @param isForce {@code true} if you want to reload data, {@code false} if
      * you want to use cache data
      * @return Users
      */
-    public List<User> getUsers(boolean isForce) {
+    public List<User> getProjectUsers(boolean isForce) {
         BacklogClient backlogClient = repository.createBacklogClient();
         if (backlogClient == null) {
             return Collections.emptyList();

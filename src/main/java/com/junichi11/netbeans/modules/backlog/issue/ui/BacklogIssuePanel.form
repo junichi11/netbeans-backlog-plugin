@@ -93,7 +93,11 @@
                           <Component id="headerCreatedLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="headerCreatedDateLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Component id="headerUpdatedLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="headerUpdatedDateLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                           <Component id="headerStartDateLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="headerStartDateViewLabel" min="-2" max="-2" attributes="0"/>
@@ -112,11 +116,11 @@
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="addSubtaskLinkButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jSeparator3" min="-2" pref="6" max="-2" attributes="0"/>
+                          <Component id="jSeparator3" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="refreshLinkButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jSeparator5" min="-2" pref="6" max="-2" attributes="0"/>
+                          <Component id="jSeparator5" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="showOnBrowserLinkButton" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -130,16 +134,18 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="showOnBrowserLinkButton" alignment="3" max="32767" attributes="0"/>
-                          <Component id="refreshLinkButton" alignment="3" max="32767" attributes="0"/>
-                          <Component id="jSeparator5" max="32767" attributes="0"/>
-                          <Component id="jSeparator3" max="32767" attributes="0"/>
-                          <Component id="addSubtaskLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
                       <Component id="headerIssueKeyLabel" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="jSeparator5" max="32767" attributes="0"/>
+                              <Component id="jSeparator3" max="32767" attributes="0"/>
+                              <Component id="addSubtaskLinkButton" max="32767" attributes="0"/>
+                              <Component id="refreshLinkButton" alignment="1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="showOnBrowserLinkButton" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="headerCreatedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="headerCreatedDateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -149,6 +155,8 @@
                       <Component id="headerCreatedUserLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="headerStartDateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="headerStartDateViewLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="headerUpdatedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="headerUpdatedDateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -209,6 +217,20 @@
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.headerCreatedDateLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="headerUpdatedLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.headerUpdatedLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="headerUpdatedDateLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.headerUpdatedDateLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -299,39 +321,25 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="subtaskingCollapsibleSectionPanel" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="attachmentsCollapsibleSectionPanel" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jSeparator1" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="subtaskingCollapsibleSectionPanel" max="32767" attributes="0"/>
+                          <Component id="jSeparator1" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="summaryLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="descriptionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="summaryLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="descriptionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
+                                      <Component id="insertTemplateButton" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="descriptionScrollPane" max="32767" attributes="0"/>
-                                          <Component id="summaryTextField" max="32767" attributes="0"/>
-                                      </Group>
-                                  </Group>
-                                  <Group type="102" attributes="0">
-                                      <Component id="attributeLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      <Component id="manageTemplatesButton" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="descriptionScrollPane" max="32767" attributes="0"/>
+                                  <Component id="summaryTextField" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
@@ -346,7 +354,7 @@
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="dueDatePicker" max="32767" attributes="0"/>
+                                  <Component id="dueDatePicker" pref="197" max="32767" attributes="0"/>
                                   <Component id="startDatePicker" alignment="0" max="32767" attributes="0"/>
                                   <Component id="milestoneScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
                                   <Component id="versionScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
@@ -387,7 +395,7 @@
                                           <Component id="assigneeComboBox" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" attributes="0">
                                               <Component id="assignToMyselfLinkButton" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                              <EmptySpace min="0" pref="87" max="32767" attributes="0"/>
                                           </Group>
                                           <Group type="102" alignment="0" attributes="0">
                                               <Component id="actualHoursTextField" max="32767" attributes="0"/>
@@ -397,23 +405,22 @@
                                       </Group>
                                   </Group>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
                           </Group>
+                          <Component id="commentsCollapsibleSectionPanel" alignment="1" max="32767" attributes="0"/>
+                          <Component id="jSeparator2" alignment="1" max="32767" attributes="0"/>
+                          <Component id="attachmentsCollapsibleSectionPanel" max="32767" attributes="0"/>
+                          <Component id="attributeLabel" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="commentLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                               <Component id="commentScrollPane" max="32767" attributes="0"/>
-                              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="commentsCollapsibleSectionPanel" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="jSeparator2" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Component id="notificationLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Component id="notificationUserScrollPane" pref="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -429,7 +436,14 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="descriptionLabel" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="descriptionLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="insertTemplateButton" min="-2" max="-2" attributes="0"/>
+                                  <Component id="manageTemplatesButton" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
                           <Component id="descriptionScrollPane" min="-2" pref="130" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -506,11 +520,17 @@
                       <Component id="attachmentsCollapsibleSectionPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="commentLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="commentScrollPane" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="commentLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="commentScrollPane" max="32767" attributes="0"/>
+                                  <Component id="notificationUserScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+                              <Component id="commentsCollapsibleSectionPanel" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="notificationLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                      <Component id="commentsCollapsibleSectionPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -897,6 +917,64 @@
                   <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.subtaskingCollapsibleSectionPanel.label" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="notificationLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.notificationLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Container class="javax.swing.JScrollPane" name="notificationUserScrollPane">
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JList" name="notificationUserList">
+                  <Properties>
+                    <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+                      <StringArray count="0"/>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;User&gt;"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Component class="javax.swing.JButton" name="insertTemplateButton">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="2" name="/home/junichi11/NetBeansProjects/netbeans-backlog-plugin/src/main/resources/com/junichi11/netbeans/modules/backlog/resources/template_16.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.insertTemplateButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.insertTemplateButton.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="insertTemplateButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="manageTemplatesButton">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="2" name="/home/junichi11/NetBeansProjects/netbeans-backlog-plugin/src/main/resources/com/junichi11/netbeans/modules/backlog/resources/manage_template_16.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.manageTemplatesButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/backlog/issue/ui/Bundle.properties" key="BacklogIssuePanel.manageTemplatesButton.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="manageTemplatesButtonActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

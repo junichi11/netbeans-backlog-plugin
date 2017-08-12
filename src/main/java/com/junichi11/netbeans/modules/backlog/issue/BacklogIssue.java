@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.backlog.issue;
 
+import com.junichi11.netbeans.modules.backlog.BacklogConfig;
 import com.junichi11.netbeans.modules.backlog.BacklogConnector;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import static com.junichi11.netbeans.modules.backlog.utils.BacklogUtils.DEFAULT_DATE_FORMAT;
@@ -55,6 +56,8 @@ import com.nulabinc.backlog4j.Priority;
 import com.nulabinc.backlog4j.Resolution;
 import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.User;
+import com.nulabinc.backlog4j.api.option.AddIssueCommentNotificationParams;
+import com.nulabinc.backlog4j.api.option.AddIssueCommentParams;
 import com.nulabinc.backlog4j.api.option.CreateIssueParams;
 import com.nulabinc.backlog4j.api.option.UpdateIssueCommentParams;
 import com.nulabinc.backlog4j.api.option.UpdateIssueParams;
@@ -74,6 +77,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
 import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.api.Util;
@@ -100,6 +104,7 @@ public final class BacklogIssue {
     private IssueNode node;
     private String subtaskParentIssueKey;
     private IssueScheduleInfo scheduleInfo;
+    private final List<IssueComment> comments = Collections.synchronizedList(new ArrayList<IssueComment>());
     private final BacklogRepository repository;
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -120,6 +125,7 @@ public final class BacklogIssue {
     public static final String PROP_COMMENT_DELETED = "backlog.comment.deleted"; // NOI18N
     public static final String PROP_COMMENT_QUOTE = "backlog.comment.quote"; // NOI18N
     public static final String PROP_COMMENT_EDITED = "backlog.comment.edited"; // NOI18N
+    public static final String PROP_COMMENT_NOTIFY = "backlog.comment.notify"; // NOI18N
     private static final Logger LOGGER = Logger.getLogger(BacklogIssue.class.getName());
 
     public BacklogIssue(BacklogRepository repository) {
@@ -425,10 +431,15 @@ public final class BacklogIssue {
             return;
         }
         try {
-            issue = backlogClient.getIssue(id);
+            setIssue(backlogClient.getIssue(id));
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
+        fireStatusChange();
+    }
+
+    public void refreshIssue(Issue issue) {
+        setIssue(issue);
     }
 
     /**
@@ -437,8 +448,53 @@ public final class BacklogIssue {
      * @return status
      */
     public Status getStatus() {
-        // TODO
-        return Status.SEEN;
+        return BacklogConfig.getInstance().getStatus(this);
+    }
+
+    public void setStatus(Status status) {
+        BacklogConfig.getInstance().setStatus(this, status);
+        fireStatusChange();
+    }
+
+    public List<IssueComment> getIssueComments() {
+        if (issue == null) {
+            return Collections.emptyList();
+        }
+        return comments;
+    }
+
+    private void refreshIssueComments() {
+        if (issue == null) {
+            return;
+        }
+        comments.clear();
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient != null) {
+            try {
+                ResponseList<IssueComment> issueComments = backlogClient.getIssueComments(issue.getId());
+                comments.addAll(issueComments);
+            } catch (BacklogAPIException ex) {
+                LOGGER.log(Level.WARNING, ex.getMessage());
+            }
+        }
+    }
+
+    public long getLastUpdatedTime() {
+        Date updated = this.getUpdated();
+        if (updated != null) {
+            long time = updated.getTime();
+            for (IssueComment issueComment : getIssueComments()) {
+                Date commentUpdated = issueComment.getUpdated();
+                if (commentUpdated != null) {
+                    long commentTime = commentUpdated.getTime();
+                    if (time < commentTime) {
+                        time = commentTime;
+                    }
+                }
+            }
+            return time;
+        }
+        return -1L;
     }
 
     /**
@@ -522,7 +578,7 @@ public final class BacklogIssue {
             fireChange();
             fireDataChange();
             fireScheduleChange();
-//            fireStatusChange();
+            fireStatusChange();
             ((BacklogIssueController) getController()).setChanged(false);
         }
         subtaskParentIssueKey = null;
@@ -619,11 +675,58 @@ public final class BacklogIssue {
     }
 
     /**
+     * Add IssueComment.
+     *
+     * @param content the added issue comment
+     * @param userIds user identifers
+     * @return IssueComment if adding is successful, otherwise {@code null}
+     */
+    @CheckForNull
+    public IssueComment addIssueComment(String content, List<Long> userIds) {
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
+        IssueComment issueComment = null;
+        try {
+            AddIssueCommentParams addIssueCommentParams = new AddIssueCommentParams(issue.getId(), content);
+            addIssueCommentParams.notifiedUserIds(userIds);
+            issueComment = backlogClient.addIssueComment(addIssueCommentParams);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return issueComment;
+    }
+
+    /**
+     * Add an issue comment notification.
+     *
+     * @param comment the issue comment
+     * @param userIds user identifers
+     * @return IssueComment if adding is successful, otherwise {@code null}
+     */
+    @CheckForNull
+    public IssueComment addIssueCommentNotification(@NonNull IssueComment comment, List<Long> userIds) {
+        BacklogClient backlogClient = repository.createBacklogClient();
+        if (backlogClient == null) {
+            return null;
+        }
+        IssueComment issueComment = null;
+        try {
+            AddIssueCommentNotificationParams params = new AddIssueCommentNotificationParams(issue.getId(), comment.getId(), userIds);
+            issueComment = backlogClient.addIssueCommentNotification(params);
+        } catch (BacklogAPIException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return issueComment;
+    }
+
+    /**
      * Update IssueComment.
      *
      * @param comment IssueComment
      * @param content new content
-     * @return Updated IssueComment if update is successful, otherwise
+     * @return Updated IssueComment if updating is successful, otherwise
      * {@code null}
      */
     @CheckForNull
@@ -659,6 +762,9 @@ public final class BacklogIssue {
     private void setIssue(Issue issue) {
         this.issue = issue;
         this.summary = issue.getSummary();
+        // XXX many requests may be posted for getting comments
+        // Use notification?
+//        refreshIssueComments();
     }
 
     /**
@@ -767,10 +873,8 @@ public final class BacklogIssue {
                 int interval = (int) ((due - start) / (1000 * 60 * 60 * 24));
                 return new IssueScheduleInfo(startDate, interval);
             }
-        } else {
-            if (dueDate != null) {
-                return new IssueScheduleInfo(dueDate, 1);
-            }
+        } else if (dueDate != null) {
+            return new IssueScheduleInfo(dueDate, 1);
         }
         return null;
     }

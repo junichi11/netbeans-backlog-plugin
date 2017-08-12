@@ -29,6 +29,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="createdByMeCheckBox" min="-2" max="-2" attributes="0"/>
                           <Component id="assignedToMeCheckBox" min="-2" max="-2" attributes="0"/>
+                          <Component id="notificationsCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -48,6 +49,8 @@
               <Component id="assignedToMeCheckBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="createdByMeCheckBox" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="notificationsCheckBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -72,6 +75,13 @@
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/junichi11/netbeans/modules/backlog/options/Bundle.properties" key="BacklogOptionsPanel.createdByMeCheckBox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="notificationsCheckBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/junichi11/netbeans/modules/backlog/options/Bundle.properties" key="BacklogOptionsPanel.notificationsCheckBox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

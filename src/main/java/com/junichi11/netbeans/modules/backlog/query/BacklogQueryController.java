@@ -211,11 +211,11 @@ public class BacklogQueryController implements QueryController, ActionListener {
                 ProgressHandle handle = ProgressHandleFactory.createHandle(
                         Bundle.BacklogQueryController_label_searching_issues(),
                         new Cancellable() {
-                            @Override
-                            public boolean cancel() {
-                                return isCancel.getAndSet(true);
-                            }
-                        }
+                    @Override
+                    public boolean cancel() {
+                        return isCancel.getAndSet(true);
+                    }
+                }
                 );
 
                 final int maxIssueCount = getPanel().getMaxIssueCount();
@@ -235,7 +235,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                             GetIssuesParams clonedParams = support.newGetIssuesParams()
                                     .count(count)
                                     .offset(i * count);
-                            issues.addAll(query.getIssues(clonedParams));
+                            issues.addAll(query.getIssues(clonedParams, false));
                             handle.progress(i + 1);
                         }
 

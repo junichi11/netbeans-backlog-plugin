@@ -41,12 +41,16 @@
  */
 package com.junichi11.netbeans.modules.backlog;
 
+import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
+import java.util.ArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
 /**
@@ -56,8 +60,21 @@ import org.openide.util.NbPreferences;
 public final class BacklogConfig {
 
     private static final BacklogConfig INSTANCE = new BacklogConfig();
+
+    // query
     private static final String QUERY = "query"; // NOI18N
     private static final String QUERY_PARAMS = "query.params"; // NOI18N
+
+    // status
+    private static final String STATUS = "status"; // NOI18N
+    //  [status]::[last updated]
+    private static final String STATUS_FORMAT = "%s::%s"; // NOI18N
+    private static final String STATUS_DELIMITER = "::"; // NOI18N
+
+    // template
+    private static final String TEMPLATE = "template"; // NOI18N
+    private static final String DEFAULT_TEMPLATE_NAME = "default"; // NOI18N
+
     private static final String QUERY_MAX_ISSUE_COUNT = "query.max.issue.count"; // NOI18N
 
     private BacklogConfig() {
@@ -65,6 +82,43 @@ public final class BacklogConfig {
 
     public static BacklogConfig getInstance() {
         return INSTANCE;
+    }
+
+    public Status getStatus(BacklogIssue issue) {
+        BacklogRepository repository = issue.getRepository();
+        Preferences preferences = getPreferences().node(repository.getID()).node(STATUS);
+        String statusTime = preferences.get(issue.getKeyId(), null);
+        if (statusTime == null) {
+            return Status.INCOMING_NEW;
+        }
+
+        String[] split = statusTime.split(STATUS_DELIMITER);
+        if (split.length != 2) {
+            return Status.INCOMING_NEW;
+        }
+
+        // TODO CONFLICT, OUTGOING_NEW, OUTGOING_MODIFIED
+        Status status = Status.valueOf(split[0]);
+        long lastUpdated = Long.parseLong(split[1]);
+        if (status == Status.SEEN) {
+            long lastUpdatedTime = issue.getLastUpdatedTime();
+            if (lastUpdatedTime != -1L) {
+                if (lastUpdated < lastUpdatedTime) {
+                    setStatus(issue, Status.INCOMING_MODIFIED);
+                    return Status.INCOMING_MODIFIED;
+                }
+            }
+        }
+        return status;
+    }
+
+    public void setStatus(BacklogIssue issue, Status status) {
+        long lastUpdatedTime = issue.getLastUpdatedTime();
+        if (lastUpdatedTime != -1L) {
+            BacklogRepository repository = issue.getRepository();
+            Preferences preferences = getPreferences().node(repository.getID()).node(STATUS);
+            preferences.put(issue.getKeyId(), String.format(STATUS_FORMAT, status.name(), lastUpdatedTime));
+        }
     }
 
     /**
@@ -149,6 +203,73 @@ public final class BacklogConfig {
         String id = repository.getID();
         Preferences preferences = getPreferences().node(id).node(QUERY).node(query.getDisplayName());
         preferences.putInt(QUERY_MAX_ISSUE_COUNT, query.getMaxIssueCount());
+    }
+
+    /**
+     * Get the template for specified name.
+     *
+     * @param name the template name
+     * @return the template
+     */
+    @NbBundle.Messages("BacklogConfig.default.template=#### Overview description\n"
+            + "\n"
+            + "#### Steps to reproduce\n"
+            + "\n"
+            + "1. \n"
+            + "2. \n"
+            + "3. \n"
+            + "\n"
+            + "#### Actual results\n"
+            + "\n"
+            + "#### Expected results\n")
+    public String getTemplate(String name) {
+        return getPreferences().node(TEMPLATE).get(name, Bundle.BacklogConfig_default_template());
+    }
+
+    /**
+     * Set template.
+     *
+     * @param name the template name
+     * @param template the template
+     */
+    public void setTemplate(String name, String template) {
+        getPreferences().node(TEMPLATE).put(name, template);
+    }
+
+    /**
+     * Remove a template. <b>NOTE:</b> Can't remove the default template. But
+     * default template will be initialized.
+     *
+     * @param name the template name
+     */
+    public void removeTemplate(String name) {
+        getPreferences().node(TEMPLATE).remove(name);
+    }
+
+    /**
+     * Get all template names.
+     *
+     * @return all template names
+     */
+    public String[] getTemplateNames() {
+        ArrayList<String> names = new ArrayList<>();
+        names.add(DEFAULT_TEMPLATE_NAME);
+        Preferences preferences = getPreferences().node(TEMPLATE);
+        try {
+            // contains the default template if it was edited
+            String[] childrenNames = preferences.keys();
+            int count = 1; // default template
+            for (String childName : childrenNames) {
+                if (!childName.equals(DEFAULT_TEMPLATE_NAME)) {
+                    names.add(childName);
+                    count++;
+                }
+            }
+            return names.toArray(new String[count]);
+        } catch (BackingStoreException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return names.toArray(new String[1]);
     }
 
     private Preferences getPreferences() {

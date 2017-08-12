@@ -9,7 +9,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 
 ## Requirements
 
-- NetBeans 8.0+
+- NetBeans 8.1+
 
 ## Features
 
@@ -18,6 +18,7 @@ This plugin provides support for [backlog](http://backlogtool.com/?lang=1).
 - Create queries
 - Find issues
 - Schedules
+- Notification (only comment)
 
 ## Add Backlog repository
 
@@ -46,7 +47,6 @@ If you don't want to use thses, you can disable these in Options (Tools > Option
 ## Resources
 
 - [Backlog4j](https://github.com/nulab/backlog4j)
-- [yenta](https://bitbucket.org/jglick/yenta)
 
 ## License
 

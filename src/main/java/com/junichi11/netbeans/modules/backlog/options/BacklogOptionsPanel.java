@@ -55,6 +55,9 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         initComponents();
         maxIssueSpinnerNumberModel = new SpinnerNumberModel(20, 20, 500, 10);
         maxIssueCountSpinner.setModel(maxIssueSpinnerNumberModel);
+
+        // XXX another way should be used
+        notificationsCheckBox.setVisible(false);
     }
 
     /**
@@ -69,6 +72,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         assignedToMeCheckBox = new javax.swing.JCheckBox();
         createdByMeCheckBox = new javax.swing.JCheckBox();
         maxIssueCountSpinner = new javax.swing.JSpinner();
+        notificationsCheckBox = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(defaultQueriesLabel, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.defaultQueriesLabel.text")); // NOI18N
 
@@ -77,6 +81,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(createdByMeCheckBox, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.createdByMeCheckBox.text")); // NOI18N
 
         maxIssueCountSpinner.setToolTipText(org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.maxIssueCountSpinner.toolTipText")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(notificationsCheckBox, org.openide.util.NbBundle.getMessage(BacklogOptionsPanel.class, "BacklogOptionsPanel.notificationsCheckBox.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -93,7 +98,8 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(createdByMeCheckBox)
-                            .addComponent(assignedToMeCheckBox))))
+                            .addComponent(assignedToMeCheckBox)
+                            .addComponent(notificationsCheckBox))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -107,6 +113,8 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
                 .addComponent(assignedToMeCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(createdByMeCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(notificationsCheckBox)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -116,6 +124,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         assignedToMeCheckBox.setSelected(options.isAssignedToMeQuery());
         createdByMeCheckBox.setSelected(options.isCreatedByMeQuery());
         setMaxIssueCount(options.getMaxIssueCountForDefaultQuery());
+        notificationsCheckBox.setSelected(options.isNotificationsQuery());
     }
 
     void store() {
@@ -123,6 +132,7 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         options.setAssignedToMeQuery(isAssignedToMeQuery());
         options.setCreatedByMeQuery(isCreatedByMeQuery());
         options.setMaxIssueCountForDefaultQuery(getMaxIssueCount());
+        options.setNotificationsQuery(isNotificationsQuery());
     }
 
     boolean valid() {
@@ -146,10 +156,15 @@ final class BacklogOptionsPanel extends javax.swing.JPanel {
         maxIssueSpinnerNumberModel.setValue(count);
     }
 
+    private boolean isNotificationsQuery() {
+        return notificationsCheckBox.isSelected();
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox assignedToMeCheckBox;
     private javax.swing.JCheckBox createdByMeCheckBox;
     private javax.swing.JLabel defaultQueriesLabel;
     private javax.swing.JSpinner maxIssueCountSpinner;
+    private javax.swing.JCheckBox notificationsCheckBox;
     // End of variables declaration//GEN-END:variables
 }

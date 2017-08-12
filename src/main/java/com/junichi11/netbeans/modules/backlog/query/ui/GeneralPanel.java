@@ -170,8 +170,8 @@ public class GeneralPanel extends javax.swing.JPanel {
         setCategory(data.getCategories());
         setVersion(data.getVersions());
         setMilestone(data.getVersions());
-        setAssignee(data.getUsers());
-        setResisteredBy(data.getUsers());
+        setAssignee(data.getProjectUsers());
+        setResisteredBy(data.getProjectUsers());
         setResolution(data.getResolutions());
         setFile();
     }

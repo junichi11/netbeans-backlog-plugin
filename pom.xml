@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-backlog-plugin</artifactId>
-    <version>0.3.5</version>
+    <version>0.4.0</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -54,18 +54,23 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-bugtracking</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-ui</artifactId>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.external</groupId>
@@ -75,43 +80,53 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-bugtracking-commons</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-progress</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress-nb</artifactId>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems-nb</artifactId>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-dialogs</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-awt</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-team-commons</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.external</groupId>
             <artifactId>org-apache-commons-io</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nulab-inc</groupId>
@@ -121,17 +136,17 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-modules</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-options-api</artifactId>
-            <version>RELEASE80</version>
+            <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -142,6 +157,7 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <netbeans.api.version>RELEASE81-BETA</netbeans.api.version>
     </properties>
     <name>Backlog</name>
     <description>This plugin provides support for &lt;a href ="http://backlogtool.com/?lang=1"&gt;backlog&lt;/a&gt;.
