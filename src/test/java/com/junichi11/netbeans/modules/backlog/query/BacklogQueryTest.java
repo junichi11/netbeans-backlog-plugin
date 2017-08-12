@@ -171,7 +171,7 @@ public class BacklogQueryTest {
     @Test
     public void testSetQueryParam() {
         GetIssuesParams params = new GetIssuesParams(Collections.singletonList(1L));
-        params = params.assignerIds(Arrays.asList(1L, 2L))
+        params = params.assigneeIds(Arrays.asList(1L, 2L))
                 .attachment(true)
                 .sharedFile(false)
                 .categoryIds(Arrays.asList(3L));
@@ -285,7 +285,7 @@ public class BacklogQueryTest {
         assertEquals(Collections.emptyList(), query.getAssigneeIds());
 
         GetIssuesParams params = new GetIssuesParams(Collections.singletonList(1L));
-        params = params.assignerIds(Arrays.asList(4L, 5L));
+        params = params.assigneeIds(Arrays.asList(4L, 5L));
         query.setQueryParam(params);
         ArrayList<Long> ids = new ArrayList<>();
         ids.add(4L);

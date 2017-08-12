@@ -85,11 +85,11 @@ public enum BacklogImage {
         if (priority == null) {
             return null;
         }
-        Issue.PriorityType priorityType = priority.getPriority();
+        Issue.PriorityType priorityType = priority.getPriorityType();
         if (priorityType == null) {
             return null;
         }
-        switch (priority.getPriority()) {
+        switch (priority.getPriorityType()) {
             case High:
                 return PRIORITY_HIGH;
             case Normal:
