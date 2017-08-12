@@ -826,7 +826,7 @@ public final class BacklogIssue {
             UpdateIssueParams updateIssueParams = new UpdateIssueParams(issue.getIssueKey());
             Resolution resolution = issue.getResolution();
             if (resolution != null) {
-                Issue.ResolutionType resolutionType = resolution.getResolution();
+                Issue.ResolutionType resolutionType = resolution.getResolutionType();
                 if (resolutionType == Issue.ResolutionType.Fixed) {
                     LOGGER.log(Level.INFO, "Resolution is already FIXED."); // NOI18N
                     return;
@@ -850,7 +850,7 @@ public final class BacklogIssue {
 
     public IssueScheduleInfo getSchedule() {
         com.nulabinc.backlog4j.Status issueStatus = getIssueStatus();
-        if (issueStatus == null || issueStatus.getStatus() == Issue.StatusType.Closed) {
+        if (issueStatus == null || issueStatus.getStatusType()== Issue.StatusType.Closed) {
             return null;
         }
         if (scheduleInfo == null) {

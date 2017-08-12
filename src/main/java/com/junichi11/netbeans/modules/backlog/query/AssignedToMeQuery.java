@@ -75,7 +75,7 @@ public final class AssignedToMeQuery extends BacklogQuery implements DefaultQuer
         User myself = data.getMyself();
         if (myself != null) {
             // #2 exclude the closed status
-            issuesParams = issuesParams.assignerIds(Collections.singletonList(myself.getId()))
+            issuesParams = issuesParams.assigneeIds(Collections.singletonList(myself.getId()))
                     .statuses(QueryUtils.NOT_CLOSED_STATUS);
         }
         return issuesParams;

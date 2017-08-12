@@ -294,7 +294,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         List<StatusType> status = new ArrayList<>(selectedValues.size());
         for (Status selectedValue : selectedValues) {
-            Issue.StatusType statusType = selectedValue.getStatus();
+            Issue.StatusType statusType = selectedValue.getStatusType();
             if (statusType != null) {
                 status.add(statusType);
             }
@@ -309,7 +309,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         List<PriorityType> priorities = new ArrayList<>(selectedValues.size());
         for (Priority selectedValue : selectedValues) {
-            PriorityType priority = selectedValue.getPriority();
+            PriorityType priority = selectedValue.getPriorityType();
             if (priority != null) {
                 priorities.add(priority);
             }
@@ -324,7 +324,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
         List<ResolutionType> resolutions = new ArrayList<>(selectedValues.size());
         for (Resolution selectedValue : selectedValues) {
-            ResolutionType resolution = selectedValue.getResolution();
+            ResolutionType resolution = selectedValue.getResolutionType();
             if (selectedValue.getName() != null && resolution != null) {
                 resolutions.add(resolution);
             }
@@ -962,7 +962,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         }
 
         @Override
-        public ResolutionType getResolution() {
+        public ResolutionType getResolutionType() {
             return ResolutionType.NotSet;
         }
 

@@ -269,7 +269,7 @@ public final class GetIssuesParamsSupport {
                 .categoryIds(getCategoryIds())
                 .versionIds(getVersionIds())
                 .milestoneIds(getMilestoneIds())
-                .assignerIds(getAssigneeIds())
+                .assigneeIds(getAssigneeIds())
                 .createdUserIds(getCreatedUserIds())
                 .priorities(getPriorities())
                 .resolutions(getResolutions())

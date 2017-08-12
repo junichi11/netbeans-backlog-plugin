@@ -728,7 +728,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         priorityComboBoxModel.removeAllElements();
         for (Priority priority : priorities) {
             priorityComboBoxModel.addElement(priority);
-            Issue.PriorityType priorityType = priority.getPriority();
+            Issue.PriorityType priorityType = priority.getPriorityType();
             if (priorityType == PriorityType.Normal) {
                 priorityComboBoxModel.setSelectedItem(priority);
             }
@@ -1831,7 +1831,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         if (project == null) {
             return null;
         }
-        CreateIssueParams issueParams = new CreateIssueParams(project.getId(), getSummary(), getIssueType().getId(), getPriority().getPriority())
+        CreateIssueParams issueParams = new CreateIssueParams(project.getId(), getSummary(), getIssueType().getId(), getPriority().getPriorityType())
                 .description(getDescription())
                 .categoryIds(getCategoryIds())
                 .versionIds(getVersionIds())
@@ -1882,7 +1882,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
                 .summary(getSummary())
                 .description(getDescription())
                 .issueTypeId(getIssueType().getId())
-                .priority(getPriority().getPriority())
+                .priority(getPriority().getPriorityType())
                 .categoryIds(getCategoryIds())
                 .versionIds(getVersionIds())
                 .milestoneIds(getMilestonIds());
@@ -1891,7 +1891,7 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         // if we change resolution to empty, set null value
         Resolution resolution = getResolution();
         if (!StringUtils.isEmpty(resolution.getName())) {
-            issueParams = issueParams.resolution(resolution.getResolution());
+            issueParams = issueParams.resolution(resolution.getResolutionType());
         } else {
             issueParams = issueParams.resolution(null);
         }
@@ -1905,8 +1905,8 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         // check status
         // Can't change to the same status
         Issue existingIssue = issue.getIssue();
-        Issue.StatusType originalStatus = existingIssue.getStatus().getStatus();
-        Issue.StatusType newStatus = getStatus().getStatus();
+        Issue.StatusType originalStatus = existingIssue.getStatus().getStatusType();
+        Issue.StatusType newStatus = getStatus().getStatusType();
         if (originalStatus != newStatus) {
             issueParams = issueParams.status(newStatus);
         }

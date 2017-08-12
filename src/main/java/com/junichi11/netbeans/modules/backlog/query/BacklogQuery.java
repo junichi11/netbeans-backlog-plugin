@@ -216,7 +216,7 @@ public class BacklogQuery {
                 .categoryIds(getCategoryIds())
                 .versionIds(getVersionIds())
                 .milestoneIds(getMilestoneIds())
-                .assignerIds(getAssigneeIds())
+                .assigneeIds(getAssigneeIds())
                 .createdUserIds(getCreatedUserIds())
                 .priorities(getPriorities())
                 .resolutions(getResolutions())
