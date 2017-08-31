@@ -60,9 +60,10 @@ public final class BacklogUtils {
     public static final String DATE_FORMAT_YYYY_MM_DD_HH_MM_SS = "yyyy/MM/dd HH:mm:ss"; // NOI18N
     public static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD);
     public static final DateFormat DEFAULT_DATE_FORMAT_WITH_TIME = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD_HH_MM_SS);
+    public static final String BACKLOG_COM = "backlog.com"; // NOI18N
     public static final String BACKLOG_JP = "backlog.jp"; // NOI18N
     public static final String BACKLOGTOOL_COM = "backlogtool.com"; // NOI18N
-    public static final List<String> BACKLOG_DOMAINS = Arrays.asList(BACKLOG_JP, BACKLOGTOOL_COM);
+    public static final List<String> BACKLOG_DOMAINS = Arrays.asList(BACKLOG_COM, BACKLOG_JP, BACKLOGTOOL_COM);
 
     private BacklogUtils() {
     }

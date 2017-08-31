@@ -51,6 +51,16 @@ import com.junichi11.netbeans.modules.backlog.query.BacklogQuery;
 import com.junichi11.netbeans.modules.backlog.query.BacklogQueryProvider;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepositoryProvider;
+import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
+import com.nulabinc.backlog4j.BacklogClient;
+import com.nulabinc.backlog4j.BacklogClientFactory;
+import com.nulabinc.backlog4j.conf.BacklogConfigure;
+import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
+import com.nulabinc.backlog4j.conf.BacklogPackageConfigure;
+import com.nulabinc.backlog4j.conf.BacklogToolConfigure;
+import java.net.MalformedURLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
 import org.netbeans.modules.bugtracking.spi.BugtrackingSupport;
 import org.openide.util.RequestProcessor;
@@ -77,6 +87,7 @@ public final class Backlog {
     private BacklogQueryProvider queryProvider;
     private BacklogRepositoryProvider repositoryProvider;
     private IssueNode.ChangesProvider<BacklogIssue> changesProvider;
+    private static final Logger LOGGER = Logger.getLogger(Backlog.class.getName());
 
     private Backlog() {
     }
@@ -155,5 +166,27 @@ public final class Backlog {
             };
         }
         return changesProvider;
+    }
+
+    public static BacklogClient createBacklogClient(String domain, String spaceId, String apiKey) throws MalformedURLException {
+        BacklogConfigure configure;
+        // TODO support for package url
+        switch (domain) {
+            case BacklogUtils.BACKLOG_COM:
+                // XXX check backlog4j api
+                configure = new BacklogPackageConfigure("https://" + spaceId + "." + BacklogUtils.BACKLOG_COM).apiKey(apiKey);
+                break;
+            case BacklogUtils.BACKLOG_JP:
+                configure = new BacklogJpConfigure(spaceId).apiKey(apiKey);
+                break;
+            case BacklogUtils.BACKLOGTOOL_COM:
+                configure = new BacklogToolConfigure(spaceId).apiKey(apiKey);
+                break;
+            default:
+                LOGGER.log(Level.WARNING, "Unsupported domain: {0}", domain); // NOI18N
+                assert false;
+                configure = new BacklogPackageConfigure("https://" + spaceId + "." + BacklogUtils.BACKLOG_COM).apiKey(apiKey);
+        }
+        return new BacklogClientFactory(configure).newClient();
     }
 }

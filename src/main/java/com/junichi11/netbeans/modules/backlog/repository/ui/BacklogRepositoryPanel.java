@@ -41,24 +41,20 @@
  */
 package com.junichi11.netbeans.modules.backlog.repository.ui;
 
+import com.junichi11.netbeans.modules.backlog.Backlog;
 import com.junichi11.netbeans.modules.backlog.repository.BacklogRepository;
 import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.junichi11.netbeans.modules.backlog.utils.UiUtils;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
-import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.ResponseList;
-import com.nulabinc.backlog4j.conf.BacklogConfigure;
-import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
-import com.nulabinc.backlog4j.conf.BacklogToolConfigure;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.net.MalformedURLException;
 import java.util.Arrays;
-import java.util.Locale;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
@@ -140,8 +136,8 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
     public String getBacklogDomain() {
         String domain = (String) backlogComboBox.getSelectedItem();
         if (domain == null) {
-            backlogComboBox.setSelectedItem(BacklogUtils.BACKLOG_JP);
-            domain = BacklogUtils.BACKLOG_JP;
+            backlogComboBox.setSelectedItem(BacklogUtils.BACKLOG_COM);
+            domain = BacklogUtils.BACKLOG_COM;
         }
         return domain;
     }
@@ -173,13 +169,7 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
 
     private void setBacklogDomain(String domain) {
         if (StringUtils.isEmpty(domain)) {
-            Locale locale = Locale.getDefault();
-            if (locale != null && locale == Locale.JAPAN) {
-                backlogComboBox.setSelectedItem(BacklogUtils.BACKLOG_JP);
-            } else {
-                backlogComboBox.setSelectedItem(BacklogUtils.BACKLOGTOOL_COM);
-            }
-            return;
+            domain = BacklogUtils.BACKLOG_COM;
         }
         backlogComboBox.setSelectedItem(domain);
     }
@@ -338,18 +328,7 @@ public class BacklogRepositoryPanel extends javax.swing.JPanel {
         }
         isConnectionSuccessful = true;
         try {
-            BacklogConfigure configure;
-            switch (domain) {
-                case BacklogUtils.BACKLOG_JP:
-                    configure = new BacklogJpConfigure(spaceId).apiKey(apiKey);
-                    break;
-                case BacklogUtils.BACKLOGTOOL_COM:
-                    configure = new BacklogToolConfigure(spaceId).apiKey(apiKey);
-                    break;
-                default:
-                    throw new AssertionError();
-            }
-            BacklogClient backlog = new BacklogClientFactory(configure).newClient();
+            BacklogClient backlog = Backlog.createBacklogClient(domain, spaceId, apiKey);
             // try to get projects
             projects = backlog.getProjects();
             projectComboBoxModel.removeAllElements();
