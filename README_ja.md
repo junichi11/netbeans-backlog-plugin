@@ -1,6 +1,6 @@
 # NetBeans Backlog plugin
 
-[backlog](http://backlogtool.com/?lang=1)用のNetBeansプラグインです。
+[backlog](http://backlog.jp)用のNetBeansプラグインです。
 
 ## ダウンロード
 
@@ -34,7 +34,6 @@
 
 - 担当
 - 登録
-- お知らせ
 
 完了以外の状態の課題が表示されます。
 もしこれらの問合せを使いたくなければ、オプションで無効に設定できます。(ツール > オプション > チーム > Backlog)
