@@ -141,8 +141,7 @@ import org.openide.util.RequestProcessor;
 public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyChangeListener {
 
     private static final long serialVersionUID = 4070385780716024165L;
-    private static final String BACKLOG_JP_ISSUE_URL_FORMAT = "https://%s.backlog.jp/view/%s-%s"; // NOI18N
-    private static final String BACKLOGTOOL_COM_ISSUE_URL_FORMAT = "https://%s.backlogtool.com/view/%s-%s"; // NOI18N
+    private static final String BACKLOG_ISSUE_URL_FORMAT = "https://%s.%s/view/%s-%s"; // NOI18N
     private static final Logger LOGGER = Logger.getLogger(BacklogIssuePanel.class.getName());
     private static final RequestProcessor RP = new RequestProcessor(BacklogIssuePanel.class);
     private static final String BACKLOG_ATTACHMENT_SUFFIX = ".backlog-attachment"; // NOI18N
@@ -1959,16 +1958,17 @@ public class BacklogIssuePanel extends javax.swing.JPanel implements PropertyCha
         if (urlFormat == null) {
             return null;
         }
-        return String.format(urlFormat, spaceId, projectKey, issueKeyId);
+        return String.format(urlFormat, spaceId, backlogDomain, projectKey, issueKeyId);
     }
 
+    @CheckForNull
     private static String getBacklogIssueUrlFormat(String backlogDomain) {
         if (null != backlogDomain) {
             switch (backlogDomain) {
-                case BacklogUtils.BACKLOGTOOL_COM:
-                    return BACKLOGTOOL_COM_ISSUE_URL_FORMAT;
+                case BacklogUtils.BACKLOGTOOL_COM: // no break
+                case BacklogUtils.BACKLOG_COM: // no break
                 case BacklogUtils.BACKLOG_JP:
-                    return BACKLOG_JP_ISSUE_URL_FORMAT;
+                    return BACKLOG_ISSUE_URL_FORMAT;
                 default:
                     break;
             }

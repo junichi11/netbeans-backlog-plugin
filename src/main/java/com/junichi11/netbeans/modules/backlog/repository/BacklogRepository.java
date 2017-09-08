@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.backlog.repository;
 
+import com.junichi11.netbeans.modules.backlog.Backlog;
 import com.junichi11.netbeans.modules.backlog.BacklogConfig;
 import com.junichi11.netbeans.modules.backlog.BacklogConnector;
 import com.junichi11.netbeans.modules.backlog.issue.BacklogIssue;
@@ -56,16 +57,12 @@ import com.junichi11.netbeans.modules.backlog.utils.BacklogUtils;
 import com.junichi11.netbeans.modules.backlog.utils.StringUtils;
 import com.nulabinc.backlog4j.BacklogAPIException;
 import com.nulabinc.backlog4j.BacklogClient;
-import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.Issue;
 import com.nulabinc.backlog4j.Notification;
 import com.nulabinc.backlog4j.Project;
 import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.api.option.GetIssuesCountParams;
 import com.nulabinc.backlog4j.api.option.GetIssuesParams;
-import com.nulabinc.backlog4j.conf.BacklogConfigure;
-import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
-import com.nulabinc.backlog4j.conf.BacklogToolConfigure;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -91,7 +88,6 @@ import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.netbeans.modules.bugtracking.spi.RepositoryProvider;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -172,23 +168,11 @@ public final class BacklogRepository {
             return null;
         }
         try {
-            BacklogConfigure configure;
-            switch (domain) {
-                case BacklogUtils.BACKLOG_JP:
-                    configure = new BacklogJpConfigure(spaceId).apiKey(apiKey);
-                    break;
-                case BacklogUtils.BACKLOGTOOL_COM:
-                    configure = new BacklogToolConfigure(spaceId).apiKey(apiKey);
-                    break;
-                default:
-                    LOGGER.log(Level.WARNING, "Unsupported domain: {0}", domain);
-                    return null;
-            }
-            return new BacklogClientFactory(configure).newClient();
+            return Backlog.createBacklogClient(domain, spaceId, apiKey);
         } catch (BacklogAPIException ex) {
             LOGGER.log(Level.WARNING, "{0}:{1}", new Object[]{Bundle.BacklogRepository_backlog_api_error(), ex.getMessage()}); // NOI18N
         } catch (MalformedURLException ex) {
-            Exceptions.printStackTrace(ex);
+            LOGGER.log(Level.WARNING, null, ex);
         }
         return null;
     }
@@ -879,11 +863,10 @@ public final class BacklogRepository {
         String backlogDomain = repositoryInfo.getBacklogDomain();
         if (backlogDomain != null) {
             switch (backlogDomain) {
-                case BacklogUtils.BACKLOG_JP:
-                    url = String.format("https://%s.backlog.jp/", repositoryInfo.getSpaceId()); // NOI18N
-                    break;
+                case BacklogUtils.BACKLOG_COM: // no break
+                case BacklogUtils.BACKLOG_JP: // no break
                 case BacklogUtils.BACKLOGTOOL_COM:
-                    url = String.format("https://%s.backlogtool.com/", repositoryInfo.getSpaceId()); // NOI18N
+                    url = String.format("https://%s.%s/", repositoryInfo.getSpaceId(), backlogDomain); // NOI18N
                     break;
                 default:
                     throw new AssertionError();
