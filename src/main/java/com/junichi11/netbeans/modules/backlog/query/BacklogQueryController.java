@@ -366,7 +366,7 @@ public class BacklogQueryController implements QueryController, ActionListener {
                 .keyword(getPanel().getKeyword())
                 // general
                 .statuses(generalPanel.getStatus())
-                .priorities(generalPanel.getPriories())
+                .priorities(generalPanel.getPriorities())
                 .categoryIds(generalPanel.getCategoryIds())
                 .assigneeIds(generalPanel.getAssignerIds())
                 .versionIds(generalPanel.getVersionIds())
