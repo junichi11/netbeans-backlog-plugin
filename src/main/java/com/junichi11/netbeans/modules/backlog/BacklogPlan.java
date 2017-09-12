@@ -51,115 +51,115 @@ public enum BacklogPlan {
 
     FREE {
 
-                @Override
-                public long getSize() {
-                    return FREE_PLAN_SIZE;
-                }
+        @Override
+        public long getSize() {
+            return FREE_PLAN_SIZE;
+        }
 
-                @Override
-                public long getProjectCount() {
-                    return 1L;
-                }
+        @Override
+        public long getProjectCount() {
+            return 1L;
+        }
 
-                @Override
-                public long getUserCount() {
-                    return 10L;
-                }
+        @Override
+        public long getUserCount() {
+            return 10L;
+        }
 
-                @Override
-                public long getAttachmentCount() {
-                    return 1L;
-                }
+        @Override
+        public long getAttachmentCount() {
+            return 1L;
+        }
 
-                @Override
-                public long getAttachmentMaxSize() {
-                    return 5L * MEGA;
-                }
-            },
+        @Override
+        public long getAttachmentMaxSize() {
+            return 5L * MEGA;
+        }
+    },
     BASIC {
 
-                @Override
-                public long getSize() {
-                    return BASIC_PLAN_SIZE;
-                }
+        @Override
+        public long getSize() {
+            return BASIC_PLAN_SIZE;
+        }
 
-                @Override
-                public long getProjectCount() {
-                    return 5L;
-                }
+        @Override
+        public long getProjectCount() {
+            return 5L;
+        }
 
-                @Override
-                public long getUserCount() {
-                    return 30L;
-                }
+        @Override
+        public long getUserCount() {
+            return 30L;
+        }
 
-                @Override
-                public long getAttachmentCount() {
-                    return 10L;
-                }
+        @Override
+        public long getAttachmentCount() {
+            return 10L;
+        }
 
-                @Override
-                public long getAttachmentMaxSize() {
-                    return 10L * MEGA;
-                }
-            },
+        @Override
+        public long getAttachmentMaxSize() {
+            return 10L * MEGA;
+        }
+    },
     PREMIUM {
 
-                @Override
-                public long getSize() {
-                    return PREMIUM_PLAN_SIZE;
-                }
+        @Override
+        public long getSize() {
+            return PREMIUM_PLAN_SIZE;
+        }
 
-                @Override
-                public long getProjectCount() {
-                    return 100L;
-                }
+        @Override
+        public long getProjectCount() {
+            return 100L;
+        }
 
-                @Override
-                public long getUserCount() {
-                    // infinity
-                    return Long.MAX_VALUE;
-                }
+        @Override
+        public long getUserCount() {
+            // infinity
+            return Long.MAX_VALUE;
+        }
 
-                @Override
-                public long getAttachmentCount() {
-                    return 30L;
-                }
+        @Override
+        public long getAttachmentCount() {
+            return 30L;
+        }
 
-                @Override
-                public long getAttachmentMaxSize() {
-                    return 10L * MEGA;
-                }
-            },
+        @Override
+        public long getAttachmentMaxSize() {
+            return 10L * MEGA;
+        }
+    },
     MAX {
 
-                @Override
-                public long getSize() {
-                    return MAX_PLAN_SIZE;
-                }
+        @Override
+        public long getSize() {
+            return MAX_PLAN_SIZE;
+        }
 
-                @Override
-                public long getProjectCount() {
-                    // infinity
-                    return Long.MAX_VALUE;
-                }
+        @Override
+        public long getProjectCount() {
+            // infinity
+            return Long.MAX_VALUE;
+        }
 
-                @Override
-                public long getUserCount() {
-                    // infinity
-                    return Long.MAX_VALUE;
-                }
+        @Override
+        public long getUserCount() {
+            // infinity
+            return Long.MAX_VALUE;
+        }
 
-                @Override
-                public long getAttachmentCount() {
-                    return 50L;
-                }
+        @Override
+        public long getAttachmentCount() {
+            return 50L;
+        }
 
-                @Override
-                public long getAttachmentMaxSize() {
-                    return 10L * MEGA;
-                }
-            };
+        @Override
+        public long getAttachmentMaxSize() {
+            return 10L * MEGA;
+        }
+    };
 
     private static final long MEGA = 1024L * 1024L;
     private static final long GIGA = MEGA * 1024L;
