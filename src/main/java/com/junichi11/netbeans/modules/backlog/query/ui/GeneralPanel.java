@@ -302,7 +302,7 @@ public class GeneralPanel extends javax.swing.JPanel {
         return status;
     }
 
-    public List<PriorityType> getPriories() {
+    public List<PriorityType> getPriorities() {
         List<Priority> selectedValues = priorityList.getSelectedValuesList();
         if (selectedValues == null) {
             return Collections.emptyList();
