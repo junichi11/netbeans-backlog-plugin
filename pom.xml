@@ -157,7 +157,7 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.api.version>RELEASE82</netbeans.api.version>
+        <netbeans.api.version>RELEASE110</netbeans.api.version>
     </properties>
     <name>Backlog</name>
     <description>This plugin provides support for &lt;a href ="http://backlogtool.com/?lang=1"&gt;backlog&lt;/a&gt;.
