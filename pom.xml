@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-backlog-plugin</artifactId>
-    <version>0.7.0</version>
+    <version>0.8.0</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -157,7 +157,7 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.api.version>RELEASE82</netbeans.api.version>
+        <netbeans.api.version>RELEASE110</netbeans.api.version>
     </properties>
     <name>Backlog</name>
     <description>This plugin provides support for &lt;a href ="http://backlogtool.com/?lang=1"&gt;backlog&lt;/a&gt;.
