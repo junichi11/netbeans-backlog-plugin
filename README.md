@@ -50,7 +50,7 @@ If you don't want to use thses, you can disable these in Options (Tools > Option
 
 ## Donation
 
-<a href="https://www.patreon.com/junichi11"><img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" height="50"></a>
+- https://github.com/sponsors/junichi11
 
 ## License
 
