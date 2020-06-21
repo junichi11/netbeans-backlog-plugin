@@ -1,16 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.junichi11</groupId>
-    <artifactId>netbeans-backlog-plugin</artifactId>
-    <version>0.8.0</version>
+    <groupId>com.junichi11.netbeans.modules</groupId>
+    <artifactId>netbeans-backlog</artifactId>
+    <version>0.9.0</version>
     <packaging>nbm</packaging>
+    <name>Backlog Support</name>
+    <url>https://github.com/junichi11/netbeans-backlog-plugin</url>
+    <developers>
+        <developer>
+            <id>junichi11</id>
+            <name>Junichi Yamamoto</name>
+            <url>https://github.com/junichi11</url>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:https://github.com/junichi11/netbeans-backlog-plugin.git</connection>
+        <developerConnection>scm:git:https://github.com/junichi11/netbeans-backlog-plugin.git</developerConnection>
+        <url>https://github.com/junichi11/netbeans-backlog-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
+    <licenses>
+        <license>
+            <name>Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2</name>
+            <url>http://netbeans.org/cddl-gplv2.html</url>
+        </license>
+    </licenses>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>3.13</version>
+                <version>4.4</version>
                 <extensions>true</extensions>
                 <configuration>
                     <verifyRuntime>warn</verifyRuntime>
@@ -24,19 +56,35 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <version>3.2.0</version>
                 <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -50,6 +98,16 @@
             </snapshots>
         </repository>
     </repositories>
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -131,7 +189,7 @@
         <dependency>
             <groupId>com.nulab-inc</groupId>
             <artifactId>backlog4j</artifactId>
-            <version>2.3.1</version>
+            <version>2.3.3</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -158,8 +216,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.api.version>RELEASE110</netbeans.api.version>
+        <!-- deploy: mvn -Dgpg.skip=false deploy -->
+        <gpg.skip>true</gpg.skip>
     </properties>
-    <name>Backlog</name>
     <description>This plugin provides support for &lt;a href ="http://backlogtool.com/?lang=1"&gt;backlog&lt;/a&gt;.
 &lt;h2&gt;Features&lt;/h2&gt;
 &lt;ul&gt;
